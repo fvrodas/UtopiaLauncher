@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    tools:context="io.launcher.utopia.activities.SettingsActivity">
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/tbSettings"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:title="@string/settings_activity">
+    </android.support.v7.widget.Toolbar>
+
+    <android.support.design.widget.NavigationView
+        android:layout_below="@+id/tbSettings"
+        android:orientation="vertical"
+        app:menu="@menu/menu_settings"
+        android:id="@+id/nvSettingsContainer"
+        android:scrollbars="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+</RelativeLayout>

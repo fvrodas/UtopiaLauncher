@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Utopia Launcher</string>
+    <string name="settings_activity">Launcher Settings</string>
+</resources>
