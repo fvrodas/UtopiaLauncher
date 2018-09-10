@@ -2,7 +2,7 @@
 
 Just another Android launcher, made with simplicity in mind.
 
-It does't require any special permission.
+It doesn't require any special permission.
 
 ## Screenshots
 
