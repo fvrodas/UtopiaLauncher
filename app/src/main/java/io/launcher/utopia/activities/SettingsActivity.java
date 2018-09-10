@@ -1,7 +1,7 @@
 package io.launcher.utopia.activities;
 
 import android.content.Intent;
-import android.content.pm.PackageManager;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -11,9 +11,14 @@ import android.view.MenuItem;
 
 import io.launcher.utopia.R;
 import io.launcher.utopia.UtopiaLauncher;
+import io.launcher.utopia.dialogs.NumberPickerDialog;
+
+import static io.launcher.utopia.UtopiaLauncher.COLUMNS_SETTINGS;
 
 public class SettingsActivity extends AppCompatActivity {
+    public static final int REQUEST_SETTINGS = 111;
     private UtopiaLauncher app;
+    Intent intent = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +44,20 @@ public class SettingsActivity extends AppCompatActivity {
                     }
 
                     case R.id.action_columns : {
-
+                        int columns = app.launcherSettings.getInt(COLUMNS_SETTINGS, 4);
+                        NumberPickerDialog dlg = new NumberPickerDialog(
+                                SettingsActivity.this, columns) {
+                            @Override
+                            public void onOKPressed(int i) {
+                                SharedPreferences.Editor editor = app.launcherSettings.edit();
+                                editor.putInt(COLUMNS_SETTINGS, i);
+                                editor.commit();
+                                intent = new Intent();
+                                intent.putExtra(COLUMNS_SETTINGS, i);
+                            }
+                        };
+                        dlg.show();
+                        return true;
                     }
 
                 }
@@ -56,5 +74,15 @@ public class SettingsActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (intent != null) {
+            setResult(RESULT_OK, intent);
+        } else {
+            setResult(RESULT_CANCELED);
+        }
+        finish();
     }
 }

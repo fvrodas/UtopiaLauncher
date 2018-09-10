@@ -2,6 +2,7 @@ package io.launcher.utopia.activities;
 
 import android.animation.Animator;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
@@ -38,6 +39,9 @@ import io.launcher.utopia.utils.SimpleItemTouchHelperCallback;
 import io.launcher.utopia.utils.SpaceItemDecoration;
 import io.launcher.utopia.utils.Tools;
 
+import static io.launcher.utopia.UtopiaLauncher.COLUMNS_SETTINGS;
+import static io.launcher.utopia.activities.SettingsActivity.REQUEST_SETTINGS;
+
 public class AppsActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
     private PackageManager mPkgManager = null;
@@ -46,6 +50,7 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
     private ApplicationsAdapter adapter = null;
     private DisplayMetrics metrics = new DisplayMetrics();
     private View root;
+    private RecyclerView rvAppList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,12 +79,14 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
             });
         }
 
-        RecyclerView rvAppList = findViewById(R.id.rvAppList);
+        rvAppList = findViewById(R.id.rvAppList);
 
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
+        int columns = app.launcherSettings.getInt(COLUMNS_SETTINGS, 4);
+
         StaggeredGridLayoutManager layoutManager =
-                new StaggeredGridLayoutManager(4, StaggeredGridLayoutManager.VERTICAL);
+                new StaggeredGridLayoutManager(columns, StaggeredGridLayoutManager.VERTICAL);
         rvAppList.setLayoutManager(layoutManager);
 
         SearchView svSearch = findViewById(R.id.svSearch);
@@ -112,7 +119,7 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(AppsActivity.this, SettingsActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent, REQUEST_SETTINGS);
             }
         });
 
@@ -204,6 +211,18 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
     @Override
     public void onBackPressed() {
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK && requestCode == REQUEST_SETTINGS) {
+            int columns = app.launcherSettings.getInt(COLUMNS_SETTINGS, 4);
+
+            StaggeredGridLayoutManager layoutManager =
+                    new StaggeredGridLayoutManager(columns, StaggeredGridLayoutManager.VERTICAL);
+            rvAppList.setLayoutManager(layoutManager);
+        }
     }
 
     @NonNull

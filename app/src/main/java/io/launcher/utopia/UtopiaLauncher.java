@@ -11,6 +11,7 @@ import io.launcher.utopia.models.AppInfo;
  */
 
 public class UtopiaLauncher extends Application {
+    public static final String COLUMNS_SETTINGS = "columns";
     public SparseArray<AppInfo> applicationsInstalled = new SparseArray<>();
     public SharedPreferences launcherSettings;
 
