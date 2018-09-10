@@ -1,2 +1,5 @@
 # UtopiaLauncher
-Just another Android Launcher
+
+Just another Android launcher, made with simplicity in mind.
+
+
