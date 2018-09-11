@@ -14,13 +14,13 @@ public class AppInfo {
     public int bgColor;
     public int bgColorDark;
     public int textColor;
-    private Bitmap cachedImage = null;
+    private Drawable cachedDrawable = null;
 
-    public void setCachedImage(Bitmap cachedImage) {
-        this.cachedImage = cachedImage;
+    public void setCachedBackground(Drawable cachedImage) {
+        this.cachedDrawable = cachedImage;
     }
 
-    public Bitmap getCachedImage() {
-        return cachedImage;
+    public Drawable getCachedDrawable() {
+        return cachedDrawable;
     }
 }

@@ -24,17 +24,6 @@ public class Tools {
             return lum > 186 ? 0xFF000000 : 0xFFFFFFFF;
         }
 
-        public static int invertColor(int color) {
-            int red = Color.red(color);
-            int green = Color.green(color);
-            int blue = Color.blue(color);
-            int alpha = Color.alpha(color);
-            return Color.argb(alpha, 255-red, 255-green, 255-blue);
-        }
-    }
-
-    public static int dp2px(Context context, int dp){
-        return (int) ((dp * context.getResources().getDisplayMetrics().density) + 0.5f);
     }
 
     public static String BitMapToString(Bitmap bitmap){

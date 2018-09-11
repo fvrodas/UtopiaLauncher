@@ -8,11 +8,14 @@ import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.ColorUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
@@ -151,6 +154,7 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
                         }
                     });
                     apps.clear();
+                    Drawable bg = ContextCompat.getDrawable(AppsActivity.this, R.drawable.item_background);
                     for (int i = 0; i < available.size(); i++) {
                         if (!available.get(i).activityInfo.packageName.equals(getComponentName())) {
                             AppInfo appInfo = new AppInfo();
@@ -166,7 +170,10 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
                             appInfo.bgColor = dominant;
                             appInfo.bgColorDark = dark;
                             appInfo.textColor = Tools.ColorTools.getContrastColor(appInfo.bgColor);
+                            bg.setColorFilter(appInfo.bgColor, PorterDuff.Mode.SRC_IN);
+                            appInfo.setCachedBackground(createBackground(appInfo.bgColor, appInfo.bgColorDark));
                             apps.add(i, appInfo);
+                            bg.clearColorFilter();
                         }
                     }
 
@@ -232,6 +239,19 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
         drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
         drawable.draw(canvas);
         return bmp;
+    }
+
+    private static Drawable createBackground(int color, int dark) {
+        int[] colors = new int[2];
+        colors[0] = color;
+        colors[1] = dark;
+
+        GradientDrawable d = new GradientDrawable(GradientDrawable.Orientation.TL_BR, colors);
+        d.setGradientType(GradientDrawable.LINEAR_GRADIENT);
+        d.setShape(GradientDrawable.RECTANGLE);
+        d.setCornerRadius(8);
+
+        return d;
     }
 
 
