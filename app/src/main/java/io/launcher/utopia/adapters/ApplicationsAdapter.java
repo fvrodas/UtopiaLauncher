@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -68,7 +69,7 @@ public abstract class ApplicationsAdapter extends RecyclerView.Adapter<AppItemVi
         final AppInfo current = mItems.get(holder.getAdapterPosition());
 
         holder.ivicon.setImageDrawable(current.icon);
-        holder.tvappname.setText(current.label);
+        holder.tvappname.setText(current.label.toString().toUpperCase());
         holder.tvappname.setShadowLayer(5, 1, 1, Color.BLACK);
 
         holder.itemView.setBackground(current.getCachedDrawable());
@@ -109,6 +110,15 @@ public abstract class ApplicationsAdapter extends RecyclerView.Adapter<AppItemVi
         });
         spring.setEndValue(1);
 
+    }
+
+    @Override
+    public void onViewRecycled(@NonNull AppItemViewHolder holder) {
+        if (holder != null) {
+            holder.ivicon.setImageDrawable(null);
+            holder.tvappname.setText("");
+        }
+        super.onViewRecycled(holder);
     }
 
     protected abstract void onAppPressed(AppInfo app);

@@ -9,7 +9,7 @@
         android:layout_height="72dp"
         android:adjustViewBounds="true"
         android:layout_gravity="top|left"
-        android:alpha=".75"
+        android:alpha=".85"
         android:scaleType="fitCenter"/>
     <TextView
         android:layout_gravity="center_horizontal|bottom"
@@ -22,7 +22,6 @@
         android:gravity="center"
         android:visibility="visible"
         android:maxLines="3"
-        android:textAllCaps="true"
         android:ellipsize="end"
         android:textSize="12sp"
         android:fontFamily="sans-serif-condensed"

@@ -112,6 +112,8 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
         rvAppList.addItemDecoration(decoration);
         rvAppList.setAdapter(adapter);
 
+        rvAppList.setItemViewCacheSize(30);
+
         ItemTouchHelper.Callback callback =
                 new SimpleItemTouchHelperCallback(adapter);
         ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
@@ -154,7 +156,6 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
                         }
                     });
                     apps.clear();
-                    Drawable bg = ContextCompat.getDrawable(AppsActivity.this, R.drawable.item_background);
                     for (int i = 0; i < available.size(); i++) {
                         if (!available.get(i).activityInfo.packageName.equals(getComponentName())) {
                             AppInfo appInfo = new AppInfo();
@@ -170,10 +171,8 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
                             appInfo.bgColor = dominant;
                             appInfo.bgColorDark = dark;
                             appInfo.textColor = Tools.ColorTools.getContrastColor(appInfo.bgColor);
-                            bg.setColorFilter(appInfo.bgColor, PorterDuff.Mode.SRC_IN);
                             appInfo.setCachedBackground(createBackground(appInfo.bgColor, appInfo.bgColorDark));
                             apps.add(i, appInfo);
-                            bg.clearColorFilter();
                         }
                     }
 
@@ -234,11 +233,11 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
 
     @NonNull
     private Bitmap getBitmapFromDrawable(@NonNull Drawable drawable) {
-        final Bitmap bmp = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        final Bitmap bmp = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.RGB_565);
         final Canvas canvas = new Canvas(bmp);
         drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
         drawable.draw(canvas);
-        return bmp;
+        return Tools.compress(bmp, 70);
     }
 
     private static Drawable createBackground(int color, int dark) {
@@ -248,11 +247,10 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
 
         GradientDrawable d = new GradientDrawable(GradientDrawable.Orientation.TL_BR, colors);
         d.setGradientType(GradientDrawable.LINEAR_GRADIENT);
+        d.setSize(16, 16);
         d.setShape(GradientDrawable.RECTANGLE);
-        d.setCornerRadius(8);
-
+        d.setCornerRadius(6);
         return d;
     }
-
 
 }
