@@ -19,5 +19,7 @@ public class ApplicationsReceiver extends BroadcastReceiver {
         UtopiaLauncher app = (UtopiaLauncher) context.getApplicationContext();
 
         app.applicationsInstalled = new SparseArray<>();
+
+
     }
 }

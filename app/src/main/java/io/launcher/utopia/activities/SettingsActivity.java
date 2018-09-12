@@ -18,7 +18,7 @@ import static io.launcher.utopia.UtopiaLauncher.COLUMNS_SETTINGS;
 public class SettingsActivity extends AppCompatActivity {
     public static final int REQUEST_SETTINGS = 111;
     private UtopiaLauncher app;
-    Intent intent = null;
+    private Intent intent = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

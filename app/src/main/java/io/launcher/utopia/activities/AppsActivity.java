@@ -1,21 +1,17 @@
 package io.launcher.utopia.activities;
 
-import android.animation.Animator;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.ColorUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
@@ -27,7 +23,6 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.DisplayMetrics;
 import android.util.SparseArray;
 import android.view.View;
-import android.view.ViewAnimationUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,14 +41,20 @@ import static io.launcher.utopia.UtopiaLauncher.COLUMNS_SETTINGS;
 import static io.launcher.utopia.activities.SettingsActivity.REQUEST_SETTINGS;
 
 public class AppsActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
-
     private PackageManager mPkgManager = null;
     private ArrayList<AppInfo> apps = new ArrayList<>();
     private UtopiaLauncher app = null;
     private ApplicationsAdapter adapter = null;
     private DisplayMetrics metrics = new DisplayMetrics();
-    private View root;
     private RecyclerView rvAppList;
+    private BroadcastReceiver appsReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            app = (UtopiaLauncher) getApplication();
+            app.applicationsInstalled = new SparseArray<>();
+            loadApplications();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,26 +62,6 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
         setContentView(R.layout.activity_apps);
         mPkgManager = getPackageManager();
         app = (UtopiaLauncher) getApplication();
-
-        root = findViewById(R.id.rootView);
-        root.setVisibility(View.INVISIBLE);
-
-        if (Build.VERSION.SDK_INT >= 21) {
-            root.post(new Runnable() {
-                @Override
-                public void run() {
-                    if (Build.VERSION.SDK_INT >= 21) {
-                        int cx = root.getWidth();
-                        int cy = root.getHeight();
-                        float finalRadius = Math.max(root.getWidth(), root.getHeight());
-                        Animator circularReveal = ViewAnimationUtils.createCircularReveal(root, cx, cy, 0, finalRadius);
-                        circularReveal.setDuration(250);
-                        root.setVisibility(View.VISIBLE);
-                        circularReveal.start();
-                    }
-                }
-            });
-        }
 
         rvAppList = findViewById(R.id.rvAppList);
 

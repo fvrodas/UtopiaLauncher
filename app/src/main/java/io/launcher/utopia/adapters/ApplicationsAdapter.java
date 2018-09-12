@@ -2,20 +2,14 @@ package io.launcher.utopia.adapters;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
+import android.support.animation.DynamicAnimation;
+import android.support.animation.SpringAnimation;
+import android.support.animation.SpringForce;
 import android.support.annotation.NonNull;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import com.facebook.rebound.SimpleSpringListener;
-import com.facebook.rebound.Spring;
-import com.facebook.rebound.SpringConfig;
-import com.facebook.rebound.SpringSystem;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,7 +25,6 @@ import io.launcher.utopia.utils.ItemTouchHelperAdapter;
 public abstract class ApplicationsAdapter extends RecyclerView.Adapter<AppItemViewHolder> implements ItemTouchHelperAdapter {
     private Context mContext;
     private ArrayList<AppInfo> mItems;
-    SpringSystem springSystem = SpringSystem.create();
 
     @Override
     public boolean onItemMove(int fromPosition, int toPosition) {
@@ -58,14 +51,15 @@ public abstract class ApplicationsAdapter extends RecyclerView.Adapter<AppItemVi
         mItems = appInfos;
     }
 
+    @NonNull
     @Override
-    public AppItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public AppItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(mContext).inflate(R.layout.item_square, parent, false);
         return new AppItemViewHolder(v);
     }
 
     @Override
-    public void onBindViewHolder(final AppItemViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final AppItemViewHolder holder, int position) {
         final AppInfo current = mItems.get(holder.getAdapterPosition());
 
         holder.ivicon.setImageDrawable(current.icon);
@@ -77,6 +71,16 @@ public abstract class ApplicationsAdapter extends RecyclerView.Adapter<AppItemVi
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                final SpringAnimation springAnimX = new SpringAnimation(view, DynamicAnimation.SCALE_X, 1f);
+                springAnimX.setMaxValue(1.1f);
+                springAnimX.setMinValue(0.5f);
+                springAnimX.getSpring().setDampingRatio(SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
+                final SpringAnimation springAnimY = new SpringAnimation(view, DynamicAnimation.SCALE_Y, 1f);
+                springAnimY.setMaxValue(1.1f);
+                springAnimY.setMinValue(0.5f);
+                springAnimY.getSpring().setDampingRatio(SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
+                springAnimY.start();
+                springAnimX.start();
                 onAppPressed(mItems.get(holder.getAdapterPosition()));
             }
         });
@@ -85,39 +89,16 @@ public abstract class ApplicationsAdapter extends RecyclerView.Adapter<AppItemVi
             @Override
             public boolean onLongClick(final View view) {
                 onAppLongPressed(mItems.get(holder.getAdapterPosition()));
-                return false;
+                return true;
             }
         });
-
-        Spring spring;
-        if (holder.itemView.getTag() != null) {
-            spring = (Spring) holder.itemView.getTag();
-        } else {
-            spring = springSystem.createSpring();
-            holder.itemView.setTag(spring);
-        }
-
-        spring.setSpringConfig(new SpringConfig(250, 10));
-        spring.setCurrentValue(0.5f);
-        spring.addListener(new SimpleSpringListener() {
-
-            @Override
-            public void onSpringUpdate(Spring spring) {
-                float value = (float) spring.getCurrentValue();
-                holder.itemView.setScaleX(value);
-                holder.itemView.setScaleY(value);
-            }
-        });
-        spring.setEndValue(1);
 
     }
 
     @Override
     public void onViewRecycled(@NonNull AppItemViewHolder holder) {
-        if (holder != null) {
-            holder.ivicon.setImageDrawable(null);
-            holder.tvappname.setText("");
-        }
+        holder.ivicon.setImageDrawable(null);
+        holder.tvappname.setText("");
         super.onViewRecycled(holder);
     }
 

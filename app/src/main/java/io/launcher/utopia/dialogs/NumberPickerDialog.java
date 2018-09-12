@@ -14,7 +14,7 @@ import android.widget.NumberPicker;
 import io.launcher.utopia.R;
 
 public abstract class NumberPickerDialog extends AlertDialog {
-    int defaultValue = 4;
+    private int defaultValue;
 
     public NumberPickerDialog(@NonNull Context context, int defaultValue) {
         super(context);
@@ -45,5 +45,5 @@ public abstract class NumberPickerDialog extends AlertDialog {
 
     }
 
-    public abstract void onOKPressed(int i);
+    protected abstract void onOKPressed(int i);
 }

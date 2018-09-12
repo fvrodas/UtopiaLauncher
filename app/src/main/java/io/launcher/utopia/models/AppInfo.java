@@ -1,6 +1,5 @@
 package io.launcher.utopia.models;
 
-import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 
 /**
