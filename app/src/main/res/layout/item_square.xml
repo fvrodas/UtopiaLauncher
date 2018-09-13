@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="72dp"
         android:padding="4dp"
-        android:alpha=".85"
+        android:alpha="1"
         android:scaleType="fitCenter"/>
     <TextView
         android:paddingLeft="4dp"

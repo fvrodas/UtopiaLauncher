@@ -142,16 +142,11 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
                         appInfo.label = available.get(i).loadLabel(mPkgManager);
                         appInfo.name = available.get(i).activityInfo.packageName;
                         appInfo.icon = available.get(i).loadIcon(mPkgManager);
-                        Palette p = Palette.from((getBitmapFromDrawable(appInfo.icon))).generate();
-                        int dominant = p.getLightVibrantColor(Color.LTGRAY);
-                        float hsl[] = new float[3];
-                        ColorUtils.colorToHSL(dominant, hsl);
-                        hsl[2] = 0.5f;
-                        int dark = p.getDarkVibrantColor(ColorUtils.HSLToColor(hsl));
-                        appInfo.bgColor = dominant;
-                        appInfo.bgColorDark = dark;
+                        int colors[] = getColorsFromBitmap(appInfo.icon);
+                        appInfo.bgColor = colors[0];
+                        appInfo.bgColorDark = colors[1];
                         appInfo.textColor = Tools.ColorTools.getContrastColor(appInfo.bgColor);
-                        appInfo.setCachedBackground(createBackground(appInfo.bgColor, appInfo.bgColorDark));
+                        appInfo.setCachedBackground(createBackground(colors));
                         apps.add(appInfo);
                     }
 
@@ -225,16 +220,38 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
         return Tools.compress(bmp, 70);
     }
 
-    private static Drawable createBackground(int color, int dark) {
+    private int[] getColorsFromBitmap(Drawable icon) {
         int[] colors = new int[2];
-        colors[0] = color;
-        colors[1] = dark;
+        Palette p = Palette.from((getBitmapFromDrawable(icon))).generate();
 
-        GradientDrawable d = new GradientDrawable(GradientDrawable.Orientation.TL_BR, colors);
+        if (p.getVibrantSwatch() != null) {
+            colors[0] = p.getVibrantSwatch().getRgb();
+        } else if (p.getMutedSwatch() != null) {
+            colors[0] = p.getMutedSwatch().getRgb();
+        } else {
+            colors[0] = Color.LTGRAY;
+        }
+
+        float[] hsl1 = new float[3];
+        ColorUtils.colorToHSL(colors[0], hsl1);
+        hsl1[2] = 0.7f;
+        colors[0] = ColorUtils.HSLToColor(hsl1);
+
+        float[] hsl = new float[3];
+        ColorUtils.colorToHSL(colors[0], hsl);
+//        hsl[1] = .3f;
+        hsl[2] = .35f;
+        colors[1] = ColorUtils.HSLToColor(hsl);
+
+        return colors;
+    }
+
+    private static Drawable createBackground(int[] colors) {
+        GradientDrawable d = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, colors);
         d.setGradientType(GradientDrawable.LINEAR_GRADIENT);
         d.setSize(16, 16);
         d.setShape(GradientDrawable.RECTANGLE);
-        d.setCornerRadius(6);
+        d.setCornerRadius(8);
         return d;
     }
 
