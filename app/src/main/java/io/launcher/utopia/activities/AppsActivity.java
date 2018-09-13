@@ -117,7 +117,7 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
         if(app.applicationsInstalled.size() > 0) {
             apps.clear();
             for (int i = 0; i < app.applicationsInstalled.size(); i++) {
-                apps.add(i, app.applicationsInstalled.valueAt(i));
+                apps.add(app.applicationsInstalled.valueAt(i));
             }
             adapter.notifyDataSetChanged();
         } else {
@@ -152,7 +152,7 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
                         appInfo.bgColorDark = dark;
                         appInfo.textColor = Tools.ColorTools.getContrastColor(appInfo.bgColor);
                         appInfo.setCachedBackground(createBackground(appInfo.bgColor, appInfo.bgColorDark));
-                        apps.add(i, appInfo);
+                        apps.add(appInfo);
                     }
 
                     for (int i = 0; i < apps.size(); i++) {
@@ -187,7 +187,7 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
         }
         apps.clear();
         for(int i = 0; i < temp.size(); i++) {
-            apps.add(i, temp.valueAt(i));
+            apps.add(temp.valueAt(i));
         }
         adapter.notifyDataSetChanged();
         return true;
