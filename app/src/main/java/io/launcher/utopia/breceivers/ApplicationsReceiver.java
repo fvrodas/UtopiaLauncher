@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.util.SparseArray;
 
 import io.launcher.utopia.UtopiaLauncher;
+import io.launcher.utopia.activities.AppsActivity;
 
 /**
  * Created by fernando on 10/29/17.
@@ -20,6 +21,7 @@ public class ApplicationsReceiver extends BroadcastReceiver {
 
         app.applicationsInstalled = new SparseArray<>();
 
-
+        Intent i = new Intent(context, AppsActivity.class);
+        context.startActivity(i);
     }
 }

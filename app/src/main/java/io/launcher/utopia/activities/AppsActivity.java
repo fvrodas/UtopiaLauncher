@@ -63,7 +63,7 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
         mPkgManager = getPackageManager();
         app = (UtopiaLauncher) getApplication();
 
-        rvAppList = findViewById(R.id.rvAppList);
+        rvAppList = (RecyclerView) findViewById(R.id.rvAppList);
 
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
@@ -73,7 +73,7 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
                 new StaggeredGridLayoutManager(columns, StaggeredGridLayoutManager.VERTICAL);
         rvAppList.setLayoutManager(layoutManager);
 
-        SearchView svSearch = findViewById(R.id.svSearch);
+        SearchView svSearch = (SearchView) findViewById(R.id.svSearch);
 
         svSearch.setOnQueryTextListener(this);
 
@@ -100,7 +100,7 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
         ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
         touchHelper.attachToRecyclerView(rvAppList);
 
-        AppCompatImageView ivsettings = findViewById(R.id.ivSettings);
+        AppCompatImageView ivsettings = (AppCompatImageView) findViewById(R.id.ivSettings);
         ivsettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -138,23 +138,21 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
                     });
                     apps.clear();
                     for (int i = 0; i < available.size(); i++) {
-                        if (!available.get(i).activityInfo.packageName.equals(getComponentName())) {
-                            AppInfo appInfo = new AppInfo();
-                            appInfo.label = available.get(i).loadLabel(mPkgManager);
-                            appInfo.name = available.get(i).activityInfo.packageName;
-                            appInfo.icon = available.get(i).loadIcon(mPkgManager);
-                            Palette p = Palette.from((getBitmapFromDrawable(appInfo.icon))).generate();
-                            int dominant = p.getLightVibrantColor(Color.LTGRAY);
-                            float hsl[] = new float[3];
-                            ColorUtils.colorToHSL(dominant, hsl);
-                            hsl[2] = 0.5f;
-                            int dark = p.getDarkVibrantColor(ColorUtils.HSLToColor(hsl));
-                            appInfo.bgColor = dominant;
-                            appInfo.bgColorDark = dark;
-                            appInfo.textColor = Tools.ColorTools.getContrastColor(appInfo.bgColor);
-                            appInfo.setCachedBackground(createBackground(appInfo.bgColor, appInfo.bgColorDark));
-                            apps.add(i, appInfo);
-                        }
+                        AppInfo appInfo = new AppInfo();
+                        appInfo.label = available.get(i).loadLabel(mPkgManager);
+                        appInfo.name = available.get(i).activityInfo.packageName;
+                        appInfo.icon = available.get(i).loadIcon(mPkgManager);
+                        Palette p = Palette.from((getBitmapFromDrawable(appInfo.icon))).generate();
+                        int dominant = p.getLightVibrantColor(Color.LTGRAY);
+                        float hsl[] = new float[3];
+                        ColorUtils.colorToHSL(dominant, hsl);
+                        hsl[2] = 0.5f;
+                        int dark = p.getDarkVibrantColor(ColorUtils.HSLToColor(hsl));
+                        appInfo.bgColor = dominant;
+                        appInfo.bgColorDark = dark;
+                        appInfo.textColor = Tools.ColorTools.getContrastColor(appInfo.bgColor);
+                        appInfo.setCachedBackground(createBackground(appInfo.bgColor, appInfo.bgColorDark));
+                        apps.add(i, appInfo);
                     }
 
                     for (int i = 0; i < apps.size(); i++) {
@@ -198,6 +196,12 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
     @Override
     public void onBackPressed() {
 
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        loadApplications();
     }
 
     @Override

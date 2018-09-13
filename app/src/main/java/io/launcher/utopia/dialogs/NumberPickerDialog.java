@@ -28,11 +28,11 @@ public abstract class NumberPickerDialog extends AlertDialog {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.dialog_number_picker);
-        final NumberPicker npColumns = findViewById(R.id.npColumns);
+        final NumberPicker npColumns = (NumberPicker) findViewById(R.id.npColumns);
         npColumns.setMinValue(3);
         npColumns.setMaxValue(5);
 
-        Button btOK = findViewById(R.id.btOK);
+        Button btOK = (Button) findViewById(R.id.btOK);
         btOK.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

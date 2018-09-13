@@ -26,12 +26,12 @@ public class SettingsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_settings);
         app = (UtopiaLauncher) getApplication();
 
-        Toolbar tbSettings = findViewById(R.id.tbSettings);
+        Toolbar tbSettings = (Toolbar) findViewById(R.id.tbSettings);
         setSupportActionBar(tbSettings);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        NavigationView nvSettingsContainer = findViewById(R.id.nvSettingsContainer);
+        NavigationView nvSettingsContainer = (NavigationView) findViewById(R.id.nvSettingsContainer);
 
         nvSettingsContainer.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override

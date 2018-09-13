@@ -2,9 +2,6 @@ package io.launcher.utopia.adapters;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.support.animation.DynamicAnimation;
-import android.support.animation.SpringAnimation;
-import android.support.animation.SpringForce;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -61,26 +58,16 @@ public abstract class ApplicationsAdapter extends RecyclerView.Adapter<AppItemVi
     @Override
     public void onBindViewHolder(@NonNull final AppItemViewHolder holder, int position) {
         final AppInfo current = mItems.get(holder.getAdapterPosition());
-
         holder.ivicon.setImageDrawable(current.icon);
+        holder.itemView.setBackground(current.getCachedDrawable());
+
         holder.tvappname.setText(current.label.toString().toUpperCase());
         holder.tvappname.setShadowLayer(5, 1, 1, Color.BLACK);
 
-        holder.itemView.setBackground(current.getCachedDrawable());
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final SpringAnimation springAnimX = new SpringAnimation(view, DynamicAnimation.SCALE_X, 1f);
-                springAnimX.setMaxValue(1.1f);
-                springAnimX.setMinValue(0.5f);
-                springAnimX.getSpring().setDampingRatio(SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
-                final SpringAnimation springAnimY = new SpringAnimation(view, DynamicAnimation.SCALE_Y, 1f);
-                springAnimY.setMaxValue(1.1f);
-                springAnimY.setMinValue(0.5f);
-                springAnimY.getSpring().setDampingRatio(SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
-                springAnimY.start();
-                springAnimX.start();
                 onAppPressed(mItems.get(holder.getAdapterPosition()));
             }
         });

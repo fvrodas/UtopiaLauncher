@@ -14,7 +14,6 @@ import java.io.ByteArrayOutputStream;
 public class Tools {
 
     public static class ColorTools {
-
         public static int getContrastColor(int colorIntValue) {
             int red = Color.red(colorIntValue);
             int green = Color.green(colorIntValue);
@@ -22,14 +21,6 @@ public class Tools {
             double lum = (((0.299 * red) + ((0.587 * green) + (0.114 * blue))));
             return lum > 186 ? 0xFF000000 : 0xFFFFFFFF;
         }
-
-    }
-
-    public static String BitMapToString(Bitmap bitmap){
-        ByteArrayOutputStream baos= new  ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG,100, baos);
-        byte [] b=baos.toByteArray();
-        return Base64.encodeToString(b, Base64.DEFAULT);
     }
 
     public static Bitmap compress(Bitmap bitmap, int quality){
@@ -37,15 +28,5 @@ public class Tools {
         bitmap.compress(Bitmap.CompressFormat.WEBP, quality, baos);
         byte [] b=baos.toByteArray();
         return BitmapFactory.decodeByteArray(b, 0, b.length);
-    }
-
-    public static Bitmap StringToBitMap(String encodedString){
-        try {
-            byte [] encodeByte=Base64.decode(encodedString,Base64.DEFAULT);
-            return BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
-        } catch(Exception e) {
-            e.getMessage();
-            return null;
-        }
     }
 }

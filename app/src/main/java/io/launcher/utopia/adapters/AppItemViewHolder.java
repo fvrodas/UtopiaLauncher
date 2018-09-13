@@ -17,8 +17,8 @@ class AppItemViewHolder extends RecyclerView.ViewHolder {
 
     public AppItemViewHolder(View itemView) {
         super(itemView);
-        ivicon = itemView.findViewById(R.id.ivIcon);
-        tvappname = itemView.findViewById(R.id.tvAppName);
+        ivicon = (ImageView) itemView.findViewById(R.id.ivIcon);
+        tvappname = (TextView) itemView.findViewById(R.id.tvAppName);
     }
 
 
