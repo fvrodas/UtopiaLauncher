@@ -1,8 +1,13 @@
 package io.launcher.utopia.adapters;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
+import android.support.v4.util.LruCache;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,18 +15,30 @@ import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import io.launcher.utopia.R;
 import io.launcher.utopia.models.AppInfo;
 import io.launcher.utopia.utils.ItemTouchHelperAdapter;
+import io.launcher.utopia.utils.Tools;
 
 /**
  * Created by fernando on 10/15/17.
  */
 
-public abstract class ApplicationsAdapter extends RecyclerView.Adapter<AppItemViewHolder> implements ItemTouchHelperAdapter {
+public abstract class ResolveInfoAdapter extends RecyclerView.Adapter<AppItemViewHolder> implements ItemTouchHelperAdapter {
+    final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+    final int cacheSize = 16 * 1024 * 1024;
     private Context mContext;
-    private ArrayList<AppInfo> mItems;
+    private ArrayList<ResolveInfo> mItems;
+    private PackageManager mPkgManager;
+    public LruCache<String, Bitmap> iconsCache = new LruCache<String, Bitmap>(cacheSize) {
+        @Override
+        protected int sizeOf(String key, Bitmap value) {
+            return value.getByteCount();
+        }
+    };
+    public LruCache<String, Drawable> bgCache = new LruCache<String, Drawable>(cacheSize);
 
     @Override
     public boolean onItemMove(int fromPosition, int toPosition) {
@@ -43,9 +60,10 @@ public abstract class ApplicationsAdapter extends RecyclerView.Adapter<AppItemVi
 
     }
 
-    protected ApplicationsAdapter(Context c, ArrayList<AppInfo> appInfos) {
+    protected ResolveInfoAdapter(Context c, ArrayList<ResolveInfo> appInfos, PackageManager pm) {
         mContext = c;
         mItems = appInfos;
+        mPkgManager = pm;
     }
 
     @NonNull
@@ -57,18 +75,26 @@ public abstract class ApplicationsAdapter extends RecyclerView.Adapter<AppItemVi
 
     @Override
     public void onBindViewHolder(@NonNull final AppItemViewHolder holder, int position) {
-        final AppInfo current = mItems.get(holder.getAdapterPosition());
-        holder.ivicon.setImageDrawable(current.icon);
-        holder.itemView.setBackground(current.getCachedDrawable());
+        final ResolveInfo current = mItems.get(holder.getAdapterPosition());
+        final String packageName = current.activityInfo.packageName;
+        final String label = current.loadLabel(mPkgManager).toString();
 
-        holder.tvappname.setText(current.label.toString().toUpperCase());
+        if (iconsCache.get(packageName) != null) {
+            holder.ivicon.setImageBitmap(iconsCache.get(packageName));
+        }
+
+        if (bgCache.get(packageName) != null ){
+            holder.itemView.setBackground(bgCache.get(packageName));
+        }
+
+        holder.tvappname.setText(label.toUpperCase());
         holder.tvappname.setShadowLayer(5, 1, 1, Color.BLACK);
 
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onAppPressed(mItems.get(holder.getAdapterPosition()));
+                onAppPressed(current);
             }
         });
 
@@ -89,8 +115,8 @@ public abstract class ApplicationsAdapter extends RecyclerView.Adapter<AppItemVi
         super.onViewRecycled(holder);
     }
 
-    protected abstract void onAppPressed(AppInfo app);
-    protected abstract void onAppLongPressed(AppInfo app);
+    protected abstract void onAppPressed(ResolveInfo app);
+    protected abstract void onAppLongPressed(ResolveInfo app);
 
     @Override
     public int getItemCount() {

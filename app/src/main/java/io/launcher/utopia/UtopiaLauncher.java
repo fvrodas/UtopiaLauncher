@@ -2,7 +2,13 @@ package io.launcher.utopia;
 
 import android.app.Application;
 import android.content.SharedPreferences;
+import android.content.pm.ResolveInfo;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
+import android.support.v4.util.LruCache;
 import android.util.SparseArray;
+
+import java.util.ArrayList;
 
 import io.launcher.utopia.models.AppInfo;
 
@@ -12,7 +18,7 @@ import io.launcher.utopia.models.AppInfo;
 
 public class UtopiaLauncher extends Application {
     public static final String COLUMNS_SETTINGS = "columns";
-    public SparseArray<AppInfo> applicationsInstalled = new SparseArray<>();
+    public ArrayList<ResolveInfo> applicationsInstalled = new ArrayList<>();
     public SharedPreferences launcherSettings;
 
     @Override
