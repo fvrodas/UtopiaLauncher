@@ -221,27 +221,37 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
     }
 
     private int[] getColorsFromBitmap(Drawable icon) {
-        int[] colors = new int[2];
+        int[] colors = new int[3];
         Palette p = Palette.from((getBitmapFromDrawable(icon))).generate();
-
+        int color;
         if (p.getVibrantSwatch() != null) {
-            colors[0] = p.getVibrantSwatch().getRgb();
-        } else if (p.getMutedSwatch() != null) {
-            colors[0] = p.getMutedSwatch().getRgb();
+            color = p.getVibrantSwatch().getRgb();
+        } else if (p.getLightVibrantSwatch() != null) {
+            color = p.getLightVibrantSwatch().getRgb();
         } else {
-            colors[0] = Color.LTGRAY;
+            color = Color.LTGRAY;
         }
 
         float[] hsl1 = new float[3];
-        ColorUtils.colorToHSL(colors[0], hsl1);
-        hsl1[2] = 0.7f;
+        ColorUtils.colorToHSL(color, hsl1);
+        hsl1[0] = hsl1[0] * 0.85f;
+        hsl1[1] = hsl1[1] * 0.6f;
+        hsl1[2] = .8f;
         colors[0] = ColorUtils.HSLToColor(hsl1);
 
         float[] hsl = new float[3];
-        ColorUtils.colorToHSL(colors[0], hsl);
-//        hsl[1] = .3f;
-        hsl[2] = .35f;
+        ColorUtils.colorToHSL(color, hsl);
+        hsl[0] = hsl[0];
+        hsl[1] = hsl[1] * 0.7f;
+        hsl[2] = .5f;
         colors[1] = ColorUtils.HSLToColor(hsl);
+
+        float[] hsl2 = new float[3];
+        ColorUtils.colorToHSL(color, hsl2);
+        hsl2[0] = hsl2[0] * 1.1f;
+        hsl2[1] = hsl2[1] * 0.8f;
+        hsl2[2] = .3f;
+        colors[2] = ColorUtils.HSLToColor(hsl2);
 
         return colors;
     }
