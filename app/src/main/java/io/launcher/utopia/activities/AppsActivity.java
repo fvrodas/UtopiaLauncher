@@ -1,16 +1,15 @@
 package io.launcher.utopia.activities;
 
-import android.animation.Animator;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.graphics.ColorUtils;
@@ -24,7 +23,6 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.DisplayMetrics;
 import android.util.SparseArray;
 import android.view.View;
-import android.view.ViewAnimationUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,14 +41,20 @@ import static io.launcher.utopia.UtopiaLauncher.COLUMNS_SETTINGS;
 import static io.launcher.utopia.activities.SettingsActivity.REQUEST_SETTINGS;
 
 public class AppsActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
-
     private PackageManager mPkgManager = null;
     private ArrayList<AppInfo> apps = new ArrayList<>();
     private UtopiaLauncher app = null;
     private ApplicationsAdapter adapter = null;
     private DisplayMetrics metrics = new DisplayMetrics();
-    private View root;
     private RecyclerView rvAppList;
+    private BroadcastReceiver appsReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            app = (UtopiaLauncher) getApplication();
+            app.applicationsInstalled = new SparseArray<>();
+            loadApplications();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,27 +63,7 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
         mPkgManager = getPackageManager();
         app = (UtopiaLauncher) getApplication();
 
-        root = findViewById(R.id.rootView);
-        root.setVisibility(View.INVISIBLE);
-
-        if (Build.VERSION.SDK_INT >= 21) {
-            root.post(new Runnable() {
-                @Override
-                public void run() {
-                    if (Build.VERSION.SDK_INT >= 21) {
-                        int cx = root.getWidth();
-                        int cy = root.getHeight();
-                        float finalRadius = Math.max(root.getWidth(), root.getHeight());
-                        Animator circularReveal = ViewAnimationUtils.createCircularReveal(root, cx, cy, 0, finalRadius);
-                        circularReveal.setDuration(250);
-                        root.setVisibility(View.VISIBLE);
-                        circularReveal.start();
-                    }
-                }
-            });
-        }
-
-        rvAppList = findViewById(R.id.rvAppList);
+        rvAppList = (RecyclerView) findViewById(R.id.rvAppList);
 
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
@@ -89,7 +73,7 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
                 new StaggeredGridLayoutManager(columns, StaggeredGridLayoutManager.VERTICAL);
         rvAppList.setLayoutManager(layoutManager);
 
-        SearchView svSearch = findViewById(R.id.svSearch);
+        SearchView svSearch = (SearchView) findViewById(R.id.svSearch);
 
         svSearch.setOnQueryTextListener(this);
 
@@ -109,12 +93,14 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
         rvAppList.addItemDecoration(decoration);
         rvAppList.setAdapter(adapter);
 
+        rvAppList.setItemViewCacheSize(30);
+
         ItemTouchHelper.Callback callback =
                 new SimpleItemTouchHelperCallback(adapter);
         ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
         touchHelper.attachToRecyclerView(rvAppList);
 
-        AppCompatImageView ivsettings = findViewById(R.id.ivSettings);
+        AppCompatImageView ivsettings = (AppCompatImageView) findViewById(R.id.ivSettings);
         ivsettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -131,7 +117,7 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
         if(app.applicationsInstalled.size() > 0) {
             apps.clear();
             for (int i = 0; i < app.applicationsInstalled.size(); i++) {
-                apps.add(i, app.applicationsInstalled.valueAt(i));
+                apps.add(app.applicationsInstalled.valueAt(i));
             }
             adapter.notifyDataSetChanged();
         } else {
@@ -152,22 +138,16 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
                     });
                     apps.clear();
                     for (int i = 0; i < available.size(); i++) {
-                        if (!available.get(i).activityInfo.packageName.equals(getComponentName())) {
-                            AppInfo appInfo = new AppInfo();
-                            appInfo.label = available.get(i).loadLabel(mPkgManager);
-                            appInfo.name = available.get(i).activityInfo.packageName;
-                            appInfo.icon = available.get(i).loadIcon(mPkgManager);
-                            Palette p = Palette.from((getBitmapFromDrawable(appInfo.icon))).generate();
-                            int dominant = p.getLightVibrantColor(Color.LTGRAY);
-                            float hsl[] = new float[3];
-                            ColorUtils.colorToHSL(dominant, hsl);
-                            hsl[2] = 0.5f;
-                            int dark = p.getDarkVibrantColor(ColorUtils.HSLToColor(hsl));
-                            appInfo.bgColor = dominant;
-                            appInfo.bgColorDark = dark;
-                            appInfo.textColor = Tools.ColorTools.getContrastColor(appInfo.bgColor);
-                            apps.add(i, appInfo);
-                        }
+                        AppInfo appInfo = new AppInfo();
+                        appInfo.label = available.get(i).loadLabel(mPkgManager);
+                        appInfo.name = available.get(i).activityInfo.packageName;
+                        appInfo.icon = available.get(i).loadIcon(mPkgManager);
+                        int colors[] = getColorsFromBitmap(appInfo.icon);
+                        appInfo.bgColor = colors[0];
+                        appInfo.bgColorDark = colors[1];
+                        appInfo.textColor = Tools.ColorTools.getContrastColor(appInfo.bgColor);
+                        appInfo.setCachedBackground(createBackground(colors));
+                        apps.add(appInfo);
                     }
 
                     for (int i = 0; i < apps.size(); i++) {
@@ -202,7 +182,7 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
         }
         apps.clear();
         for(int i = 0; i < temp.size(); i++) {
-            apps.add(i, temp.valueAt(i));
+            apps.add(temp.valueAt(i));
         }
         adapter.notifyDataSetChanged();
         return true;
@@ -211,6 +191,12 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
     @Override
     public void onBackPressed() {
 
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        loadApplications();
     }
 
     @Override
@@ -227,12 +213,56 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
 
     @NonNull
     private Bitmap getBitmapFromDrawable(@NonNull Drawable drawable) {
-        final Bitmap bmp = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        final Bitmap bmp = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.RGB_565);
         final Canvas canvas = new Canvas(bmp);
         drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
         drawable.draw(canvas);
-        return bmp;
+        return Tools.compress(bmp, 70);
     }
 
+    private int[] getColorsFromBitmap(Drawable icon) {
+        int[] colors = new int[3];
+        Palette p = Palette.from((getBitmapFromDrawable(icon))).generate();
+        int color;
+        if (p.getVibrantSwatch() != null) {
+            color = p.getVibrantSwatch().getRgb();
+        } else if (p.getLightVibrantSwatch() != null) {
+            color = p.getLightVibrantSwatch().getRgb();
+        } else {
+            color = Color.LTGRAY;
+        }
+
+        float[] hsl1 = new float[3];
+        ColorUtils.colorToHSL(color, hsl1);
+        hsl1[0] = hsl1[0] * 0.85f;
+        hsl1[1] = hsl1[1] * 0.6f;
+        hsl1[2] = .8f;
+        colors[0] = ColorUtils.HSLToColor(hsl1);
+
+        float[] hsl = new float[3];
+        ColorUtils.colorToHSL(color, hsl);
+        hsl[0] = hsl[0];
+        hsl[1] = hsl[1] * 0.7f;
+        hsl[2] = .5f;
+        colors[1] = ColorUtils.HSLToColor(hsl);
+
+        float[] hsl2 = new float[3];
+        ColorUtils.colorToHSL(color, hsl2);
+        hsl2[0] = hsl2[0] * 1.1f;
+        hsl2[1] = hsl2[1] * 0.8f;
+        hsl2[2] = .3f;
+        colors[2] = ColorUtils.HSLToColor(hsl2);
+
+        return colors;
+    }
+
+    private static Drawable createBackground(int[] colors) {
+        GradientDrawable d = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, colors);
+        d.setGradientType(GradientDrawable.LINEAR_GRADIENT);
+        d.setSize(16, 16);
+        d.setShape(GradientDrawable.RECTANGLE);
+        d.setCornerRadius(8);
+        return d;
+    }
 
 }

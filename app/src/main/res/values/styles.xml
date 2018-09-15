@@ -11,7 +11,4 @@
         <item name="android:windowBackground">@android:color/white</item>
     </style>
 
-    <style name="AppTheme.Dialog">
-        <item name="windowNoTitle">true</item>
-    </style>
 </resources>

@@ -41,7 +41,6 @@
             android:gravity="end"
             android:orientation="horizontal">
             <android.support.v7.widget.AppCompatImageView
-                android:id="@+id/ivSort"
                 android:visibility="invisible"
                 android:layout_margin="8dp"
                 android:layout_width="36dp"
