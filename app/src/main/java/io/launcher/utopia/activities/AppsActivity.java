@@ -1,22 +1,26 @@
 package io.launcher.utopia.activities;
 
 import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.content.LocalBroadcastManager;
+import android.support.design.widget.NavigationView;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatImageView;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.DisplayMetrics;
+import android.view.MenuItem;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -26,6 +30,7 @@ import java.util.Comparator;
 import io.launcher.utopia.R;
 import io.launcher.utopia.UtopiaLauncher;
 import io.launcher.utopia.adapters.ResolveInfoAdapter;
+import io.launcher.utopia.adapters.ResolveInfoDockAdapter;
 import io.launcher.utopia.utils.SimpleItemTouchHelperCallback;
 import io.launcher.utopia.utils.SpaceItemDecoration;
 import io.launcher.utopia.utils.Tools;
@@ -36,10 +41,14 @@ import static io.launcher.utopia.activities.SettingsActivity.REQUEST_SETTINGS;
 public class AppsActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
     private PackageManager mPkgManager = null;
     private ArrayList<ResolveInfo> apps = new ArrayList<>();
+    private ArrayList<ResolveInfo> docked = new ArrayList<>();
     private UtopiaLauncher app = null;
     private ResolveInfoAdapter adapter = null;
+    private ResolveInfoDockAdapter dockAdapter = null;
     private DisplayMetrics metrics = new DisplayMetrics();
     private RecyclerView rvAppList;
+    public static Intent lastIntent = null;
+    private DrawerLayout mDrawerLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +58,10 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
         app = (UtopiaLauncher) getApplication();
 
         rvAppList = (RecyclerView) findViewById(R.id.rvAppList);
+
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+
+        initDock();
 
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
@@ -70,8 +83,27 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
             }
 
             @Override
-            public void onAppLongPressed(ResolveInfo app) {
-
+            public void onAppLongPressed(final ResolveInfo app) {
+                AlertDialog.Builder b = new AlertDialog.Builder(AppsActivity.this);
+                b.setTitle(app.loadLabel(mPkgManager).toString());
+                b.setMessage("What do you want to do?");
+                b.setNegativeButton("UNINSTALL", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Uri packageUri = Uri.parse("package:" + app.activityInfo.packageName);
+                        Intent uninstallIntent =
+                                new Intent(Build.VERSION.SDK_INT > 19? Intent.ACTION_DELETE :Intent.ACTION_UNINSTALL_PACKAGE, packageUri);
+                        startActivity(uninstallIntent);
+                    }
+                });
+                b.setPositiveButton("ADD TO DOCK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        docked.add(app);
+                        dockAdapter.notifyItemInserted(dockAdapter.getItemCount() - 1);
+                    }
+                });
+                b.show();
             }
         };
         SpaceItemDecoration decoration = new SpaceItemDecoration(16);
@@ -79,11 +111,6 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
         rvAppList.setAdapter(adapter);
 
         rvAppList.setItemViewCacheSize(30);
-
-        ItemTouchHelper.Callback callback =
-                new SimpleItemTouchHelperCallback(adapter);
-        ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
-        touchHelper.attachToRecyclerView(rvAppList);
 
         AppCompatImageView ivsettings = (AppCompatImageView) findViewById(R.id.ivSettings);
         ivsettings.setOnClickListener(new View.OnClickListener() {
@@ -98,6 +125,33 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
 
     }
 
+    private void initDock() {
+        RecyclerView navigationView = (RecyclerView) findViewById(R.id.dock);
+        LinearLayoutManager llm = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        llm.setStackFromEnd(true);
+        navigationView.setLayoutManager(llm);
+        dockAdapter = new ResolveInfoDockAdapter(this, docked) {
+            @Override
+            protected void onAppPressed(ResolveInfo app) {
+                mDrawerLayout.closeDrawers();
+                Intent toStart = mPkgManager.getLaunchIntentForPackage(app.activityInfo.packageName);
+                AppsActivity.this.startActivity(toStart);
+            }
+
+            @Override
+            protected void onAppLongPressed(final ResolveInfo app) {
+
+            }
+        };
+        navigationView.setAdapter(dockAdapter);
+        navigationView.addItemDecoration(new SpaceItemDecoration(8));
+
+        ItemTouchHelper.Callback callback =
+                new SimpleItemTouchHelperCallback(dockAdapter);
+        ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
+        touchHelper.attachToRecyclerView(navigationView);
+    }
+
     private void loadApplications() {
         final ProgressDialog progressDialog = new ProgressDialog(this);
         progressDialog.setIndeterminate(true);
@@ -109,6 +163,8 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
             public void run() {
                 Intent intent = new Intent(Intent.ACTION_MAIN, null);
                 intent.addCategory(Intent.CATEGORY_LAUNCHER);
+
+                apps.clear();
                 apps.addAll(mPkgManager.queryIntentActivities(intent, 0));
                 Collections.sort(apps, new Comparator<ResolveInfo>() {
                     @Override
@@ -135,13 +191,13 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
         Bitmap icon = null, color = null;
         for(ResolveInfo item : items) {
             final String packageName = item.activityInfo.packageName;
-            if (adapter.iconsCache.get(packageName) == null) {
+            if (UtopiaLauncher.iconsCache.get(packageName) == null) {
                 icon = Tools.getBitmapFromDrawable(item.loadIcon(mPkgManager), Bitmap.Config.ARGB_4444);
-                adapter.iconsCache.put(packageName, icon);
-                if (adapter.bgCache.get(packageName) == null) {
+                UtopiaLauncher.iconsCache.put(packageName, icon);
+                if (UtopiaLauncher.bgCache.get(packageName) == null) {
                     color = Tools.getBitmapFromDrawable(item.loadIcon(mPkgManager), Bitmap.Config.RGB_565);
                     int[] colors = Tools.getColorsFromBitmap(color);
-                    adapter.bgCache.put(packageName, Tools.createBackground(colors));
+                    UtopiaLauncher.bgCache.put(packageName, Tools.createBackground(colors));
                 }
             }
         }
@@ -190,4 +246,12 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (lastIntent != null) {
+            loadApplications();
+            lastIntent = null;
+        }
+    }
 }

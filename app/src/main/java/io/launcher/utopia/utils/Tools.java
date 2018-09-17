@@ -9,7 +9,6 @@ import android.graphics.drawable.GradientDrawable;
 import android.support.annotation.NonNull;
 import android.support.v4.graphics.ColorUtils;
 import android.support.v7.graphics.Palette;
-import android.util.Base64;
 
 import java.io.ByteArrayOutputStream;
 

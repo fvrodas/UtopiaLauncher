@@ -6,11 +6,8 @@ import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.support.v4.util.LruCache;
-import android.util.SparseArray;
 
 import java.util.ArrayList;
-
-import io.launcher.utopia.models.AppInfo;
 
 /**
  * Created by fernando on 10/22/17.
@@ -18,8 +15,17 @@ import io.launcher.utopia.models.AppInfo;
 
 public class UtopiaLauncher extends Application {
     public static final String COLUMNS_SETTINGS = "columns";
+    static final int cacheSize = 16 * 1024 * 1024;
     public ArrayList<ResolveInfo> applicationsInstalled = new ArrayList<>();
     public SharedPreferences launcherSettings;
+
+    public static LruCache<String, Bitmap> iconsCache = new LruCache<String, Bitmap>(cacheSize) {
+        @Override
+        protected int sizeOf(String key, Bitmap value) {
+            return value.getByteCount();
+        }
+    };
+    public static LruCache<String, Drawable> bgCache = new LruCache<String, Drawable>(cacheSize);
 
     @Override
     public void onCreate() {

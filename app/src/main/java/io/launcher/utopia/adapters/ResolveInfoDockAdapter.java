@@ -24,11 +24,9 @@ import io.launcher.utopia.utils.ItemTouchHelperAdapter;
  * Created by fernando on 10/15/17.
  */
 
-public abstract class ResolveInfoAdapter extends RecyclerView.Adapter<AppItemViewHolder> implements ItemTouchHelperAdapter {
+public abstract class ResolveInfoDockAdapter extends RecyclerView.Adapter<AppItemViewHolder> implements ItemTouchHelperAdapter {
     private Context mContext;
     private ArrayList<ResolveInfo> mItems;
-    private PackageManager mPkgManager;
-
     @Override
     public boolean onItemMove(int fromPosition, int toPosition) {
         if (fromPosition < toPosition) {
@@ -46,19 +44,19 @@ public abstract class ResolveInfoAdapter extends RecyclerView.Adapter<AppItemVie
 
     @Override
     public void onItemDismiss(int position) {
-
+        mItems.remove(position);
+        notifyItemRemoved(position);
     }
 
-    protected ResolveInfoAdapter(Context c, ArrayList<ResolveInfo> appInfos, PackageManager pm) {
+    protected ResolveInfoDockAdapter(Context c, ArrayList<ResolveInfo> appInfos) {
         mContext = c;
         mItems = appInfos;
-        mPkgManager = pm;
     }
 
     @NonNull
     @Override
     public AppItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(mContext).inflate(R.layout.item_square, parent, false);
+        View v = LayoutInflater.from(mContext).inflate(R.layout.item_shortcut, parent, false);
         return new AppItemViewHolder(v);
     }
 
@@ -66,7 +64,6 @@ public abstract class ResolveInfoAdapter extends RecyclerView.Adapter<AppItemVie
     public void onBindViewHolder(@NonNull final AppItemViewHolder holder, int position) {
         final ResolveInfo current = mItems.get(holder.getAdapterPosition());
         final String packageName = current.activityInfo.packageName;
-        final String label = current.loadLabel(mPkgManager).toString();
 
         if (UtopiaLauncher.iconsCache.get(packageName) != null) {
             holder.ivicon.setImageBitmap(UtopiaLauncher.iconsCache.get(packageName));
@@ -75,10 +72,6 @@ public abstract class ResolveInfoAdapter extends RecyclerView.Adapter<AppItemVie
         if (UtopiaLauncher.bgCache.get(packageName) != null ){
             holder.itemView.setBackground(UtopiaLauncher.bgCache.get(packageName));
         }
-
-        holder.tvappname.setText(label.toUpperCase());
-        holder.tvappname.setShadowLayer(5, 1, 1, Color.BLACK);
-
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -100,7 +93,6 @@ public abstract class ResolveInfoAdapter extends RecyclerView.Adapter<AppItemVie
     @Override
     public void onViewRecycled(@NonNull AppItemViewHolder holder) {
         holder.ivicon.setImageDrawable(null);
-        holder.tvappname.setText("");
         super.onViewRecycled(holder);
     }
 
