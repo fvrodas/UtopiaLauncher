@@ -44,12 +44,6 @@
                 android:gravity="end"
                 android:orientation="horizontal">
                 <android.support.v7.widget.AppCompatImageView
-                    android:visibility="invisible"
-                    android:layout_margin="8dp"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:src="@drawable/ic_sort"/>
-                <android.support.v7.widget.AppCompatImageView
                     android:id="@+id/ivSettings"
                     android:layout_margin="8dp"
                     android:layout_width="48dp"

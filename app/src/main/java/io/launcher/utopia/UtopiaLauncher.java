@@ -4,7 +4,6 @@ import android.app.Application;
 import android.content.SharedPreferences;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.support.v4.util.LruCache;
 
 import java.util.ArrayList;
@@ -15,7 +14,7 @@ import java.util.ArrayList;
 
 public class UtopiaLauncher extends Application {
     public static final String COLUMNS_SETTINGS = "columns";
-    static final int cacheSize = 16 * 1024 * 1024;
+    private static final int cacheSize = 16 * 1024 * 1024;
     public ArrayList<ResolveInfo> applicationsInstalled = new ArrayList<>();
     public SharedPreferences launcherSettings;
 

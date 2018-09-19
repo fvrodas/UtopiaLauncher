@@ -25,7 +25,7 @@ import io.launcher.utopia.R;
  */
 
 public class Tools {
-    public static Bitmap compress(Bitmap bitmap, int quality){
+    private static Bitmap compress(Bitmap bitmap, int quality){
         ByteArrayOutputStream baos= new  ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.WEBP, quality, baos);
         byte [] b=baos.toByteArray();
@@ -43,7 +43,7 @@ public class Tools {
         return Tools.compress(bmp, 70);
     }
 
-    public static int[] getColorsFromBitmap(Bitmap icon) {
+    private static int[] getColorsFromBitmap(Bitmap icon) {
         int[] colors = new int[3];
         Palette p = Palette.from(icon).generate();
         int color;
@@ -79,7 +79,7 @@ public class Tools {
         return colors;
     }
 
-    public static Drawable createBackground(int[] colors) {
+    private static Drawable createBackground(int[] colors) {
         GradientDrawable d = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, colors);
         d.setGradientType(GradientDrawable.LINEAR_GRADIENT);
         d.setSize(4, 4);

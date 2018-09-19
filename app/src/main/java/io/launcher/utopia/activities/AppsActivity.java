@@ -9,7 +9,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -20,7 +19,6 @@ import android.support.v7.widget.SearchView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.DisplayMetrics;
-import android.view.MenuItem;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -40,12 +38,12 @@ import static io.launcher.utopia.activities.SettingsActivity.REQUEST_SETTINGS;
 
 public class AppsActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
     private PackageManager mPkgManager = null;
-    private ArrayList<ResolveInfo> apps = new ArrayList<>();
-    private ArrayList<ResolveInfo> docked = new ArrayList<>();
+    private final ArrayList<ResolveInfo> apps = new ArrayList<>();
+    private final ArrayList<ResolveInfo> docked = new ArrayList<>();
     private UtopiaLauncher app = null;
     private ResolveInfoAdapter adapter = null;
     private ResolveInfoDockAdapter dockAdapter = null;
-    private DisplayMetrics metrics = new DisplayMetrics();
+    private final DisplayMetrics metrics = new DisplayMetrics();
     private RecyclerView rvAppList;
     public static Intent lastIntent = null;
     private DrawerLayout mDrawerLayout;
@@ -226,11 +224,6 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
         if (mDrawerLayout.isDrawerOpen(findViewById(R.id.clDrawer))) {
             mDrawerLayout.closeDrawers();
         }
-    }
-
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
     }
 
     @Override
