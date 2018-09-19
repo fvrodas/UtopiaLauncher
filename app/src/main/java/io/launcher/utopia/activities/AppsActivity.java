@@ -153,52 +153,49 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
     }
 
     private void loadApplications() {
-        final ProgressDialog progressDialog = new ProgressDialog(this);
-        progressDialog.setIndeterminate(true);
-        progressDialog.setMessage("Creating icons cache...");
-        progressDialog.setCancelable(false);
-        progressDialog.show();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Intent intent = new Intent(Intent.ACTION_MAIN, null);
-                intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        if (app.applicationsInstalled.size() == 0 ) {
+            final ProgressDialog progressDialog = new ProgressDialog(this);
+            progressDialog.setIndeterminate(true);
+            progressDialog.setMessage("Creating icons cache...");
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    Intent intent = new Intent(Intent.ACTION_MAIN, null);
+                    intent.addCategory(Intent.CATEGORY_LAUNCHER);
 
-                apps.clear();
-                apps.addAll(mPkgManager.queryIntentActivities(intent, 0));
-                Collections.sort(apps, new Comparator<ResolveInfo>() {
-                    @Override
-                    public int compare(ResolveInfo appInfo, ResolveInfo t1) {
-                        return appInfo.loadLabel(mPkgManager).toString()
-                                .compareTo(t1.loadLabel(mPkgManager).toString());
-                    }
-                });
+                    apps.clear();
+                    apps.addAll(mPkgManager.queryIntentActivities(intent, 0));
+                    Collections.sort(apps, new Comparator<ResolveInfo>() {
+                        @Override
+                        public int compare(ResolveInfo appInfo, ResolveInfo t1) {
+                            return appInfo.loadLabel(mPkgManager).toString()
+                                    .compareTo(t1.loadLabel(mPkgManager).toString());
+                        }
+                    });
 
-                createIconCache(apps);
-                app.applicationsInstalled.addAll(apps);
-                AppsActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        adapter.notifyDataSetChanged();
-                        progressDialog.dismiss();
-                    }
-                });
-            }
-        }).start();
+                    createIconCache(apps);
+                    app.applicationsInstalled.addAll(apps);
+                    AppsActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            adapter.notifyDataSetChanged();
+                            progressDialog.dismiss();
+                        }
+                    });
+                }
+            }).start();
+        }
     }
 
     private void createIconCache(ArrayList<ResolveInfo> items) {
-        Bitmap icon = null, color = null;
+        Bitmap icon = null;
         for(ResolveInfo item : items) {
             final String packageName = item.activityInfo.packageName;
             if (UtopiaLauncher.iconsCache.get(packageName) == null) {
-                icon = Tools.getBitmapFromDrawable(item.loadIcon(mPkgManager), Bitmap.Config.ARGB_4444);
+                icon = Tools.createIcon(this, Tools.getBitmapFromDrawable(item.loadIcon(mPkgManager), Bitmap.Config.ARGB_4444));
                 UtopiaLauncher.iconsCache.put(packageName, icon);
-                if (UtopiaLauncher.bgCache.get(packageName) == null) {
-                    color = Tools.getBitmapFromDrawable(item.loadIcon(mPkgManager), Bitmap.Config.RGB_565);
-                    int[] colors = Tools.getColorsFromBitmap(color);
-                    UtopiaLauncher.bgCache.put(packageName, Tools.createBackground(colors));
-                }
             }
         }
     }
@@ -226,7 +223,9 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
 
     @Override
     public void onBackPressed() {
-
+        if (mDrawerLayout.isDrawerOpen(findViewById(R.id.clDrawer))) {
+            mDrawerLayout.closeDrawers();
+        }
     }
 
     @Override

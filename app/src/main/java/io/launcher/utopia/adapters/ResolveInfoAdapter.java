@@ -72,10 +72,6 @@ public abstract class ResolveInfoAdapter extends RecyclerView.Adapter<AppItemVie
             holder.ivicon.setImageBitmap(UtopiaLauncher.iconsCache.get(packageName));
         }
 
-        if (UtopiaLauncher.bgCache.get(packageName) != null ){
-            holder.itemView.setBackground(UtopiaLauncher.bgCache.get(packageName));
-        }
-
         holder.tvappname.setText(label.toUpperCase());
         holder.tvappname.setShadowLayer(5, 1, 1, Color.BLACK);
 

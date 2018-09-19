@@ -25,7 +25,6 @@ public class UtopiaLauncher extends Application {
             return value.getByteCount();
         }
     };
-    public static LruCache<String, Drawable> bgCache = new LruCache<String, Drawable>(cacheSize);
 
     @Override
     public void onCreate() {
