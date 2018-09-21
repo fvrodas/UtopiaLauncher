@@ -51,7 +51,7 @@ public class SettingsActivity extends AppCompatActivity {
                             public void onOKPressed(int i) {
                                 SharedPreferences.Editor editor = app.launcherSettings.edit();
                                 editor.putInt(COLUMNS_SETTINGS, i);
-                                editor.commit();
+                                editor.apply();
                                 intent = new Intent();
                                 intent.putExtra(COLUMNS_SETTINGS, i);
                             }

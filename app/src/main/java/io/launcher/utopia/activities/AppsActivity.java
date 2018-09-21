@@ -9,7 +9,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -20,7 +19,6 @@ import android.support.v7.widget.SearchView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.DisplayMetrics;
-import android.view.MenuItem;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -40,12 +38,12 @@ import static io.launcher.utopia.activities.SettingsActivity.REQUEST_SETTINGS;
 
 public class AppsActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
     private PackageManager mPkgManager = null;
-    private ArrayList<ResolveInfo> apps = new ArrayList<>();
-    private ArrayList<ResolveInfo> docked = new ArrayList<>();
+    private final ArrayList<ResolveInfo> apps = new ArrayList<>();
+    private final ArrayList<ResolveInfo> docked = new ArrayList<>();
     private UtopiaLauncher app = null;
     private ResolveInfoAdapter adapter = null;
     private ResolveInfoDockAdapter dockAdapter = null;
-    private DisplayMetrics metrics = new DisplayMetrics();
+    private final DisplayMetrics metrics = new DisplayMetrics();
     private RecyclerView rvAppList;
     public static Intent lastIntent = null;
     private DrawerLayout mDrawerLayout;
@@ -153,52 +151,49 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
     }
 
     private void loadApplications() {
-        final ProgressDialog progressDialog = new ProgressDialog(this);
-        progressDialog.setIndeterminate(true);
-        progressDialog.setMessage("Creating icons cache...");
-        progressDialog.setCancelable(false);
-        progressDialog.show();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Intent intent = new Intent(Intent.ACTION_MAIN, null);
-                intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        if (app.applicationsInstalled.size() == 0 ) {
+            final ProgressDialog progressDialog = new ProgressDialog(this);
+            progressDialog.setIndeterminate(true);
+            progressDialog.setMessage("Creating icons cache...");
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    Intent intent = new Intent(Intent.ACTION_MAIN, null);
+                    intent.addCategory(Intent.CATEGORY_LAUNCHER);
 
-                apps.clear();
-                apps.addAll(mPkgManager.queryIntentActivities(intent, 0));
-                Collections.sort(apps, new Comparator<ResolveInfo>() {
-                    @Override
-                    public int compare(ResolveInfo appInfo, ResolveInfo t1) {
-                        return appInfo.loadLabel(mPkgManager).toString()
-                                .compareTo(t1.loadLabel(mPkgManager).toString());
-                    }
-                });
+                    apps.clear();
+                    apps.addAll(mPkgManager.queryIntentActivities(intent, 0));
+                    Collections.sort(apps, new Comparator<ResolveInfo>() {
+                        @Override
+                        public int compare(ResolveInfo appInfo, ResolveInfo t1) {
+                            return appInfo.loadLabel(mPkgManager).toString()
+                                    .compareTo(t1.loadLabel(mPkgManager).toString());
+                        }
+                    });
 
-                createIconCache(apps);
-                app.applicationsInstalled.addAll(apps);
-                AppsActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        adapter.notifyDataSetChanged();
-                        progressDialog.dismiss();
-                    }
-                });
-            }
-        }).start();
+                    createIconCache(apps);
+                    app.applicationsInstalled.addAll(apps);
+                    AppsActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            adapter.notifyDataSetChanged();
+                            progressDialog.dismiss();
+                        }
+                    });
+                }
+            }).start();
+        }
     }
 
     private void createIconCache(ArrayList<ResolveInfo> items) {
-        Bitmap icon = null, color = null;
+        Bitmap icon = null;
         for(ResolveInfo item : items) {
             final String packageName = item.activityInfo.packageName;
             if (UtopiaLauncher.iconsCache.get(packageName) == null) {
-                icon = Tools.getBitmapFromDrawable(item.loadIcon(mPkgManager), Bitmap.Config.ARGB_4444);
+                icon = Tools.createIcon(this, Tools.getBitmapFromDrawable(item.loadIcon(mPkgManager), Bitmap.Config.ARGB_8888));
                 UtopiaLauncher.iconsCache.put(packageName, icon);
-                if (UtopiaLauncher.bgCache.get(packageName) == null) {
-                    color = Tools.getBitmapFromDrawable(item.loadIcon(mPkgManager), Bitmap.Config.RGB_565);
-                    int[] colors = Tools.getColorsFromBitmap(color);
-                    UtopiaLauncher.bgCache.put(packageName, Tools.createBackground(colors));
-                }
             }
         }
     }
@@ -226,12 +221,9 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
 
     @Override
     public void onBackPressed() {
-
-    }
-
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
+        if (mDrawerLayout.isDrawerOpen(findViewById(R.id.clDrawer))) {
+            mDrawerLayout.closeDrawers();
+        }
     }
 
     @Override

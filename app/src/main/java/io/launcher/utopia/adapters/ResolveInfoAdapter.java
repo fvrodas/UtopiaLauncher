@@ -3,11 +3,8 @@ package io.launcher.utopia.adapters;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
-import android.support.v4.util.LruCache;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -70,10 +67,6 @@ public abstract class ResolveInfoAdapter extends RecyclerView.Adapter<AppItemVie
 
         if (UtopiaLauncher.iconsCache.get(packageName) != null) {
             holder.ivicon.setImageBitmap(UtopiaLauncher.iconsCache.get(packageName));
-        }
-
-        if (UtopiaLauncher.bgCache.get(packageName) != null ){
-            holder.itemView.setBackground(UtopiaLauncher.bgCache.get(packageName));
         }
 
         holder.tvappname.setText(label.toUpperCase());

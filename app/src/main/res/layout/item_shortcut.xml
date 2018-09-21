@@ -1,14 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:padding="8dp"
-    android:orientation="vertical"
-    android:gravity="center_horizontal|bottom"
-    android:layout_width="match_parent" android:layout_height="wrap_content">
-    <ImageView
-        android:id="@+id/ivIcon"
-        android:layout_width="match_parent"
-        android:layout_height="64dp"
-        android:padding="0dp"
-        android:alpha="1"
-        android:scaleType="fitCenter"/>
-</LinearLayout>
+<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ivIcon"
+    android:layout_width="72dp"
+    android:layout_height="72dp"
+    android:alpha="1"
+    android:scaleType="fitCenter" />
