@@ -7,7 +7,7 @@
         android:id="@+id/ivIcon"
         android:layout_width="72dp"
         android:layout_height="72dp"
-        android:padding="8dp"
-        android:alpha="1"
+        android:adjustViewBounds="true"
+        android:padding="12dp"
         android:scaleType="fitCenter"/>
 </LinearLayout>

@@ -7,6 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v4.graphics.ColorUtils;
 import android.support.v7.graphics.Palette;
@@ -27,7 +28,11 @@ import io.launcher.utopia.R;
 public class Tools {
     private static Bitmap compress(Bitmap bitmap, int quality){
         ByteArrayOutputStream baos= new  ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.WEBP, quality, baos);
+        if (Build.VERSION.SDK_INT >= 21) {
+            bitmap.compress(Bitmap.CompressFormat.WEBP, quality, baos);
+        } else {
+            bitmap.compress(Bitmap.CompressFormat.PNG, quality, baos);
+        }
         byte [] b=baos.toByteArray();
         return BitmapFactory.decodeByteArray(b, 0, b.length);
     }
@@ -37,6 +42,7 @@ public class Tools {
         int width = Math.round(drawable.getIntrinsicWidth() * 0.9f);
         int height = Math.round(drawable.getIntrinsicHeight() * 0.9f);
         final Bitmap bmp = Bitmap.createBitmap(width, height, config);
+        bmp.setHasAlpha(true);
         final Canvas canvas = new Canvas(bmp);
         drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
         drawable.draw(canvas);
@@ -55,26 +61,24 @@ public class Tools {
             color = Color.LTGRAY;
         }
 
-        float[] hsl1 = new float[3];
-        ColorUtils.colorToHSL(color, hsl1);
-        hsl1[0] = hsl1[0] * 0.85f;
-        hsl1[1] = hsl1[1] * 0.6f;
-        hsl1[2] = .8f;
-        colors[0] = ColorUtils.HSLToColor(hsl1);
-
         float[] hsl = new float[3];
+        ColorUtils.colorToHSL(color, hsl);
+        hsl[0] = hsl[0] * 0.85f;
+        hsl[1] = hsl[1] * 0.6f;
+        hsl[2] = .8f;
+        colors[0] = ColorUtils.HSLToColor(hsl);
+
         ColorUtils.colorToHSL(color, hsl);
         hsl[0] = hsl[0];
         hsl[1] = hsl[1] * 0.7f;
         hsl[2] = .5f;
         colors[1] = ColorUtils.HSLToColor(hsl);
 
-        float[] hsl2 = new float[3];
-        ColorUtils.colorToHSL(color, hsl2);
-        hsl2[0] = hsl2[0] * 1.1f;
-        hsl2[1] = hsl2[1] * 0.8f;
-        hsl2[2] = .3f;
-        colors[2] = ColorUtils.HSLToColor(hsl2);
+        ColorUtils.colorToHSL(color, hsl);
+        hsl[0] = hsl[0] * 1.1f;
+        hsl[1] = hsl[1] * 0.8f;
+        hsl[2] = .3f;
+        colors[2] = ColorUtils.HSLToColor(hsl);
 
         return colors;
     }
@@ -84,7 +88,7 @@ public class Tools {
         d.setGradientType(GradientDrawable.LINEAR_GRADIENT);
         d.setSize(4, 4);
         d.setShape(GradientDrawable.RECTANGLE);
-        d.setCornerRadius(12);
+        d.setCornerRadius(16);
         return d;
     }
 
@@ -106,7 +110,7 @@ public class Tools {
 
         Bitmap bitmap = Bitmap.createBitmap(view.getMeasuredWidth(),
                 view.getMeasuredHeight(),
-                Bitmap.Config.ARGB_4444);
+                Bitmap.Config.ARGB_8888);
 
         Canvas c = new Canvas(bitmap);
 

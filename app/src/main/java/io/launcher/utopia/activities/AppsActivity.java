@@ -192,7 +192,7 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
         for(ResolveInfo item : items) {
             final String packageName = item.activityInfo.packageName;
             if (UtopiaLauncher.iconsCache.get(packageName) == null) {
-                icon = Tools.createIcon(this, Tools.getBitmapFromDrawable(item.loadIcon(mPkgManager), Bitmap.Config.ARGB_4444));
+                icon = Tools.createIcon(this, Tools.getBitmapFromDrawable(item.loadIcon(mPkgManager), Bitmap.Config.ARGB_8888));
                 UtopiaLauncher.iconsCache.put(packageName, icon);
             }
         }
