@@ -19,6 +19,8 @@ import android.support.v7.widget.SearchView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.DisplayMetrics;
+import android.view.ContextMenu;
+import android.view.MenuItem;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -82,26 +84,7 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
 
             @Override
             public void onAppLongPressed(final ResolveInfo app) {
-                AlertDialog.Builder b = new AlertDialog.Builder(AppsActivity.this);
-                b.setTitle(app.loadLabel(mPkgManager).toString());
-                b.setMessage("What do you want to do?");
-                b.setNegativeButton("UNINSTALL", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Uri packageUri = Uri.parse("package:" + app.activityInfo.packageName);
-                        Intent uninstallIntent =
-                                new Intent(Build.VERSION.SDK_INT > 19? Intent.ACTION_DELETE :Intent.ACTION_UNINSTALL_PACKAGE, packageUri);
-                        startActivity(uninstallIntent);
-                    }
-                });
-                b.setPositiveButton("ADD TO DOCK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        docked.add(app);
-                        dockAdapter.notifyItemInserted(dockAdapter.getItemCount() - 1);
-                    }
-                });
-                b.show();
+
             }
         };
         SpaceItemDecoration decoration = new SpaceItemDecoration(16);
@@ -121,6 +104,7 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
 
         loadApplications();
 
+        registerForContextMenu(rvAppList);
     }
 
     private void initDock() {
@@ -242,8 +226,31 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
     protected void onResume() {
         super.onResume();
         if (lastIntent != null) {
+            app.applicationsInstalled.clear();
             loadApplications();
             lastIntent = null;
         }
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        if (adapter != null && adapter.getAppSelected() != null) {
+            switch (item.getItemId()) {
+                case R.id.action_pin_to_dock: {
+                    docked.add(adapter.getAppSelected());
+                    dockAdapter.notifyItemInserted(dockAdapter.getItemCount() - 1);
+                    break;
+                }
+                case R.id.action_uninstall: {
+                    Uri packageUri = Uri.parse("package:" + adapter.getAppSelected().activityInfo.packageName);
+                    Intent uninstallIntent =
+                            new Intent(Build.VERSION.SDK_INT > 19? Intent.ACTION_DELETE :Intent.ACTION_UNINSTALL_PACKAGE, packageUri);
+                    startActivity(uninstallIntent);
+                    break;
+                }
+            }
+            adapter.setAppSelected(null);
+        }
+        return super.onContextItemSelected(item);
     }
 }

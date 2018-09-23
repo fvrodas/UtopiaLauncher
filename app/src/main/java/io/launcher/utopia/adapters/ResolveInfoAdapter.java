@@ -26,6 +26,16 @@ public abstract class ResolveInfoAdapter extends RecyclerView.Adapter<AppItemVie
     private ArrayList<ResolveInfo> mItems;
     private PackageManager mPkgManager;
 
+    private ResolveInfo appSelected = null;
+
+    public ResolveInfo getAppSelected() {
+        return appSelected;
+    }
+
+    public void setAppSelected(ResolveInfo appSelected) {
+        this.appSelected = appSelected;
+    }
+
     @Override
     public boolean onItemMove(int fromPosition, int toPosition) {
         if (fromPosition < toPosition) {
@@ -83,8 +93,8 @@ public abstract class ResolveInfoAdapter extends RecyclerView.Adapter<AppItemVie
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(final View view) {
-                onAppLongPressed(mItems.get(holder.getAdapterPosition()));
-                return true;
+                setAppSelected(current);
+                return false;
             }
         });
 
@@ -94,6 +104,8 @@ public abstract class ResolveInfoAdapter extends RecyclerView.Adapter<AppItemVie
     public void onViewRecycled(@NonNull AppItemViewHolder holder) {
         holder.ivicon.setImageDrawable(null);
         holder.tvappname.setText("");
+        holder.itemView.setOnClickListener(null);
+        holder.itemView.setOnLongClickListener(null);
         super.onViewRecycled(holder);
     }
 

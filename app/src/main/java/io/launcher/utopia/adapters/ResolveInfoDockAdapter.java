@@ -84,6 +84,8 @@ public abstract class ResolveInfoDockAdapter extends RecyclerView.Adapter<Shortc
     @Override
     public void onViewRecycled(@NonNull ShortcutViewHolder holder) {
         holder.ivicon.setImageDrawable(null);
+        holder.itemView.setOnClickListener(null);
+        holder.itemView.setOnLongClickListener(null);
         super.onViewRecycled(holder);
     }
 
