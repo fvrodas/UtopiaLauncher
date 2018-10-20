@@ -36,19 +36,33 @@
                     app:iconifiedByDefault="false"
                     app:queryHint="Search an app" />
             </android.support.design.widget.CollapsingToolbarLayout>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_collapseMode="pin"
-                android:gravity="end"
-                android:orientation="horizontal">
-                <android.support.v7.widget.AppCompatImageView
-                    android:id="@+id/ivSettings"
-                    android:background="?android:attr/selectableItemBackground"
-                    android:layout_margin="8dp"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:src="@drawable/ic_settings"/>
+                android:orientation="vertical">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="end"
+                    android:orientation="horizontal"
+                    app:layout_collapseMode="pin">
+
+                    <android.support.v7.widget.AppCompatImageView
+                        android:id="@+id/ivSettings"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:layout_margin="8dp"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:src="@drawable/ic_settings" />
+                </LinearLayout>
+                <ProgressBar
+                    android:id="@+id/pbLoading"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:indeterminateOnly="true"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:visibility="gone"/>
             </LinearLayout>
         </android.support.design.widget.AppBarLayout>
         <android.support.v7.widget.RecyclerView

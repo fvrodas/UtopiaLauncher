@@ -22,11 +22,13 @@ import android.util.DisplayMetrics;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ProgressBar;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import io.launcher.utopia.BuildConfig;
 import io.launcher.utopia.R;
 import io.launcher.utopia.UtopiaLauncher;
 import io.launcher.utopia.adapters.ResolveInfoAdapter;
@@ -39,6 +41,7 @@ import static io.launcher.utopia.UtopiaLauncher.COLUMNS_SETTINGS;
 import static io.launcher.utopia.activities.SettingsActivity.REQUEST_SETTINGS;
 
 public class AppsActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
+    private static final int REQUEST_UNINSTALL = 7686;
     private PackageManager mPkgManager = null;
     private final ArrayList<ResolveInfo> apps = new ArrayList<>();
     private final ArrayList<ResolveInfo> docked = new ArrayList<>();
@@ -49,14 +52,15 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
     private RecyclerView rvAppList;
     public static Intent lastIntent = null;
     private DrawerLayout mDrawerLayout;
-
+    private ProgressBar progressBar;
+    private boolean isLoading = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_apps);
         mPkgManager = getPackageManager();
         app = (UtopiaLauncher) getApplication();
-
+        progressBar = (ProgressBar) findViewById(R.id.pbLoading);
         rvAppList = (RecyclerView) findViewById(R.id.rvAppList);
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -80,11 +84,6 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
             public void onAppPressed(ResolveInfo app) {
                 Intent toStart = mPkgManager.getLaunchIntentForPackage(app.activityInfo.packageName);
                 AppsActivity.this.startActivity(toStart);
-            }
-
-            @Override
-            public void onAppLongPressed(final ResolveInfo app) {
-
             }
         };
         SpaceItemDecoration decoration = new SpaceItemDecoration(16);
@@ -134,13 +133,11 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
         touchHelper.attachToRecyclerView(navigationView);
     }
 
-    private void loadApplications() {
+    private synchronized void loadApplications() {
+        if (isLoading) return;
         if (app.applicationsInstalled.size() == 0 ) {
-            final ProgressDialog progressDialog = new ProgressDialog(this);
-            progressDialog.setIndeterminate(true);
-            progressDialog.setMessage("Creating icons cache...");
-            progressDialog.setCancelable(false);
-            progressDialog.show();
+            progressBar.setVisibility(View.VISIBLE);
+            isLoading = true;
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -149,6 +146,7 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
 
                     apps.clear();
                     apps.addAll(mPkgManager.queryIntentActivities(intent, 0));
+                    createIconCache(apps);
                     Collections.sort(apps, new Comparator<ResolveInfo>() {
                         @Override
                         public int compare(ResolveInfo appInfo, ResolveInfo t1) {
@@ -156,19 +154,24 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
                                     .compareTo(t1.loadLabel(mPkgManager).toString());
                         }
                     });
-
-                    createIconCache(apps);
                     app.applicationsInstalled.addAll(apps);
                     AppsActivity.this.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             adapter.notifyDataSetChanged();
-                            progressDialog.dismiss();
+                            progressBar.setVisibility(View.GONE);
+                            isLoading = false;
                         }
                     });
                 }
             }).start();
         }
+    }
+
+    private synchronized int countApps() {
+        Intent intent = new Intent(Intent.ACTION_MAIN, null);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        return mPkgManager.queryIntentActivities(intent, 0).size();
     }
 
     private void createIconCache(ArrayList<ResolveInfo> items) {
@@ -213,19 +216,28 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK && requestCode == REQUEST_SETTINGS) {
-            int columns = app.launcherSettings.getInt(COLUMNS_SETTINGS, 4);
+        if (resultCode == RESULT_OK){
+            if (requestCode == REQUEST_SETTINGS) {
+                int columns = app.launcherSettings.getInt(COLUMNS_SETTINGS, 4);
 
-            StaggeredGridLayoutManager layoutManager =
-                    new StaggeredGridLayoutManager(columns, StaggeredGridLayoutManager.VERTICAL);
-            rvAppList.setLayoutManager(layoutManager);
+                StaggeredGridLayoutManager layoutManager =
+                        new StaggeredGridLayoutManager(columns, StaggeredGridLayoutManager.VERTICAL);
+                rvAppList.setLayoutManager(layoutManager);
+            }
+            if (requestCode == REQUEST_UNINSTALL) {
+                if (app.applicationsInstalled.size() != countApps()) {
+                    app.applicationsInstalled.clear();
+                    loadApplications();
+                    lastIntent = null;
+                }
+            }
         }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (lastIntent != null) {
+        if (app.applicationsInstalled.size() != countApps() && adapter != null) {
             app.applicationsInstalled.clear();
             loadApplications();
             lastIntent = null;
@@ -245,7 +257,7 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
                     Uri packageUri = Uri.parse("package:" + adapter.getAppSelected().activityInfo.packageName);
                     Intent uninstallIntent =
                             new Intent(Build.VERSION.SDK_INT > 19? Intent.ACTION_DELETE :Intent.ACTION_UNINSTALL_PACKAGE, packageUri);
-                    startActivity(uninstallIntent);
+                    startActivityForResult(uninstallIntent, REQUEST_UNINSTALL);
                     break;
                 }
             }

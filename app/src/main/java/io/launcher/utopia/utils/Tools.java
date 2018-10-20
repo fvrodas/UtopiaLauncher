@@ -88,7 +88,7 @@ public class Tools {
         d.setGradientType(GradientDrawable.LINEAR_GRADIENT);
         d.setSize(4, 4);
         d.setShape(GradientDrawable.RECTANGLE);
-        d.setCornerRadius(16);
+        d.setCornerRadius(12);
         return d;
     }
 

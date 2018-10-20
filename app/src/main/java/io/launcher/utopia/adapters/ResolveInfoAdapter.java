@@ -110,7 +110,6 @@ public abstract class ResolveInfoAdapter extends RecyclerView.Adapter<AppItemVie
     }
 
     protected abstract void onAppPressed(ResolveInfo app);
-    protected abstract void onAppLongPressed(ResolveInfo app);
 
     @Override
     public int getItemCount() {
