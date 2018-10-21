@@ -3,4 +3,6 @@
     <string name="settings_activity">Launcher Settings</string>
     <string name="btOK">OK</string>
     <string name="NumberPickerDialogTitle">Columns</string>
+    <string name="menu_wallpaper">Wallpaper</string>
+    <string name="menu_columns">Columns</string>
 </resources>

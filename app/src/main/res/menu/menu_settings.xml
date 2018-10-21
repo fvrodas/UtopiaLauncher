@@ -4,9 +4,9 @@
     <item
         android:id="@+id/action_wallpaper"
         android:icon="@drawable/ic_wallpapers"
-        android:title="Wallpaper" />
+        android:title="@string/menu_wallpaper" />
     <item
         android:id="@+id/action_columns"
         android:icon="@drawable/ic_columns"
-        android:title="Columns" />
+        android:title="@string/menu_columns" />
 </menu>
