@@ -4,6 +4,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:animateLayoutChanges="true"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <android.support.design.widget.CoordinatorLayout
@@ -14,7 +15,6 @@
         android:paddingTop="@dimen/topPadding"
         android:focusableInTouchMode="true"
         tools:context="io.launcher.utopia.activities.AppsActivity">
-
         <android.support.design.widget.AppBarLayout
             android:background="@android:color/transparent"
             android:layout_width="match_parent"
@@ -23,7 +23,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:layout_scrollFlags="scroll|exitUntilCollapsed">
-
                 <android.support.v7.widget.SearchView
                     android:id="@+id/svSearch"
                     android:layout_width="match_parent"
@@ -36,34 +35,13 @@
                     app:iconifiedByDefault="false"
                     app:queryHint="Search an app" />
             </android.support.design.widget.CollapsingToolbarLayout>
-
-            <LinearLayout
+            <ProgressBar
+                android:id="@+id/pbLoading"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="end"
-                    android:orientation="horizontal"
-                    app:layout_collapseMode="pin">
-
-                    <android.support.v7.widget.AppCompatImageView
-                        android:id="@+id/ivSettings"
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:layout_margin="8dp"
-                        android:background="?android:attr/selectableItemBackground"
-                        android:src="@drawable/ic_settings" />
-                </LinearLayout>
-                <ProgressBar
-                    android:id="@+id/pbLoading"
-                    android:layout_width="match_parent"
-                    android:layout_height="24dp"
-                    android:indeterminateOnly="true"
-                    style="?android:attr/progressBarStyleHorizontal"
-                    android:visibility="gone"/>
-            </LinearLayout>
+                android:layout_height="24dp"
+                android:indeterminateOnly="true"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:visibility="gone"/>
         </android.support.design.widget.AppBarLayout>
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rvAppList"
@@ -73,25 +51,33 @@
             android:layout_alignBottom="@+id/lnOptions"
             android:layout_below="@+id/svSearch" />
     </android.support.design.widget.CoordinatorLayout>
-
-    <android.support.constraint.ConstraintLayout
+    <RelativeLayout
         android:id="@+id/clDrawer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:fitsSystemWindows="true"
         android:clickable="true"
-        android:layout_gravity="end">
-
+        android:layout_gravity="end"
+        android:focusable="true">
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/ivSettings"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_margin="16dp"
+            android:background="?android:attr/selectableItemBackground"
+            android:src="@drawable/ic_settings"
+            android:layout_alignParentBottom="true"/>
         <android.support.v7.widget.RecyclerView
             android:id="@+id/dock"
             android:layout_width="80dp"
             android:layout_height="0dp"
             android:background="@drawable/dock_bg"
             android:clickable="true"
-            android:fitsSystemWindows="true"
             android:visibility="visible"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-    </android.support.constraint.ConstraintLayout>
+            android:layout_alignParentTop="true"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:focusable="true" />
+    </RelativeLayout>
 </android.support.v4.widget.DrawerLayout>
 

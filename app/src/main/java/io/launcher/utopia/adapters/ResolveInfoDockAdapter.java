@@ -33,6 +33,7 @@ public abstract class ResolveInfoDockAdapter extends RecyclerView.Adapter<Shortc
                 Collections.swap(mItems, i, i - 1);
             }
         }
+        onItemSwapped(mItems);
         notifyItemMoved(fromPosition, toPosition);
         return true;
     }
@@ -40,6 +41,7 @@ public abstract class ResolveInfoDockAdapter extends RecyclerView.Adapter<Shortc
     @Override
     public void onItemDismiss(int position) {
         mItems.remove(position);
+        onItemRemoved(mItems);
         notifyItemRemoved(position);
     }
 
@@ -91,6 +93,8 @@ public abstract class ResolveInfoDockAdapter extends RecyclerView.Adapter<Shortc
 
     protected abstract void onAppPressed(ResolveInfo app);
     protected abstract void onAppLongPressed(ResolveInfo app);
+    protected abstract void onItemRemoved(ArrayList<ResolveInfo> items);
+    protected abstract void onItemSwapped(ArrayList<ResolveInfo> items);
 
     @Override
     public int getItemCount() {

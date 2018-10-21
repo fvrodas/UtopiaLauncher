@@ -15,11 +15,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import io.launcher.utopia.adapters.*;
 
 import java.io.ByteArrayOutputStream;
 
 import io.launcher.utopia.R;
+import io.launcher.utopia.adapters.ShortcutViewHolder;
 
 /**
  * Created by fernando on 10/22/17.
@@ -84,7 +84,7 @@ public class Tools {
     }
 
     private static Drawable createBackground(int[] colors) {
-        GradientDrawable d = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, colors);
+        GradientDrawable d = new GradientDrawable(GradientDrawable.Orientation.TL_BR, colors);
         d.setGradientType(GradientDrawable.LINEAR_GRADIENT);
         d.setSize(4, 4);
         d.setShape(GradientDrawable.RECTANGLE);

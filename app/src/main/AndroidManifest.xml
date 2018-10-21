@@ -23,25 +23,17 @@
             android:name=".activities.AppsActivity"
             android:label="@string/app_name"
             android:launchMode="singleTask"
-            android:stateNotNeeded="true"
+            android:alwaysRetainTaskState="true"
             android:theme="@style/AppTheme"
             android:windowSoftInputMode="stateHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+                <action android:name="com.android.launcher.action.INSTALL_SHORTCUT" />
                 <category android:name="android.intent.category.LAUNCHER" />
                 <category android:name="android.intent.category.HOME" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <receiver android:name=".breceivers.ApplicationsReceiver">
-            <intent-filter>
-                <action android:name="android.intent.action.PACKAGE_INSTALL" />
-                <action android:name="android.intent.action.PACKAGE_ADDED" />
-                <action android:name="android.intent.action.PACKAGE_REMOVED" />
-                <action android:name="android.intent.action.PACKAGE_REPLACED" />
-                <data android:scheme="package"/>
-            </intent-filter>
-        </receiver>
     </application>
 
 </manifest>
