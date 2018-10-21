@@ -8,6 +8,8 @@ It doesn't require any special permission.
 
 <img width="30%" src="https://github.com/fvrodas/UtopiaLauncher/raw/master/screenshots/screenshot01.png" alt="" />
 
+<img width="30%" src="https://github.com/fvrodas/UtopiaLauncher/raw/master/screenshots/screenshot02.png" alt="" />
+
 ## Download
 
 Available soon for downloading from Google Play Store.
