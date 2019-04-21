@@ -6,14 +6,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     tools:context="io.launcher.utopia.activities.SettingsActivity">
-    <android.support.v7.widget.Toolbar
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/tbSettings"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         app:title="@string/settings_activity">
-    </android.support.v7.widget.Toolbar>
+    </androidx.appcompat.widget.Toolbar>
 
-    <android.support.design.widget.NavigationView
+    <com.google.android.material.navigation.NavigationView
         android:layout_below="@+id/tbSettings"
         android:orientation="vertical"
         app:menu="@menu/menu_settings"

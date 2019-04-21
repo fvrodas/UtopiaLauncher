@@ -1,16 +1,22 @@
 package io.launcher.utopia.adapters;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.ResolveInfo;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import com.google.gson.Gson;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+import io.launcher.utopia.BuildConfig;
 import io.launcher.utopia.R;
 import io.launcher.utopia.UtopiaLauncher;
 import io.launcher.utopia.utils.ItemTouchHelperAdapter;
@@ -19,7 +25,8 @@ import io.launcher.utopia.utils.ItemTouchHelperAdapter;
  * Created by fernando on 10/15/17.
  */
 
-public abstract class ResolveInfoDockAdapter extends RecyclerView.Adapter<ShortcutViewHolder> implements ItemTouchHelperAdapter {
+public abstract class ResolveInfoDockAdapter extends RecyclerView.Adapter<ShortcutViewHolder>
+        implements ItemTouchHelperAdapter, AdapterPersistence {
     private Context mContext;
     private ArrayList<ResolveInfo> mItems;
     @Override
@@ -36,6 +43,39 @@ public abstract class ResolveInfoDockAdapter extends RecyclerView.Adapter<Shortc
         onItemSwapped(mItems);
         notifyItemMoved(fromPosition, toPosition);
         return true;
+    }
+
+    private void updateDataSet(List<ResolveInfo> apps) {
+        mItems.clear();
+        mItems.addAll(apps);
+        notifyDataSetChanged();
+    }
+
+    @Override
+    public void updateFromPreferences(SharedPreferences prefs) {
+        String json = prefs.getString(UtopiaLauncher.DOCK, null);
+        if (json != null) {
+            try {
+
+                ResolveInfo[] data = new Gson().fromJson(json, ResolveInfo[].class);
+                updateDataSet(Arrays.asList(data));
+            } catch (Exception e) {
+                if (BuildConfig.DEBUG) e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public void applyToPreferences(SharedPreferences prefs) {
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(UtopiaLauncher.DOCK, new Gson().toJson(mItems));
+        editor.apply();
+    }
+
+    public void addItem(ResolveInfo app, SharedPreferences prefs) {
+        mItems.add(app);
+        notifyItemInserted(mItems.size() - 1);
+        applyToPreferences(prefs);
     }
 
     @Override

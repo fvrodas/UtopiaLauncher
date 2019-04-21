@@ -8,9 +8,6 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
-import android.support.annotation.NonNull;
-import android.support.v4.graphics.ColorUtils;
-import android.support.v7.graphics.Palette;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +15,9 @@ import android.widget.LinearLayout;
 
 import java.io.ByteArrayOutputStream;
 
+import androidx.annotation.NonNull;
+import androidx.core.graphics.ColorUtils;
+import androidx.palette.graphics.Palette;
 import io.launcher.utopia.R;
 import io.launcher.utopia.adapters.ShortcutViewHolder;
 
