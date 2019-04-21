@@ -51,33 +51,6 @@
             android:layout_alignBottom="@+id/lnOptions"
             android:layout_below="@+id/svSearch" />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
-    <RelativeLayout
-        android:id="@+id/clDrawer"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fitsSystemWindows="true"
-        android:clickable="true"
-        android:layout_gravity="end"
-        android:focusable="true">
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/ivSettings"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_margin="16dp"
-            android:background="?android:attr/selectableItemBackground"
-            android:src="@drawable/ic_settings"
-            android:layout_alignParentBottom="true"/>
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/dock"
-            android:layout_width="80dp"
-            android:layout_height="0dp"
-            android:background="@drawable/dock_bg"
-            android:clickable="true"
-            android:visibility="visible"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="true"
-            android:focusable="true" />
-    </RelativeLayout>
+    <include layout="@layout/include_dock"/>
 </androidx.drawerlayout.widget.DrawerLayout>
 

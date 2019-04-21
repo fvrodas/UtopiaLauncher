@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -21,6 +22,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.SearchView;
@@ -97,6 +99,30 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
             }
         });
 
+        mDrawerLayout.addDrawerListener(new DrawerLayout.DrawerListener() {
+            @Override
+            public void onDrawerSlide(@NonNull View drawerView, float slideOffset) {
+                float dp = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 80, getResources().getDisplayMetrics());
+                float moveFactor = (dp * slideOffset);
+                (findViewById(R.id.rootView)).setTranslationX(-moveFactor);
+            }
+
+            @Override
+            public void onDrawerOpened(@NonNull View drawerView) {
+
+            }
+
+            @Override
+            public void onDrawerClosed(@NonNull View drawerView) {
+
+            }
+
+            @Override
+            public void onDrawerStateChanged(int newState) {
+
+            }
+        });
+
         refreshApplicationsList();
 
         initDock();
@@ -154,9 +180,9 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
                 intent.addCategory(Intent.CATEGORY_LAUNCHER);
 
                 final ArrayList<ResolveInfo> apps = new ArrayList<>(mPkgManager.queryIntentActivities(intent, 0));
-                if (UtopiaLauncher.iconsCache.size() > 0) {
+//                if (UtopiaLauncher.iconsCache.size() > 0) {
                     createIconCache(apps);
-                }
+//                }
                 Collections.sort(apps, new Comparator<ResolveInfo>() {
                     @Override
                     public int compare(ResolveInfo appInfo, ResolveInfo t1) {
