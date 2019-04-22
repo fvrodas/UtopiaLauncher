@@ -26,14 +26,15 @@ import io.launcher.utopia.adapters.ShortcutViewHolder;
  */
 
 public class Tools {
-    private static Bitmap compress(Bitmap bitmap, int quality){
-        ByteArrayOutputStream baos= new  ByteArrayOutputStream();
+    private static Bitmap compress(Bitmap bitmap){
+        ByteArrayOutputStream byteArrayOutputStream= new  ByteArrayOutputStream();
+        final int quality = 70;
         if (Build.VERSION.SDK_INT >= 21) {
-            bitmap.compress(Bitmap.CompressFormat.WEBP, quality, baos);
+            bitmap.compress(Bitmap.CompressFormat.WEBP, quality, byteArrayOutputStream);
         } else {
-            bitmap.compress(Bitmap.CompressFormat.PNG, quality, baos);
+            bitmap.compress(Bitmap.CompressFormat.PNG, quality, byteArrayOutputStream);
         }
-        byte [] b=baos.toByteArray();
+        byte [] b=byteArrayOutputStream.toByteArray();
         return BitmapFactory.decodeByteArray(b, 0, b.length);
     }
 
@@ -46,7 +47,7 @@ public class Tools {
         final Canvas canvas = new Canvas(bmp);
         drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
         drawable.draw(canvas);
-        return Tools.compress(bmp, 70);
+        return Tools.compress(bmp);
     }
 
     private static int[] getColorsFromBitmap(Bitmap icon) {
@@ -69,7 +70,6 @@ public class Tools {
         colors[0] = ColorUtils.HSLToColor(hsl);
 
         ColorUtils.colorToHSL(color, hsl);
-        hsl[0] = hsl[0];
         hsl[1] = hsl[1] * 0.7f;
         hsl[2] = .5f;
         colors[1] = ColorUtils.HSLToColor(hsl);

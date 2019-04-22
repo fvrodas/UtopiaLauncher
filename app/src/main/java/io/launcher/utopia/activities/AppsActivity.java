@@ -77,7 +77,7 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
 
         svSearch.setOnQueryTextListener(this);
 
-        adapter = new ResolveInfoAdapter(this, new ArrayList<ResolveInfo>(), mPkgManager) {
+        adapter = new ResolveInfoAdapter(new ArrayList<ResolveInfo>(), mPkgManager) {
             @Override
             public void onAppPressed(ResolveInfo app) {
                 Intent toStart = mPkgManager.getLaunchIntentForPackage(app.activityInfo.packageName);
@@ -87,10 +87,10 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
         SpaceItemDecoration decoration = new SpaceItemDecoration(16);
         rvAppList.addItemDecoration(decoration);
         rvAppList.setAdapter(adapter);
-        rvAppList.setItemViewCacheSize(30);
+        rvAppList.setItemViewCacheSize(100);
 
-        AppCompatImageView ivsettings = findViewById(R.id.ivSettings);
-        ivsettings.setOnClickListener(new View.OnClickListener() {
+        AppCompatImageView imgButtonSettings = findViewById(R.id.ivSettings);
+        imgButtonSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mDrawerLayout.closeDrawers();
@@ -125,18 +125,13 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
 
         refreshApplicationsList();
 
-        initDock();
-
-        registerForContextMenu(rvAppList);
-    }
-
-    private void initDock() {
+        //region Dock Initialisation
         RecyclerView navigationView = findViewById(R.id.dock);
         LinearLayoutManager llm = new LinearLayoutManager(this, RecyclerView.VERTICAL, false);
         llm.setStackFromEnd(true);
         navigationView.setLayoutManager(llm);
 
-        dockAdapter = new ResolveInfoDockAdapter(this, new ArrayList<ResolveInfo>()) {
+        dockAdapter = new ResolveInfoDockAdapter(new ArrayList<ResolveInfo>()) {
             @Override
             protected void onAppPressed(ResolveInfo app) {
                 mDrawerLayout.closeDrawers();
@@ -170,7 +165,12 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
                 new SimpleItemTouchHelperCallback(dockAdapter);
         ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
         touchHelper.attachToRecyclerView(navigationView);
+        //endregion
+
+        registerForContextMenu(rvAppList);
     }
+
+
 
     private void refreshApplicationsList() {
         new Thread(new Runnable() {
@@ -180,9 +180,9 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
                 intent.addCategory(Intent.CATEGORY_LAUNCHER);
 
                 final ArrayList<ResolveInfo> apps = new ArrayList<>(mPkgManager.queryIntentActivities(intent, 0));
-//                if (UtopiaLauncher.iconsCache.size() > 0) {
-                    createIconCache(apps);
-//                }
+
+                createIconCache(apps);
+
                 Collections.sort(apps, new Comparator<ResolveInfo>() {
                     @Override
                     public int compare(ResolveInfo appInfo, ResolveInfo t1) {
@@ -194,7 +194,6 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
                     @Override
                     public void run() {
                         adapter.updateDataSet(apps);
-                        adapter.applyToPreferences(app.launcherSettings);
                         progressBar.setVisibility(View.GONE);
                         dockAdapter.updateFromPreferences(app.launcherSettings);
                     }
@@ -221,24 +220,7 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
 
     @Override
     public boolean onQueryTextChange(String newText) {
-        ArrayList<ResolveInfo> temp = new ArrayList<>();
-        String json = app.launcherSettings.getString(UtopiaLauncher.LAUNCHER, null);
-        if (json != null) {
-            try {
-                ResolveInfo[] data = new Gson().fromJson(json, ResolveInfo[].class);
-                List<ResolveInfo> apps = Arrays.asList(data);
-                for(int i = 0; i < apps.size(); i++) {
-                    final String label = apps.get(i).loadLabel(mPkgManager).toString();
-                    if (label.toLowerCase().contains(newText.toLowerCase())) {
-                        temp.add(apps.get(i));
-                    }
-                }
-                adapter.updateDataSet(temp);
-            } catch (Exception e) {
-                if (BuildConfig.DEBUG) e.printStackTrace();
-                adapter.updateFromPreferences(app.launcherSettings);
-            }
-        }
+        adapter.filterDataSet(newText);
 
         return true;
     }

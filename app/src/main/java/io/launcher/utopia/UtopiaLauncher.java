@@ -14,7 +14,7 @@ import androidx.collection.LruCache;
 public class UtopiaLauncher extends Application {
     public static final String COLUMNS_SETTINGS = "columns";
     public static final String DOCK = "dock";
-    public static final String LAUNCHER = "launcher";
+    public static final String LAUNCHER = "appsList";
     private static final int cacheSize = 16 * 1024 * 1024;
     public SharedPreferences launcherSettings;
     public boolean refreshNeeded = false;

@@ -1,6 +1,5 @@
 package io.launcher.utopia.adapters;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -28,9 +27,9 @@ import io.launcher.utopia.utils.ItemTouchHelperAdapter;
  */
 
 public abstract class ResolveInfoAdapter extends RecyclerView.Adapter<AppItemViewHolder>
-        implements ItemTouchHelperAdapter, AdapterPersistence {
-    private Context mContext;
+        implements ItemTouchHelperAdapter {
     private ArrayList<ResolveInfo> mItems;
+    private ArrayList<ResolveInfo> mFiltered = new ArrayList<>();
     private PackageManager mPkgManager;
 
     private ResolveInfo appSelected = null;
@@ -44,7 +43,7 @@ public abstract class ResolveInfoAdapter extends RecyclerView.Adapter<AppItemVie
     }
 
     @Override
-    public boolean onItemMove(int fromPosition, int toPosition) {
+    public void onItemMove(int fromPosition, int toPosition) {
         if (fromPosition < toPosition) {
             for (int i = fromPosition; i < toPosition; i++) {
                 Collections.swap(mItems, i, i + 1);
@@ -55,43 +54,33 @@ public abstract class ResolveInfoAdapter extends RecyclerView.Adapter<AppItemVie
             }
         }
         notifyItemMoved(fromPosition, toPosition);
-        return true;
     }
 
     public void updateDataSet(List<ResolveInfo> apps) {
         mItems.clear();
         mItems.addAll(apps);
+        mFiltered.clear();
+        mFiltered.addAll(apps);
         notifyDataSetChanged();
     }
 
-    @Override
-    public void updateFromPreferences(SharedPreferences prefs) {
-        String json = prefs.getString(UtopiaLauncher.LAUNCHER, null);
-        if (json != null) {
-            try {
-
-                ResolveInfo[] data = new Gson().fromJson(json, ResolveInfo[].class);
-                updateDataSet(Arrays.asList(data));
-            } catch (Exception e) {
-                if (BuildConfig.DEBUG) e.printStackTrace();
+    public void filterDataSet(String searchText) {
+        mFiltered.clear();
+        for(int i =0; i < mItems.size(); i ++) {
+            if(mItems.get(i).loadLabel(mPkgManager).toString().toLowerCase().contains(searchText.toLowerCase())) {
+                mFiltered.add(mItems.get(i));
             }
         }
+        notifyDataSetChanged();
     }
 
-    @Override
-    public void applyToPreferences(SharedPreferences prefs) {
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putString(UtopiaLauncher.LAUNCHER, new Gson().toJson(mItems));
-        editor.apply();
-    }
 
     @Override
     public void onItemDismiss(int position) {
 
     }
 
-    protected ResolveInfoAdapter(Context c, ArrayList<ResolveInfo> appsInfo, PackageManager pm) {
-        mContext = c;
+    protected ResolveInfoAdapter(ArrayList<ResolveInfo> appsInfo, PackageManager pm) {
         mItems = appsInfo;
         mPkgManager = pm;
     }
@@ -99,13 +88,13 @@ public abstract class ResolveInfoAdapter extends RecyclerView.Adapter<AppItemVie
     @NonNull
     @Override
     public AppItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(mContext).inflate(R.layout.item_square, parent, false);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_square, parent, false);
         return new AppItemViewHolder(v);
     }
 
     @Override
     public void onBindViewHolder(@NonNull final AppItemViewHolder holder, int position) {
-        final ResolveInfo current = mItems.get(holder.getAdapterPosition());
+        final ResolveInfo current = mFiltered.get(holder.getAdapterPosition());
         final String packageName = current.activityInfo.packageName;
         final String label = current.loadLabel(mPkgManager).toString();
 
@@ -147,7 +136,7 @@ public abstract class ResolveInfoAdapter extends RecyclerView.Adapter<AppItemVie
 
     @Override
     public int getItemCount() {
-        return mItems.size();
+        return mFiltered.size();
     }
 
 }

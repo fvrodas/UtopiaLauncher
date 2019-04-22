@@ -8,7 +8,7 @@ android {
     flavorDimensions "dev"
     defaultConfig {
         applicationId "io.launcher.utopia"
-        minSdkVersion 17
+        minSdkVersion 19
         targetSdkVersion 28
         versionCode 1
         versionName version
@@ -20,7 +20,7 @@ android {
     productFlavors {
         alpha {
             applicationId "io.launcher.utopia"
-            minSdkVersion 17
+            minSdkVersion 19
             targetSdkVersion 28
             versionCode 1
             versionName version + "-alpha"
@@ -29,7 +29,7 @@ android {
 
         beta {
             applicationId "io.launcher.utopia"
-            minSdkVersion 17
+            minSdkVersion 19
             targetSdkVersion 28
             versionCode 1
             versionName version + "-beta"
@@ -38,7 +38,7 @@ android {
 
         playstore {
             applicationId "io.launcher.utopia"
-            minSdkVersion 17
+            minSdkVersion 19
             targetSdkVersion 28
             versionCode 1
             versionName version

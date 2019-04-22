@@ -15,8 +15,7 @@ public class ShortcutViewHolder extends RecyclerView.ViewHolder {
 
     public ShortcutViewHolder(View itemView) {
         super(itemView);
-        ivicon = (ImageView) itemView.findViewById(R.id.ivIcon);
+        ivicon = itemView.findViewById(R.id.ivIcon);
     }
-
 
 }

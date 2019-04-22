@@ -11,14 +11,17 @@ import android.widget.NumberPicker;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+
+import java.util.Objects;
+
 import io.launcher.utopia.R;
 
 public abstract class NumberPickerDialog extends AlertDialog {
     private int defaultValue;
 
-    public NumberPickerDialog(@NonNull Context context, int defaultValue) {
+    protected NumberPickerDialog(@NonNull Context context, int defaultValue) {
         super(context);
-        getWindow().setGravity(Gravity.BOTTOM);
+        Objects.requireNonNull(getWindow()).setGravity(Gravity.BOTTOM);
         DisplayMetrics dm = context.getResources().getDisplayMetrics();
         this.defaultValue = defaultValue;
         getWindow().setLayout(dm.widthPixels, WindowManager.LayoutParams.WRAP_CONTENT);
@@ -28,12 +31,12 @@ public abstract class NumberPickerDialog extends AlertDialog {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.dialog_number_picker);
-        final NumberPicker npColumns = (NumberPicker) findViewById(R.id.npColumns);
-        npColumns.setMinValue(3);
+        final NumberPicker npColumns = findViewById(R.id.npColumns);
+        Objects.requireNonNull(npColumns).setMinValue(3);
         npColumns.setMaxValue(5);
 
-        Button btOK = (Button) findViewById(R.id.btOK);
-        btOK.setOnClickListener(new View.OnClickListener() {
+        Button btOK = findViewById(R.id.btOK);
+        Objects.requireNonNull(btOK).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 onOKPressed(npColumns.getValue());

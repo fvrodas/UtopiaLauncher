@@ -16,7 +16,6 @@ import static android.content.Intent.ACTION_PACKAGE_REPLACED;
 public class UtopiaService extends Service {
     public static boolean isRunning = false;
 
-    private static final String ACTION_INSTALL_SHORTCUT = "com.android.launcher.action.INSTALL_SHORTCUT";
     private BroadcastReceiver packageReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {

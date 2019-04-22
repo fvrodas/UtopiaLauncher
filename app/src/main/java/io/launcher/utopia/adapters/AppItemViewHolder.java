@@ -16,12 +16,12 @@ import io.launcher.utopia.R;
 class AppItemViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener {
     ImageView icon;
     TextView appName;
-    private MenuInflater menuInflater = null;
+    private MenuInflater menuInflater;
 
     AppItemViewHolder(View itemView) {
         super(itemView);
-        icon = (ImageView) itemView.findViewById(R.id.ivIcon);
-        appName = (TextView) itemView.findViewById(R.id.tvAppName);
+        icon = itemView.findViewById(R.id.ivIcon);
+        appName = itemView.findViewById(R.id.tvAppName);
         itemView.setOnCreateContextMenuListener(this);
         menuInflater = new MenuInflater(itemView.getContext());
     }

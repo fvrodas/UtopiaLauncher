@@ -1,6 +1,5 @@
 package io.launcher.utopia.adapters;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.ResolveInfo;
 import android.view.LayoutInflater;
@@ -27,10 +26,9 @@ import io.launcher.utopia.utils.ItemTouchHelperAdapter;
 
 public abstract class ResolveInfoDockAdapter extends RecyclerView.Adapter<ShortcutViewHolder>
         implements ItemTouchHelperAdapter, AdapterPersistence {
-    private Context mContext;
     private ArrayList<ResolveInfo> mItems;
     @Override
-    public boolean onItemMove(int fromPosition, int toPosition) {
+    public void onItemMove(int fromPosition, int toPosition) {
         if (fromPosition < toPosition) {
             for (int i = fromPosition; i < toPosition; i++) {
                 Collections.swap(mItems, i, i + 1);
@@ -42,7 +40,6 @@ public abstract class ResolveInfoDockAdapter extends RecyclerView.Adapter<Shortc
         }
         onItemSwapped(mItems);
         notifyItemMoved(fromPosition, toPosition);
-        return true;
     }
 
     private void updateDataSet(List<ResolveInfo> apps) {
@@ -85,15 +82,14 @@ public abstract class ResolveInfoDockAdapter extends RecyclerView.Adapter<Shortc
         notifyItemRemoved(position);
     }
 
-    protected ResolveInfoDockAdapter(Context c, ArrayList<ResolveInfo> appInfos) {
-        mContext = c;
-        mItems = appInfos;
+    protected ResolveInfoDockAdapter(ArrayList<ResolveInfo> appsInfo) {
+        mItems = appsInfo;
     }
 
     @NonNull
     @Override
     public ShortcutViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(mContext).inflate(R.layout.item_shortcut, parent, false);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_shortcut, parent, false);
         return new ShortcutViewHolder(v);
     }
 

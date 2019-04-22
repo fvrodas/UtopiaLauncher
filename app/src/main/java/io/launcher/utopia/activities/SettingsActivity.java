@@ -10,6 +10,9 @@ import com.google.android.material.navigation.NavigationView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+
+import java.util.Objects;
+
 import io.launcher.utopia.R;
 import io.launcher.utopia.UtopiaLauncher;
 import io.launcher.utopia.dialogs.NumberPickerDialog;
@@ -27,12 +30,12 @@ public class SettingsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_settings);
         app = (UtopiaLauncher) getApplication();
 
-        Toolbar tbSettings = (Toolbar) findViewById(R.id.tbSettings);
+        Toolbar tbSettings = findViewById(R.id.tbSettings);
         setSupportActionBar(tbSettings);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
-        NavigationView nvSettingsContainer = (NavigationView) findViewById(R.id.nvSettingsContainer);
+        NavigationView nvSettingsContainer = findViewById(R.id.nvSettingsContainer);
 
         nvSettingsContainer.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
