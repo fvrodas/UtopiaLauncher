@@ -4,6 +4,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,12 +15,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import io.launcher.utopia.BuildConfig;
 import io.launcher.utopia.R;
 import io.launcher.utopia.UtopiaLauncher;
+import io.launcher.utopia.threading.ImageLoaderTask;
+import io.launcher.utopia.utils.ActivityInfo;
 import io.launcher.utopia.utils.ItemTouchHelperAdapter;
 
 /**
@@ -28,17 +33,16 @@ import io.launcher.utopia.utils.ItemTouchHelperAdapter;
 
 public abstract class ResolveInfoAdapter extends RecyclerView.Adapter<AppItemViewHolder>
         implements ItemTouchHelperAdapter {
-    private ArrayList<ResolveInfo> mItems;
-    private ArrayList<ResolveInfo> mFiltered = new ArrayList<>();
-    private PackageManager mPkgManager;
+    private ArrayList<ActivityInfo> mItems;
+    private ArrayList<ActivityInfo> mFiltered = new ArrayList<>();
 
-    private ResolveInfo appSelected = null;
+    private ActivityInfo appSelected = null;
 
-    public ResolveInfo getAppSelected() {
+    public ActivityInfo getAppSelected() {
         return appSelected;
     }
 
-    public void setAppSelected(ResolveInfo appSelected) {
+    public void setAppSelected(ActivityInfo appSelected) {
         this.appSelected = appSelected;
     }
 
@@ -56,7 +60,7 @@ public abstract class ResolveInfoAdapter extends RecyclerView.Adapter<AppItemVie
         notifyItemMoved(fromPosition, toPosition);
     }
 
-    public void updateDataSet(List<ResolveInfo> apps) {
+    public void updateDataSet(List<ActivityInfo> apps) {
         mItems.clear();
         mItems.addAll(apps);
         mFiltered.clear();
@@ -67,7 +71,7 @@ public abstract class ResolveInfoAdapter extends RecyclerView.Adapter<AppItemVie
     public void filterDataSet(String searchText) {
         mFiltered.clear();
         for(int i =0; i < mItems.size(); i ++) {
-            if(mItems.get(i).loadLabel(mPkgManager).toString().toLowerCase().contains(searchText.toLowerCase())) {
+            if(mItems.get(i).getLabel().toLowerCase().contains(searchText.toLowerCase())) {
                 mFiltered.add(mItems.get(i));
             }
         }
@@ -80,9 +84,8 @@ public abstract class ResolveInfoAdapter extends RecyclerView.Adapter<AppItemVie
 
     }
 
-    protected ResolveInfoAdapter(ArrayList<ResolveInfo> appsInfo, PackageManager pm) {
+    protected ResolveInfoAdapter(ArrayList<ActivityInfo> appsInfo) {
         mItems = appsInfo;
-        mPkgManager = pm;
     }
 
     @NonNull
@@ -94,12 +97,13 @@ public abstract class ResolveInfoAdapter extends RecyclerView.Adapter<AppItemVie
 
     @Override
     public void onBindViewHolder(@NonNull final AppItemViewHolder holder, int position) {
-        final ResolveInfo current = mFiltered.get(holder.getAdapterPosition());
-        final String packageName = current.activityInfo.packageName;
-        final String label = current.loadLabel(mPkgManager).toString();
+        final ActivityInfo current = mFiltered.get(holder.getAdapterPosition());
+        final String packageName = current.getPackageName();
+        final String label = current.getLabel();
 
         if (UtopiaLauncher.iconsCache.get(packageName) != null) {
-            holder.icon.setImageBitmap(UtopiaLauncher.iconsCache.get(packageName));
+            holder.icon.setTag(packageName);
+            new ImageLoaderTask(holder.icon).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
 
         holder.appName.setText(label.toUpperCase());
@@ -132,7 +136,7 @@ public abstract class ResolveInfoAdapter extends RecyclerView.Adapter<AppItemVie
         super.onViewRecycled(holder);
     }
 
-    protected abstract void onAppPressed(ResolveInfo app);
+    protected abstract void onAppPressed(ActivityInfo app);
 
     @Override
     public int getItemCount() {

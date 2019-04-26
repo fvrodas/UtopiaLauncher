@@ -19,6 +19,7 @@
         app:menu="@menu/menu_settings"
         android:id="@+id/nvSettingsContainer"
         android:scrollbars="vertical"
+        app:itemTextAppearance="@style/UtopiaTheme.SettingItem"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 </RelativeLayout>

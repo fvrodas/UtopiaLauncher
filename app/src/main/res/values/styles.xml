@@ -1,14 +1,16 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="UtopiaTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="android:windowShowWallpaper">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
     </style>
 
-    <style name="AppTheme.Settings" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="UtopiaTheme.Settings" parent="UtopiaTheme">
         <item name="android:windowBackground">@android:color/white</item>
     </style>
+
+    <style name="UtopiaTheme.SettingItem" parent="TextAppearance.AppCompat.Widget.PopupMenu.Large"/>
 
 </resources>

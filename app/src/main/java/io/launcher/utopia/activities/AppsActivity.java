@@ -31,12 +31,14 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
+
 import io.launcher.utopia.BuildConfig;
 import io.launcher.utopia.R;
 import io.launcher.utopia.UtopiaLauncher;
 import io.launcher.utopia.adapters.ResolveInfoAdapter;
 import io.launcher.utopia.adapters.ResolveInfoDockAdapter;
 import io.launcher.utopia.services.UtopiaService;
+import io.launcher.utopia.utils.ActivityInfo;
 import io.launcher.utopia.utils.SimpleItemTouchHelperCallback;
 import io.launcher.utopia.utils.SpaceItemDecoration;
 import io.launcher.utopia.utils.Tools;
@@ -77,10 +79,10 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
 
         svSearch.setOnQueryTextListener(this);
 
-        adapter = new ResolveInfoAdapter(new ArrayList<ResolveInfo>(), mPkgManager) {
+        adapter = new ResolveInfoAdapter(new ArrayList<ActivityInfo>()) {
             @Override
-            public void onAppPressed(ResolveInfo app) {
-                Intent toStart = mPkgManager.getLaunchIntentForPackage(app.activityInfo.packageName);
+            public void onAppPressed(ActivityInfo app) {
+                Intent toStart = mPkgManager.getLaunchIntentForPackage(app.getPackageName());
                 AppsActivity.this.startActivity(toStart);
             }
         };
@@ -131,28 +133,28 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
         llm.setStackFromEnd(true);
         navigationView.setLayoutManager(llm);
 
-        dockAdapter = new ResolveInfoDockAdapter(new ArrayList<ResolveInfo>()) {
+        dockAdapter = new ResolveInfoDockAdapter(new ArrayList<ActivityInfo>()) {
             @Override
-            protected void onAppPressed(ResolveInfo app) {
+            protected void onAppPressed(ActivityInfo app) {
                 mDrawerLayout.closeDrawers();
-                Intent toStart = mPkgManager.getLaunchIntentForPackage(app.activityInfo.packageName);
+                Intent toStart = mPkgManager.getLaunchIntentForPackage(app.getPackageName());
                 AppsActivity.this.startActivity(toStart);
             }
 
             @Override
-            protected void onAppLongPressed(final ResolveInfo app) {
+            protected void onAppLongPressed(final ActivityInfo app) {
 
             }
 
             @Override
-            protected void onItemRemoved(ArrayList<ResolveInfo> items) {
+            protected void onItemRemoved(ArrayList<ActivityInfo> items) {
                 SharedPreferences.Editor editor = app.launcherSettings.edit();
                 editor.putString(UtopiaLauncher.DOCK, new Gson().toJson(items));
                 editor.apply();
             }
 
             @Override
-            protected void onItemSwapped(ArrayList<ResolveInfo> items) {
+            protected void onItemSwapped(ArrayList<ActivityInfo> items) {
                 SharedPreferences.Editor editor = app.launcherSettings.edit();
                 editor.putString(UtopiaLauncher.DOCK, new Gson().toJson(items));
                 editor.apply();
@@ -171,7 +173,6 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
     }
 
 
-
     private void refreshApplicationsList() {
         new Thread(new Runnable() {
             @Override
@@ -179,15 +180,26 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
                 Intent intent = new Intent(Intent.ACTION_MAIN, null);
                 intent.addCategory(Intent.CATEGORY_LAUNCHER);
 
-                final ArrayList<ResolveInfo> apps = new ArrayList<>(mPkgManager.queryIntentActivities(intent, 0));
+                final ArrayList<ActivityInfo> apps = new ArrayList<>();
 
-                createIconCache(apps);
+                for (ResolveInfo item : mPkgManager.queryIntentActivities(intent, 0)) {
+                    apps.add(new ActivityInfo(item.activityInfo.packageName, item.loadLabel(getPackageManager()).toString()));
+                    UtopiaLauncher.iconsCache.put(
+                            item.activityInfo.packageName,
+                            Tools.createIcon(AppsActivity.this,
+                                    Tools.getBitmapFromDrawable(
+                                            item.loadIcon(mPkgManager),
+                                            Bitmap.Config.ARGB_8888
+                                    )
+                            )
+                    );
+                }
 
-                Collections.sort(apps, new Comparator<ResolveInfo>() {
+                Collections.sort(apps, new Comparator<ActivityInfo>() {
                     @Override
-                    public int compare(ResolveInfo appInfo, ResolveInfo t1) {
-                        return appInfo.loadLabel(mPkgManager).toString()
-                                .compareTo(t1.loadLabel(mPkgManager).toString());
+                    public int compare(ActivityInfo appInfo, ActivityInfo t1) {
+                        return appInfo.getLabel()
+                                .compareTo(t1.getLabel());
                     }
                 });
                 AppsActivity.this.runOnUiThread(new Runnable() {
@@ -200,17 +212,6 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
                 });
             }
         }).start();
-    }
-
-    private void createIconCache(ArrayList<ResolveInfo> items) {
-        Bitmap icon;
-        for(ResolveInfo item : items) {
-            final String packageName = item.activityInfo.packageName;
-            if (UtopiaLauncher.iconsCache.get(packageName) == null) {
-                icon = Tools.createIcon(this, Tools.getBitmapFromDrawable(item.loadIcon(mPkgManager), Bitmap.Config.ARGB_8888));
-                UtopiaLauncher.iconsCache.put(packageName, icon);
-            }
-        }
     }
 
     @Override
@@ -235,7 +236,7 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK){
+        if (resultCode == RESULT_OK) {
             if (requestCode == REQUEST_SETTINGS) {
                 int columns = app.launcherSettings.getInt(COLUMNS_SETTINGS, 4);
 
@@ -252,13 +253,17 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
     @Override
     protected void onResume() {
         super.onResume();
-        if  (!UtopiaService.isRunning) {
-            Intent service = new Intent(this, UtopiaService.class);
-            startService(service);
+        if (!UtopiaService.isRunning) {
+            try {
+                Intent service = new Intent(this, UtopiaService.class);
+                startService(service);
+            } catch (IllegalStateException ex) {
+                if (BuildConfig.DEBUG) ex.printStackTrace();
+            }
         }
         if (app.refreshNeeded) {
-           refreshApplicationsList();
-           app.refreshNeeded = false;
+            refreshApplicationsList();
+            app.refreshNeeded = false;
         }
     }
 
@@ -271,9 +276,9 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
                     break;
                 }
                 case R.id.action_uninstall: {
-                    Uri packageUri = Uri.parse("package:" + adapter.getAppSelected().activityInfo.packageName);
+                    Uri packageUri = Uri.parse("package:" + adapter.getAppSelected().getPackageName());
                     Intent uninstallIntent =
-                            new Intent(Build.VERSION.SDK_INT > 19? Intent.ACTION_DELETE :Intent.ACTION_UNINSTALL_PACKAGE, packageUri);
+                            new Intent(Build.VERSION.SDK_INT > 19 ? Intent.ACTION_DELETE : Intent.ACTION_UNINSTALL_PACKAGE, packageUri);
                     startActivityForResult(uninstallIntent, REQUEST_UNINSTALL);
                     break;
                 }
@@ -282,4 +287,5 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
         }
         return super.onContextItemSelected(item);
     }
+
 }

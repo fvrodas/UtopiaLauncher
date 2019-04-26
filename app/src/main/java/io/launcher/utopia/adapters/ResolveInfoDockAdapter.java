@@ -2,6 +2,7 @@ package io.launcher.utopia.adapters;
 
 import android.content.SharedPreferences;
 import android.content.pm.ResolveInfo;
+import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +19,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import io.launcher.utopia.BuildConfig;
 import io.launcher.utopia.R;
 import io.launcher.utopia.UtopiaLauncher;
+import io.launcher.utopia.threading.ImageLoaderTask;
+import io.launcher.utopia.utils.ActivityInfo;
 import io.launcher.utopia.utils.ItemTouchHelperAdapter;
 
 /**
@@ -26,7 +29,7 @@ import io.launcher.utopia.utils.ItemTouchHelperAdapter;
 
 public abstract class ResolveInfoDockAdapter extends RecyclerView.Adapter<ShortcutViewHolder>
         implements ItemTouchHelperAdapter, AdapterPersistence {
-    private ArrayList<ResolveInfo> mItems;
+    private ArrayList<ActivityInfo> mItems;
     @Override
     public void onItemMove(int fromPosition, int toPosition) {
         if (fromPosition < toPosition) {
@@ -42,7 +45,7 @@ public abstract class ResolveInfoDockAdapter extends RecyclerView.Adapter<Shortc
         notifyItemMoved(fromPosition, toPosition);
     }
 
-    private void updateDataSet(List<ResolveInfo> apps) {
+    private void updateDataSet(List<ActivityInfo> apps) {
         mItems.clear();
         mItems.addAll(apps);
         notifyDataSetChanged();
@@ -53,8 +56,7 @@ public abstract class ResolveInfoDockAdapter extends RecyclerView.Adapter<Shortc
         String json = prefs.getString(UtopiaLauncher.DOCK, null);
         if (json != null) {
             try {
-
-                ResolveInfo[] data = new Gson().fromJson(json, ResolveInfo[].class);
+                ActivityInfo[] data = new Gson().fromJson(json, ActivityInfo[].class);
                 updateDataSet(Arrays.asList(data));
             } catch (Exception e) {
                 if (BuildConfig.DEBUG) e.printStackTrace();
@@ -69,7 +71,7 @@ public abstract class ResolveInfoDockAdapter extends RecyclerView.Adapter<Shortc
         editor.apply();
     }
 
-    public void addItem(ResolveInfo app, SharedPreferences prefs) {
+    public void addItem(ActivityInfo app, SharedPreferences prefs) {
         mItems.add(app);
         notifyItemInserted(mItems.size() - 1);
         applyToPreferences(prefs);
@@ -82,7 +84,7 @@ public abstract class ResolveInfoDockAdapter extends RecyclerView.Adapter<Shortc
         notifyItemRemoved(position);
     }
 
-    protected ResolveInfoDockAdapter(ArrayList<ResolveInfo> appsInfo) {
+    protected ResolveInfoDockAdapter(ArrayList<ActivityInfo> appsInfo) {
         mItems = appsInfo;
     }
 
@@ -95,11 +97,12 @@ public abstract class ResolveInfoDockAdapter extends RecyclerView.Adapter<Shortc
 
     @Override
     public void onBindViewHolder(@NonNull final ShortcutViewHolder holder, int position) {
-        final ResolveInfo current = mItems.get(holder.getAdapterPosition());
-        final String packageName = current.activityInfo.packageName;
+        final ActivityInfo current = mItems.get(holder.getAdapterPosition());
+        final String packageName = current.getPackageName();
 
         if (UtopiaLauncher.iconsCache.get(packageName) != null) {
-            holder.ivicon.setImageBitmap(UtopiaLauncher.iconsCache.get(packageName));
+            holder.ivicon.setTag(packageName);
+            new ImageLoaderTask(holder.ivicon).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -127,10 +130,10 @@ public abstract class ResolveInfoDockAdapter extends RecyclerView.Adapter<Shortc
         super.onViewRecycled(holder);
     }
 
-    protected abstract void onAppPressed(ResolveInfo app);
-    protected abstract void onAppLongPressed(ResolveInfo app);
-    protected abstract void onItemRemoved(ArrayList<ResolveInfo> items);
-    protected abstract void onItemSwapped(ArrayList<ResolveInfo> items);
+    protected abstract void onAppPressed(ActivityInfo app);
+    protected abstract void onAppLongPressed(ActivityInfo app);
+    protected abstract void onItemRemoved(ArrayList<ActivityInfo> items);
+    protected abstract void onItemSwapped(ArrayList<ActivityInfo> items);
 
     @Override
     public int getItemCount() {
