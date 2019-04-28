@@ -9,18 +9,11 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
-
-import com.google.gson.Gson;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -32,6 +25,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Observable;
+import java.util.Observer;
+
 import io.launcher.utopia.BuildConfig;
 import io.launcher.utopia.R;
 import io.launcher.utopia.UtopiaLauncher;
@@ -39,6 +38,8 @@ import io.launcher.utopia.adapters.ResolveInfoAdapter;
 import io.launcher.utopia.adapters.ResolveInfoDockAdapter;
 import io.launcher.utopia.services.UtopiaService;
 import io.launcher.utopia.utils.ActivityInfo;
+import io.launcher.utopia.utils.IntentObservable;
+import io.launcher.utopia.utils.SerializeHelper;
 import io.launcher.utopia.utils.SimpleItemTouchHelperCallback;
 import io.launcher.utopia.utils.SpaceItemDecoration;
 import io.launcher.utopia.utils.Tools;
@@ -46,7 +47,7 @@ import io.launcher.utopia.utils.Tools;
 import static io.launcher.utopia.UtopiaLauncher.COLUMNS_SETTINGS;
 import static io.launcher.utopia.activities.SettingsActivity.REQUEST_SETTINGS;
 
-public class AppsActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
+public class AppsActivity extends AppCompatActivity implements SearchView.OnQueryTextListener, Observer {
     private static final int REQUEST_UNINSTALL = 7686;
     private final DisplayMetrics metrics = new DisplayMetrics();
     private PackageManager mPkgManager = null;
@@ -56,6 +57,7 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
     private RecyclerView rvAppList;
     private DrawerLayout mDrawerLayout;
     private ProgressBar progressBar;
+    private SerializeHelper<ArrayList<ActivityInfo>> helper = new SerializeHelper<>();
 
 
     @Override
@@ -68,6 +70,8 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
         rvAppList = findViewById(R.id.rvAppList);
         mDrawerLayout = findViewById(R.id.drawer_layout);
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
+
+        app.observable.addObserver(this);
 
         int columns = app.launcherSettings.getInt(COLUMNS_SETTINGS, 4);
 
@@ -149,14 +153,14 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
             @Override
             protected void onItemRemoved(ArrayList<ActivityInfo> items) {
                 SharedPreferences.Editor editor = app.launcherSettings.edit();
-                editor.putString(UtopiaLauncher.DOCK, new Gson().toJson(items));
+                editor.putString(UtopiaLauncher.DOCK, helper.serialize(items));
                 editor.apply();
             }
 
             @Override
             protected void onItemSwapped(ArrayList<ActivityInfo> items) {
                 SharedPreferences.Editor editor = app.launcherSettings.edit();
-                editor.putString(UtopiaLauncher.DOCK, new Gson().toJson(items));
+                editor.putString(UtopiaLauncher.DOCK, helper.serialize(items));
                 editor.apply();
             }
         };
@@ -239,15 +243,16 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
         if (resultCode == RESULT_OK) {
             if (requestCode == REQUEST_SETTINGS) {
                 int columns = app.launcherSettings.getInt(COLUMNS_SETTINGS, 4);
-
                 StaggeredGridLayoutManager layoutManager =
                         new StaggeredGridLayoutManager(columns, StaggeredGridLayoutManager.VERTICAL);
                 rvAppList.setLayoutManager(layoutManager);
             }
             if (requestCode == REQUEST_UNINSTALL) {
-                refreshApplicationsList();
+                adapter.removeShortcut(adapter.getAppSelected());
+                dockAdapter.removeShortcut(adapter.getAppSelected());
             }
         }
+        adapter.setAppSelected(null);
     }
 
     @Override
@@ -261,10 +266,6 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
                 if (BuildConfig.DEBUG) ex.printStackTrace();
             }
         }
-        if (app.refreshNeeded) {
-            refreshApplicationsList();
-            app.refreshNeeded = false;
-        }
     }
 
     @Override
@@ -273,6 +274,7 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
             switch (item.getItemId()) {
                 case R.id.action_pin_to_dock: {
                     dockAdapter.addItem(adapter.getAppSelected(), app.launcherSettings);
+                    adapter.setAppSelected(null);
                     break;
                 }
                 case R.id.action_uninstall: {
@@ -283,9 +285,14 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
                     break;
                 }
             }
-            adapter.setAppSelected(null);
         }
         return super.onContextItemSelected(item);
     }
 
+    @Override
+    public void update(Observable o, Object arg) {
+//        IntentObservable tmp = (IntentObservable) o;
+        Log.d(getClass().getCanonicalName(), "Received");
+        refreshApplicationsList();
+    }
 }

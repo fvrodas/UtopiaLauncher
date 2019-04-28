@@ -1,27 +1,22 @@
 package io.launcher.utopia.adapters;
 
 import android.content.SharedPreferences;
-import android.content.pm.ResolveInfo;
 import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import com.google.gson.Gson;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import io.launcher.utopia.BuildConfig;
 import io.launcher.utopia.R;
 import io.launcher.utopia.UtopiaLauncher;
 import io.launcher.utopia.threading.ImageLoaderTask;
 import io.launcher.utopia.utils.ActivityInfo;
 import io.launcher.utopia.utils.ItemTouchHelperAdapter;
+import io.launcher.utopia.utils.SerializeHelper;
 
 /**
  * Created by fernando on 10/15/17.
@@ -30,6 +25,7 @@ import io.launcher.utopia.utils.ItemTouchHelperAdapter;
 public abstract class ResolveInfoDockAdapter extends RecyclerView.Adapter<ShortcutViewHolder>
         implements ItemTouchHelperAdapter, AdapterPersistence {
     private ArrayList<ActivityInfo> mItems;
+    private SerializeHelper<ArrayList<ActivityInfo>> helper = new SerializeHelper<>();
     @Override
     public void onItemMove(int fromPosition, int toPosition) {
         if (fromPosition < toPosition) {
@@ -56,8 +52,8 @@ public abstract class ResolveInfoDockAdapter extends RecyclerView.Adapter<Shortc
         String json = prefs.getString(UtopiaLauncher.DOCK, null);
         if (json != null) {
             try {
-                ActivityInfo[] data = new Gson().fromJson(json, ActivityInfo[].class);
-                updateDataSet(Arrays.asList(data));
+                ArrayList<ActivityInfo> data = helper.deserialize(json);
+                updateDataSet(data);
             } catch (Exception e) {
                 if (BuildConfig.DEBUG) e.printStackTrace();
             }
@@ -67,7 +63,7 @@ public abstract class ResolveInfoDockAdapter extends RecyclerView.Adapter<Shortc
     @Override
     public void applyToPreferences(SharedPreferences prefs) {
         SharedPreferences.Editor editor = prefs.edit();
-        editor.putString(UtopiaLauncher.DOCK, new Gson().toJson(mItems));
+        editor.putString(UtopiaLauncher.DOCK, helper.serialize(mItems));
         editor.apply();
     }
 
@@ -82,6 +78,14 @@ public abstract class ResolveInfoDockAdapter extends RecyclerView.Adapter<Shortc
         mItems.remove(position);
         onItemRemoved(mItems);
         notifyItemRemoved(position);
+    }
+
+    public void removeShortcut(ActivityInfo app) {
+        int index = mItems.indexOf(app);
+        if (index >= 0) {
+            mItems.remove(index);
+            notifyItemRemoved(index);
+        }
     }
 
     protected ResolveInfoDockAdapter(ArrayList<ActivityInfo> appsInfo) {

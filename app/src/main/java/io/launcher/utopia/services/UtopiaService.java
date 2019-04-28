@@ -20,7 +20,7 @@ public class UtopiaService extends Service {
         @Override
         public void onReceive(Context context, Intent intent) {
             UtopiaLauncher app = (UtopiaLauncher) getApplication();
-            app.refreshNeeded = true;
+            app.observable.setI(intent);
         }
     };
     private IntentFilter intentFilter = new IntentFilter();

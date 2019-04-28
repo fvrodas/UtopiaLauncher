@@ -13,11 +13,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
-import java.io.ByteArrayOutputStream;
-
 import androidx.annotation.NonNull;
 import androidx.core.graphics.ColorUtils;
 import androidx.palette.graphics.Palette;
+
+import java.io.ByteArrayOutputStream;
+
 import io.launcher.utopia.R;
 import io.launcher.utopia.adapters.ShortcutViewHolder;
 

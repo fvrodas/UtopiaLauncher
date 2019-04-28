@@ -1,26 +1,18 @@
 package io.launcher.utopia.adapters;
 
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.gson.Gson;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ThreadPoolExecutor;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import io.launcher.utopia.BuildConfig;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import io.launcher.utopia.R;
 import io.launcher.utopia.UtopiaLauncher;
 import io.launcher.utopia.threading.ImageLoaderTask;
@@ -66,6 +58,14 @@ public abstract class ResolveInfoAdapter extends RecyclerView.Adapter<AppItemVie
         mFiltered.clear();
         mFiltered.addAll(apps);
         notifyDataSetChanged();
+    }
+
+    public void removeShortcut(ActivityInfo app) {
+        int index = mItems.indexOf(app);
+        if (index >= 0) {
+            mItems.remove(index);
+            notifyItemRemoved(index);
+        }
     }
 
     public void filterDataSet(String searchText) {
