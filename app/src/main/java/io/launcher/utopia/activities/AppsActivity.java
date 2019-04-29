@@ -188,15 +188,17 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
 
                 for (ResolveInfo item : mPkgManager.queryIntentActivities(intent, 0)) {
                     apps.add(new ActivityInfo(item.activityInfo.packageName, item.loadLabel(getPackageManager()).toString()));
-                    UtopiaLauncher.iconsCache.put(
-                            item.activityInfo.packageName,
-                            Tools.createIcon(AppsActivity.this,
-                                    Tools.getBitmapFromDrawable(
-                                            item.loadIcon(mPkgManager),
-                                            Bitmap.Config.ARGB_8888
-                                    )
-                            )
-                    );
+                    if (UtopiaLauncher.iconsCache.get(item.activityInfo.packageName) == null) {
+                        UtopiaLauncher.iconsCache.put(
+                                item.activityInfo.packageName,
+                                Tools.createIcon(AppsActivity.this,
+                                        Tools.getBitmapFromDrawable(
+                                                item.loadIcon(mPkgManager),
+                                                Bitmap.Config.ARGB_8888
+                                        )
+                                )
+                        );
+                    }
                 }
 
                 Collections.sort(apps, new Comparator<ActivityInfo>() {
@@ -240,7 +242,7 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK) {
+        if (resultCode == AppCompatActivity.RESULT_OK) {
             if (requestCode == REQUEST_SETTINGS) {
                 int columns = app.launcherSettings.getInt(COLUMNS_SETTINGS, 4);
                 StaggeredGridLayoutManager layoutManager =
@@ -248,7 +250,7 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
                 rvAppList.setLayoutManager(layoutManager);
             }
             if (requestCode == REQUEST_UNINSTALL) {
-                adapter.removeShortcut(adapter.getAppSelected());
+                refreshApplicationsList();
                 dockAdapter.removeShortcut(adapter.getAppSelected());
             }
         }
@@ -291,8 +293,7 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
 
     @Override
     public void update(Observable o, Object arg) {
-//        IntentObservable tmp = (IntentObservable) o;
-        Log.d(getClass().getCanonicalName(), "Received");
+        if (BuildConfig.DEBUG) Log.d(getClass().getCanonicalName(), "Received");
         refreshApplicationsList();
     }
 }
