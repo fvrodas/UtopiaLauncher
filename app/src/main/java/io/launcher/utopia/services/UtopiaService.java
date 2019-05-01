@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.IBinder;
 
+import java.util.Objects;
+
 import io.launcher.utopia.UtopiaLauncher;
 
 import static android.content.Intent.ACTION_PACKAGE_ADDED;

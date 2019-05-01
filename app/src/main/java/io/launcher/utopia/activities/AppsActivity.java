@@ -28,6 +28,7 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Objects;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -208,6 +209,7 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
                                 .compareTo(t1.getLabel());
                     }
                 });
+
                 AppsActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -251,7 +253,7 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
             }
             if (requestCode == REQUEST_UNINSTALL) {
                 refreshApplicationsList();
-                dockAdapter.removeShortcut(adapter.getAppSelected());
+                dockAdapter.removeShortcut(adapter.getAppSelected().getPackageName());
             }
         }
         adapter.setAppSelected(null);
@@ -282,7 +284,7 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
                 case R.id.action_uninstall: {
                     Uri packageUri = Uri.parse("package:" + adapter.getAppSelected().getPackageName());
                     Intent uninstallIntent =
-                            new Intent(Build.VERSION.SDK_INT > 19 ? Intent.ACTION_DELETE : Intent.ACTION_UNINSTALL_PACKAGE, packageUri);
+                            new Intent(Intent.ACTION_DELETE, packageUri);
                     startActivityForResult(uninstallIntent, REQUEST_UNINSTALL);
                     break;
                 }
@@ -294,6 +296,13 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
     @Override
     public void update(Observable o, Object arg) {
         if (BuildConfig.DEBUG) Log.d(getClass().getCanonicalName(), "Received");
+        IntentObservable obs =(IntentObservable) o;
+        Intent intent = obs.getI();
+        String pkg = Objects.requireNonNull(intent.getData()).toString().replace("package:", "");
+        if (UtopiaLauncher.iconsCache.get(pkg) != null) UtopiaLauncher.iconsCache.remove(pkg);
+        if (Objects.equals(obs.getI().getAction(), Intent.ACTION_PACKAGE_REMOVED)) {
+            dockAdapter.removeShortcut(pkg);
+        }
         refreshApplicationsList();
     }
 }

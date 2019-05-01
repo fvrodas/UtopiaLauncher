@@ -60,6 +60,11 @@ public abstract class ResolveInfoDockAdapter extends RecyclerView.Adapter<Shortc
         }
     }
 
+    public void removeUninstalled(ArrayList<ActivityInfo> apps) {
+        mItems.retainAll(apps);
+        updateDataSet(mItems);
+    }
+
     @Override
     public void applyToPreferences(SharedPreferences prefs) {
         SharedPreferences.Editor editor = prefs.edit();
@@ -80,11 +85,14 @@ public abstract class ResolveInfoDockAdapter extends RecyclerView.Adapter<Shortc
         notifyItemRemoved(position);
     }
 
-    public void removeShortcut(ActivityInfo app) {
-        int index = mItems.indexOf(app);
-        if (index >= 0) {
-            mItems.remove(index);
-            notifyItemRemoved(index);
+    public void removeShortcut(String app) {
+        for (ActivityInfo item: mItems
+             ) {
+            if (item.getPackageName().equals(app)) {
+                int index = mItems.indexOf(item);
+                mItems.remove(item);
+                notifyItemRemoved(index);
+            }
         }
     }
 

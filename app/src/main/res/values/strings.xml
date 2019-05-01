@@ -5,4 +5,7 @@
     <string name="NumberPickerDialogTitle">Columns</string>
     <string name="menu_wallpaper">Wallpaper</string>
     <string name="menu_columns">Columns</string>
+    <string name="menu_about">About</string>
+    <string name="menu_uninstall">Uninstall</string>
+    <string name="menu_pin_to_dock">Pin to Dock</string>
 </resources>
