@@ -1,8 +1,9 @@
 package io.launcher.utopia.adapters;
 
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 import io.launcher.utopia.R;
 
@@ -11,12 +12,11 @@ import io.launcher.utopia.R;
  */
 
 public class ShortcutViewHolder extends RecyclerView.ViewHolder {
-    public ImageView ivicon;
+    public final ImageView ivicon;
 
     public ShortcutViewHolder(View itemView) {
         super(itemView);
-        ivicon = (ImageView) itemView.findViewById(R.id.ivIcon);
+        ivicon = itemView.findViewById(R.id.ivIcon);
     }
-
 
 }

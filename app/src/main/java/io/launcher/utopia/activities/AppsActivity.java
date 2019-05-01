@@ -1,47 +1,45 @@
 package io.launcher.utopia.activities;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.AppCompatImageView;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SearchView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.DisplayMetrics;
-import android.util.JsonWriter;
+import android.util.Log;
+import android.util.TypedValue;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatImageView;
+import androidx.appcompat.widget.SearchView;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
-import org.json.JSONStringer;
-
-import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Objects;
+import java.util.Observable;
+import java.util.Observer;
 
 import io.launcher.utopia.BuildConfig;
 import io.launcher.utopia.R;
 import io.launcher.utopia.UtopiaLauncher;
 import io.launcher.utopia.adapters.ResolveInfoAdapter;
 import io.launcher.utopia.adapters.ResolveInfoDockAdapter;
+import io.launcher.utopia.services.UtopiaService;
+import io.launcher.utopia.utils.ActivityInfo;
+import io.launcher.utopia.utils.IntentObservable;
+import io.launcher.utopia.utils.SerializeHelper;
 import io.launcher.utopia.utils.SimpleItemTouchHelperCallback;
 import io.launcher.utopia.utils.SpaceItemDecoration;
 import io.launcher.utopia.utils.Tools;
@@ -49,15 +47,8 @@ import io.launcher.utopia.utils.Tools;
 import static io.launcher.utopia.UtopiaLauncher.COLUMNS_SETTINGS;
 import static io.launcher.utopia.activities.SettingsActivity.REQUEST_SETTINGS;
 
-public class AppsActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
+public class AppsActivity extends AppCompatActivity implements SearchView.OnQueryTextListener, Observer {
     private static final int REQUEST_UNINSTALL = 7686;
-    private static final String ACTION_PACKAGE_INSTALL = "android.intent.action.PACKAGE_INSTALL";
-    private static final String ACTION_PACKAGE_ADDED = "android.intent.action.PACKAGE_ADDED";
-    private static final String ACTION_PACKAGE_REMOVED = "android.intent.action.PACKAGE_REMOVED";
-    private static final String ACTION_PACKAGE_REPLACED = "android.intent.action.PACKAGE_REPLACED";
-    private static final String ACTION_INSTALL_SHORTCUT = "com.android.launcher.action.INSTALL_SHORTCUT";
-    private final ArrayList<ResolveInfo> apps = new ArrayList<>();
-    private final ArrayList<ResolveInfo> docked = new ArrayList<>();
     private final DisplayMetrics metrics = new DisplayMetrics();
     private PackageManager mPkgManager = null;
     private UtopiaLauncher app = null;
@@ -66,17 +57,8 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
     private RecyclerView rvAppList;
     private DrawerLayout mDrawerLayout;
     private ProgressBar progressBar;
-    private IntentFilter intentFilter = new IntentFilter();
-    private boolean isLoading = false;
-    private BroadcastReceiver packageReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (app.applicationsInstalled.size() != countApps() && adapter != null) {
-                app.applicationsInstalled.clear();
-                loadApplications();
-            }
-        }
-    };
+    private final SerializeHelper<ArrayList<ActivityInfo>> helper = new SerializeHelper<>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,18 +66,12 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
         setContentView(R.layout.activity_apps);
         app = (UtopiaLauncher) getApplication();
         mPkgManager = getPackageManager();
-        progressBar = (ProgressBar) findViewById(R.id.pbLoading);
-        rvAppList = (RecyclerView) findViewById(R.id.rvAppList);
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        progressBar = findViewById(R.id.pbLoading);
+        rvAppList = findViewById(R.id.rvAppList);
+        mDrawerLayout = findViewById(R.id.drawer_layout);
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
-        intentFilter.addAction(ACTION_PACKAGE_INSTALL);
-        intentFilter.addAction(ACTION_PACKAGE_ADDED);
-        intentFilter.addAction(ACTION_PACKAGE_REMOVED);
-        intentFilter.addAction(ACTION_PACKAGE_REPLACED);
-        intentFilter.addAction(ACTION_INSTALL_SHORTCUT);
-
-        registerReceiver(packageReceiver, intentFilter);
+        app.observable.addObserver(this);
 
         int columns = app.launcherSettings.getInt(COLUMNS_SETTINGS, 4);
 
@@ -103,24 +79,24 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
                 new StaggeredGridLayoutManager(columns, StaggeredGridLayoutManager.VERTICAL);
         rvAppList.setLayoutManager(layoutManager);
 
-        SearchView svSearch = (SearchView) findViewById(R.id.svSearch);
+        SearchView svSearch = findViewById(R.id.svSearch);
 
         svSearch.setOnQueryTextListener(this);
 
-        adapter = new ResolveInfoAdapter(this, apps, mPkgManager) {
+        adapter = new ResolveInfoAdapter(new ArrayList<ActivityInfo>()) {
             @Override
-            public void onAppPressed(ResolveInfo app) {
-                Intent toStart = mPkgManager.getLaunchIntentForPackage(app.activityInfo.packageName);
+            public void onAppPressed(ActivityInfo app) {
+                Intent toStart = mPkgManager.getLaunchIntentForPackage(app.getPackageName());
                 AppsActivity.this.startActivity(toStart);
             }
         };
         SpaceItemDecoration decoration = new SpaceItemDecoration(16);
         rvAppList.addItemDecoration(decoration);
         rvAppList.setAdapter(adapter);
-        rvAppList.setItemViewCacheSize(30);
+        rvAppList.setItemViewCacheSize(100);
 
-        AppCompatImageView ivsettings = (AppCompatImageView) findViewById(R.id.ivSettings);
-        ivsettings.setOnClickListener(new View.OnClickListener() {
+        AppCompatImageView imgButtonSettings = findViewById(R.id.ivSettings);
+        imgButtonSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mDrawerLayout.closeDrawers();
@@ -129,43 +105,62 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
             }
         });
 
-        loadApplications();
+        mDrawerLayout.addDrawerListener(new DrawerLayout.DrawerListener() {
+            @Override
+            public void onDrawerSlide(@NonNull View drawerView, float slideOffset) {
+                float dp = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 80, getResources().getDisplayMetrics());
+                float moveFactor = (dp * slideOffset);
+                (findViewById(R.id.rootView)).setTranslationX(-moveFactor);
+            }
 
-        initDock();
+            @Override
+            public void onDrawerOpened(@NonNull View drawerView) {
 
-        registerForContextMenu(rvAppList);
-    }
+            }
 
-    private void initDock() {
-        RecyclerView navigationView = (RecyclerView) findViewById(R.id.dock);
-        LinearLayoutManager llm = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+            @Override
+            public void onDrawerClosed(@NonNull View drawerView) {
+
+            }
+
+            @Override
+            public void onDrawerStateChanged(int newState) {
+
+            }
+        });
+
+        refreshApplicationsList();
+
+        //region Dock Initialisation
+        RecyclerView navigationView = findViewById(R.id.dock);
+        LinearLayoutManager llm = new LinearLayoutManager(this, RecyclerView.VERTICAL, false);
         llm.setStackFromEnd(true);
         navigationView.setLayoutManager(llm);
 
-        dockAdapter = new ResolveInfoDockAdapter(this, docked) {
+        dockAdapter = new ResolveInfoDockAdapter(new ArrayList<ActivityInfo>()) {
             @Override
-            protected void onAppPressed(ResolveInfo app) {
+            protected void onAppPressed(ActivityInfo app) {
                 mDrawerLayout.closeDrawers();
-                Intent toStart = mPkgManager.getLaunchIntentForPackage(app.activityInfo.packageName);
+                Intent toStart = mPkgManager.getLaunchIntentForPackage(app.getPackageName());
                 AppsActivity.this.startActivity(toStart);
             }
 
             @Override
-            protected void onAppLongPressed(final ResolveInfo app) {
+            protected void onAppLongPressed(final ActivityInfo app) {
 
             }
 
             @Override
-            protected void onItemRemoved(ArrayList<ResolveInfo> items) {
+            protected void onItemRemoved(ArrayList<ActivityInfo> items) {
                 SharedPreferences.Editor editor = app.launcherSettings.edit();
-                editor.putString(UtopiaLauncher.DOCK, new Gson().toJson(items));
+                editor.putString(UtopiaLauncher.DOCK, helper.serialize(items));
                 editor.apply();
             }
 
             @Override
-            protected void onItemSwapped(ArrayList<ResolveInfo> items) {
+            protected void onItemSwapped(ArrayList<ActivityInfo> items) {
                 SharedPreferences.Editor editor = app.launcherSettings.edit();
-                editor.putString(UtopiaLauncher.DOCK, new Gson().toJson(items));
+                editor.putString(UtopiaLauncher.DOCK, helper.serialize(items));
                 editor.apply();
             }
         };
@@ -176,69 +171,54 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
                 new SimpleItemTouchHelperCallback(dockAdapter);
         ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
         touchHelper.attachToRecyclerView(navigationView);
+        //endregion
+
+        registerForContextMenu(rvAppList);
     }
 
-    private synchronized void loadApplications() {
-        if (isLoading) return;
-        if (app.applicationsInstalled.size() == 0) {
-            progressBar.setVisibility(View.VISIBLE);
-            isLoading = true;
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    Intent intent = new Intent(Intent.ACTION_MAIN, null);
-                    intent.addCategory(Intent.CATEGORY_LAUNCHER);
 
-                    apps.clear();
-                    apps.addAll(mPkgManager.queryIntentActivities(intent, 0));
-                    createIconCache(apps);
-                    Collections.sort(apps, new Comparator<ResolveInfo>() {
-                        @Override
-                        public int compare(ResolveInfo appInfo, ResolveInfo t1) {
-                            return appInfo.loadLabel(mPkgManager).toString()
-                                    .compareTo(t1.loadLabel(mPkgManager).toString());
-                        }
-                    });
-                    app.applicationsInstalled.addAll(apps);
-                    AppsActivity.this.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            adapter.notifyDataSetChanged();
-                            progressBar.setVisibility(View.GONE);
-                            String json = app.launcherSettings.getString(UtopiaLauncher.DOCK, null);
-                            if (json != null) {
-                                try {
-                                    docked.clear();
-                                    ResolveInfo[] data = new Gson().fromJson(json, ResolveInfo[].class);
-                                    docked.addAll(Arrays.asList(data));
-                                    dockAdapter.notifyDataSetChanged();
-                                } catch (Exception e) {
-                                    if (BuildConfig.DEBUG) e.printStackTrace();
-                                }
-                            }
-                            isLoading = false;
-                        }
-                    });
+    private void refreshApplicationsList() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Intent intent = new Intent(Intent.ACTION_MAIN, null);
+                intent.addCategory(Intent.CATEGORY_LAUNCHER);
+
+                final ArrayList<ActivityInfo> apps = new ArrayList<>();
+
+                for (ResolveInfo item : mPkgManager.queryIntentActivities(intent, 0)) {
+                    apps.add(new ActivityInfo(item.activityInfo.packageName, item.loadLabel(getPackageManager()).toString()));
+                    if (UtopiaLauncher.iconsCache.get(item.activityInfo.packageName) == null) {
+                        UtopiaLauncher.iconsCache.put(
+                                item.activityInfo.packageName,
+                                Tools.createIcon(AppsActivity.this,
+                                        Tools.getBitmapFromDrawable(
+                                                item.loadIcon(mPkgManager),
+                                                Bitmap.Config.ARGB_8888
+                                        )
+                                )
+                        );
+                    }
                 }
-            }).start();
-        }
-    }
 
-    private synchronized int countApps() {
-        Intent intent = new Intent(Intent.ACTION_MAIN, null);
-        intent.addCategory(Intent.CATEGORY_LAUNCHER);
-        return mPkgManager.queryIntentActivities(intent, 0).size();
-    }
+                Collections.sort(apps, new Comparator<ActivityInfo>() {
+                    @Override
+                    public int compare(ActivityInfo appInfo, ActivityInfo t1) {
+                        return appInfo.getLabel()
+                                .compareTo(t1.getLabel());
+                    }
+                });
 
-    private void createIconCache(ArrayList<ResolveInfo> items) {
-        Bitmap icon = null;
-        for(ResolveInfo item : items) {
-            final String packageName = item.activityInfo.packageName;
-            if (UtopiaLauncher.iconsCache.get(packageName) == null) {
-                icon = Tools.createIcon(this, Tools.getBitmapFromDrawable(item.loadIcon(mPkgManager), Bitmap.Config.ARGB_8888));
-                UtopiaLauncher.iconsCache.put(packageName, icon);
+                AppsActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        adapter.updateDataSet(apps);
+                        progressBar.setVisibility(View.GONE);
+                        dockAdapter.updateFromPreferences(app.launcherSettings);
+                    }
+                });
             }
-        }
+        }).start();
     }
 
     @Override
@@ -248,17 +228,8 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
 
     @Override
     public boolean onQueryTextChange(String newText) {
-        ArrayList<ResolveInfo> temp = new ArrayList<>();
-        for(int i = 0; i < app.applicationsInstalled.size(); i++) {
-            final String label = app.applicationsInstalled.get(i).loadLabel(mPkgManager).toString();
-            if (label.toLowerCase().contains(newText.toLowerCase())) {
-                temp.add(app.applicationsInstalled.get(i));
-            }
-        }
-        apps.clear();
-        apps.addAll(temp);
-        temp.clear();
-        adapter.notifyDataSetChanged();
+        adapter.filterDataSet(newText);
+
         return true;
     }
 
@@ -272,37 +243,32 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK){
+        if (resultCode == AppCompatActivity.RESULT_OK) {
             if (requestCode == REQUEST_SETTINGS) {
                 int columns = app.launcherSettings.getInt(COLUMNS_SETTINGS, 4);
-
                 StaggeredGridLayoutManager layoutManager =
                         new StaggeredGridLayoutManager(columns, StaggeredGridLayoutManager.VERTICAL);
                 rvAppList.setLayoutManager(layoutManager);
             }
             if (requestCode == REQUEST_UNINSTALL) {
-                if (app.applicationsInstalled.size() != countApps()) {
-                    app.applicationsInstalled.clear();
-                    loadApplications();
-                }
+                refreshApplicationsList();
+                dockAdapter.removeShortcut(adapter.getAppSelected().getPackageName());
             }
         }
+        adapter.setAppSelected(null);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        registerReceiver(packageReceiver, intentFilter);
-        if (app.applicationsInstalled.size() != countApps() && adapter != null) {
-            app.applicationsInstalled.clear();
-            loadApplications();
+        if (!UtopiaService.isRunning) {
+            try {
+                Intent service = new Intent(this, UtopiaService.class);
+                startService(service);
+            } catch (IllegalStateException ex) {
+                if (BuildConfig.DEBUG) ex.printStackTrace();
+            }
         }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        unregisterReceiver(packageReceiver);
     }
 
     @Override
@@ -310,25 +276,32 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
         if (adapter != null && adapter.getAppSelected() != null) {
             switch (item.getItemId()) {
                 case R.id.action_pin_to_dock: {
-                    docked.add(adapter.getAppSelected());
-
-                    SharedPreferences.Editor editor = app.launcherSettings.edit();
-                    editor.putString(UtopiaLauncher.DOCK, new Gson().toJson(docked));
-                    editor.apply();
-
-                    dockAdapter.notifyItemInserted(dockAdapter.getItemCount() - 1);
+                    dockAdapter.addItem(adapter.getAppSelected(), app.launcherSettings);
+                    adapter.setAppSelected(null);
                     break;
                 }
                 case R.id.action_uninstall: {
-                    Uri packageUri = Uri.parse("package:" + adapter.getAppSelected().activityInfo.packageName);
+                    Uri packageUri = Uri.parse("package:" + adapter.getAppSelected().getPackageName());
                     Intent uninstallIntent =
-                            new Intent(Build.VERSION.SDK_INT > 19? Intent.ACTION_DELETE :Intent.ACTION_UNINSTALL_PACKAGE, packageUri);
+                            new Intent(Intent.ACTION_DELETE, packageUri);
                     startActivityForResult(uninstallIntent, REQUEST_UNINSTALL);
                     break;
                 }
             }
-            adapter.setAppSelected(null);
         }
         return super.onContextItemSelected(item);
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        if (BuildConfig.DEBUG) Log.d(getClass().getCanonicalName(), "Received");
+        IntentObservable obs =(IntentObservable) o;
+        Intent intent = obs.getI();
+        String pkg = Objects.requireNonNull(intent.getData()).toString().replace("package:", "");
+        if (UtopiaLauncher.iconsCache.get(pkg) != null) UtopiaLauncher.iconsCache.remove(pkg);
+        if (Objects.equals(obs.getI().getAction(), Intent.ACTION_PACKAGE_REMOVED)) {
+            dockAdapter.removeShortcut(pkg);
+        }
+        refreshApplicationsList();
     }
 }

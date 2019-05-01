@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="app_list_black">#55000000</color>
+    <color name="app_list_black">#33000000</color>
+    <color name="frostStart">#CCE6E6E6</color>
+    <color name="frostCenter">#99E6E6E6</color>
+    <color name="frostEnd">#66E6E6E6</color>
 </resources>

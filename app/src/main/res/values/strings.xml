@@ -5,4 +5,11 @@
     <string name="NumberPickerDialogTitle">Columns</string>
     <string name="menu_wallpaper">Wallpaper</string>
     <string name="menu_columns">Columns</string>
+    <string name="menu_about">About</string>
+    <string name="menu_uninstall">Uninstall</string>
+    <string name="menu_pin_to_dock">Pin to Dock</string>
+    <string name="about_text">Version %s\n\n Author: fvrodas\n\n E-mail: fernandorodas@protonmail.com</string>
+    <string name="about_negative">Close</string>
+    <string name="about_neutral">View on Github</string>
+    <string name="about_github_url">https://github.com/fvrodas/UtopiaLauncher</string>
 </resources>

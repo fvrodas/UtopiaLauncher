@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-
     <item
         android:id="@+id/action_wallpaper"
-        android:icon="@drawable/ic_wallpapers"
         android:title="@string/menu_wallpaper" />
     <item
         android:id="@+id/action_columns"
-        android:icon="@drawable/ic_columns"
         android:title="@string/menu_columns" />
+    <item
+        android:id="@+id/action_about"
+        android:title="@string/menu_about" />
 </menu>

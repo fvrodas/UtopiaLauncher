@@ -1,43 +1,45 @@
 package io.launcher.utopia.adapters;
 
-import android.content.Context;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.graphics.Color;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
+import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import io.launcher.utopia.R;
 import io.launcher.utopia.UtopiaLauncher;
+import io.launcher.utopia.threading.ImageLoaderTask;
+import io.launcher.utopia.utils.ActivityInfo;
 import io.launcher.utopia.utils.ItemTouchHelperAdapter;
 
 /**
  * Created by fernando on 10/15/17.
  */
 
-public abstract class ResolveInfoAdapter extends RecyclerView.Adapter<AppItemViewHolder> implements ItemTouchHelperAdapter {
-    private Context mContext;
-    private ArrayList<ResolveInfo> mItems;
-    private PackageManager mPkgManager;
+public abstract class ResolveInfoAdapter extends RecyclerView.Adapter<AppItemViewHolder>
+        implements ItemTouchHelperAdapter {
+    private final ArrayList<ActivityInfo> mItems;
+    private final ArrayList<ActivityInfo> mFiltered = new ArrayList<>();
 
-    private ResolveInfo appSelected = null;
+    private ActivityInfo appSelected = null;
 
-    public ResolveInfo getAppSelected() {
+    public ActivityInfo getAppSelected() {
         return appSelected;
     }
 
-    public void setAppSelected(ResolveInfo appSelected) {
+    public void setAppSelected(ActivityInfo appSelected) {
         this.appSelected = appSelected;
     }
 
     @Override
-    public boolean onItemMove(int fromPosition, int toPosition) {
+    public void onItemMove(int fromPosition, int toPosition) {
         if (fromPosition < toPosition) {
             for (int i = fromPosition; i < toPosition; i++) {
                 Collections.swap(mItems, i, i + 1);
@@ -48,39 +50,66 @@ public abstract class ResolveInfoAdapter extends RecyclerView.Adapter<AppItemVie
             }
         }
         notifyItemMoved(fromPosition, toPosition);
-        return true;
     }
+
+    public void updateDataSet(List<ActivityInfo> apps) {
+        mItems.clear();
+        mItems.addAll(apps);
+        mFiltered.clear();
+        mFiltered.addAll(apps);
+        notifyDataSetChanged();
+    }
+
+// --Commented out by Inspection START (5/1/19 3:15 PM):
+//    public void removeShortcut(ActivityInfo app) {
+//        int index = mItems.indexOf(app);
+//        if (index >= 0) {
+//            mItems.remove(index);
+//            notifyItemRemoved(index);
+//        }
+//    }
+// --Commented out by Inspection STOP (5/1/19 3:15 PM)
+
+    public void filterDataSet(String searchText) {
+        mFiltered.clear();
+        for(int i =0; i < mItems.size(); i ++) {
+            if(mItems.get(i).getLabel().toLowerCase().contains(searchText.toLowerCase())) {
+                mFiltered.add(mItems.get(i));
+            }
+        }
+        notifyDataSetChanged();
+    }
+
 
     @Override
     public void onItemDismiss(int position) {
 
     }
 
-    protected ResolveInfoAdapter(Context c, ArrayList<ResolveInfo> appInfos, PackageManager pm) {
-        mContext = c;
-        mItems = appInfos;
-        mPkgManager = pm;
+    protected ResolveInfoAdapter(ArrayList<ActivityInfo> appsInfo) {
+        mItems = appsInfo;
     }
 
     @NonNull
     @Override
     public AppItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(mContext).inflate(R.layout.item_square, parent, false);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_square, parent, false);
         return new AppItemViewHolder(v);
     }
 
     @Override
     public void onBindViewHolder(@NonNull final AppItemViewHolder holder, int position) {
-        final ResolveInfo current = mItems.get(holder.getAdapterPosition());
-        final String packageName = current.activityInfo.packageName;
-        final String label = current.loadLabel(mPkgManager).toString();
+        final ActivityInfo current = mFiltered.get(holder.getAdapterPosition());
+        final String packageName = current.getPackageName();
+        final String label = current.getLabel();
 
         if (UtopiaLauncher.iconsCache.get(packageName) != null) {
-            holder.ivicon.setImageBitmap(UtopiaLauncher.iconsCache.get(packageName));
+            holder.icon.setTag(packageName);
+            new ImageLoaderTask(holder.icon).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
 
-        holder.tvappname.setText(label.toUpperCase());
-        holder.tvappname.setShadowLayer(5, 1, 1, Color.BLACK);
+        holder.appName.setText(label.toUpperCase());
+        holder.appName.setShadowLayer(5, 1, 1, Color.BLACK);
 
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -102,18 +131,18 @@ public abstract class ResolveInfoAdapter extends RecyclerView.Adapter<AppItemVie
 
     @Override
     public void onViewRecycled(@NonNull AppItemViewHolder holder) {
-        holder.ivicon.setImageDrawable(null);
-        holder.tvappname.setText("");
+        holder.icon.setImageDrawable(null);
+        holder.appName.setText("");
         holder.itemView.setOnClickListener(null);
         holder.itemView.setOnLongClickListener(null);
         super.onViewRecycled(holder);
     }
 
-    protected abstract void onAppPressed(ResolveInfo app);
+    protected abstract void onAppPressed(ActivityInfo app);
 
     @Override
     public int getItemCount() {
-        return mItems.size();
+        return mFiltered.size();
     }
 
 }
