@@ -24,8 +24,8 @@ import io.launcher.utopia.utils.SerializeHelper;
 
 public abstract class ResolveInfoDockAdapter extends RecyclerView.Adapter<ShortcutViewHolder>
         implements ItemTouchHelperAdapter, AdapterPersistence {
-    private ArrayList<ActivityInfo> mItems;
-    private SerializeHelper<ArrayList<ActivityInfo>> helper = new SerializeHelper<>();
+    private final ArrayList<ActivityInfo> mItems;
+    private final SerializeHelper<ArrayList<ActivityInfo>> helper = new SerializeHelper<>();
     @Override
     public void onItemMove(int fromPosition, int toPosition) {
         if (fromPosition < toPosition) {
@@ -58,11 +58,6 @@ public abstract class ResolveInfoDockAdapter extends RecyclerView.Adapter<Shortc
                 if (BuildConfig.DEBUG) e.printStackTrace();
             }
         }
-    }
-
-    public void removeUninstalled(ArrayList<ActivityInfo> apps) {
-        mItems.retainAll(apps);
-        updateDataSet(mItems);
     }
 
     @Override
@@ -143,6 +138,7 @@ public abstract class ResolveInfoDockAdapter extends RecyclerView.Adapter<Shortc
     }
 
     protected abstract void onAppPressed(ActivityInfo app);
+    @SuppressWarnings("EmptyMethod")
     protected abstract void onAppLongPressed(ActivityInfo app);
     protected abstract void onItemRemoved(ArrayList<ActivityInfo> items);
     protected abstract void onItemSwapped(ArrayList<ActivityInfo> items);

@@ -9,7 +9,7 @@ import java.lang.ref.WeakReference;
 import io.launcher.utopia.UtopiaLauncher;
 
 public class ImageLoaderTask extends AsyncTask<Object, Void, Bitmap> {
-    private WeakReference<ImageView> mImageView;
+    private final WeakReference<ImageView> mImageView;
 
     public ImageLoaderTask(ImageView imageView) {
         mImageView = new WeakReference<>(imageView);

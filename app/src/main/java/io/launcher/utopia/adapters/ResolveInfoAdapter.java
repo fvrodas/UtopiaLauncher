@@ -25,8 +25,8 @@ import io.launcher.utopia.utils.ItemTouchHelperAdapter;
 
 public abstract class ResolveInfoAdapter extends RecyclerView.Adapter<AppItemViewHolder>
         implements ItemTouchHelperAdapter {
-    private ArrayList<ActivityInfo> mItems;
-    private ArrayList<ActivityInfo> mFiltered = new ArrayList<>();
+    private final ArrayList<ActivityInfo> mItems;
+    private final ArrayList<ActivityInfo> mFiltered = new ArrayList<>();
 
     private ActivityInfo appSelected = null;
 
@@ -60,13 +60,15 @@ public abstract class ResolveInfoAdapter extends RecyclerView.Adapter<AppItemVie
         notifyDataSetChanged();
     }
 
-    public void removeShortcut(ActivityInfo app) {
-        int index = mItems.indexOf(app);
-        if (index >= 0) {
-            mItems.remove(index);
-            notifyItemRemoved(index);
-        }
-    }
+// --Commented out by Inspection START (5/1/19 3:15 PM):
+//    public void removeShortcut(ActivityInfo app) {
+//        int index = mItems.indexOf(app);
+//        if (index >= 0) {
+//            mItems.remove(index);
+//            notifyItemRemoved(index);
+//        }
+//    }
+// --Commented out by Inspection STOP (5/1/19 3:15 PM)
 
     public void filterDataSet(String searchText) {
         mFiltered.clear();

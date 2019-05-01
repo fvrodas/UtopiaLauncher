@@ -1,11 +1,14 @@
 package io.launcher.utopia.activities;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
@@ -13,6 +16,7 @@ import com.google.android.material.navigation.NavigationView;
 
 import java.util.Objects;
 
+import io.launcher.utopia.BuildConfig;
 import io.launcher.utopia.R;
 import io.launcher.utopia.UtopiaLauncher;
 import io.launcher.utopia.dialogs.NumberPickerDialog;
@@ -61,6 +65,28 @@ public class SettingsActivity extends AppCompatActivity {
                             }
                         };
                         dlg.show();
+                        return true;
+                    }
+
+                    case R.id.action_about: {
+                        new AlertDialog.Builder(SettingsActivity.this)
+                                .setTitle(R.string.app_name)
+                                .setMessage(String.format(getString(R.string.about_text), BuildConfig.VERSION_NAME))
+                                .setNegativeButton(R.string.about_negative, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
+                                    }
+                                })
+                                .setNeutralButton(R.string.about_neutral, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
+                                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.about_github_url)));
+                                        startActivity(browserIntent);
+                                    }
+                                })
+                                .show();
                         return true;
                     }
 

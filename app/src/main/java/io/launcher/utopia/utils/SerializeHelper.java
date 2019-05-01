@@ -30,6 +30,7 @@ public class SerializeHelper<T> {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public T deserialize (String base64) {
         byte[] decoded = Base64.decode(base64, Base64.DEFAULT);
         if (BuildConfig.DEBUG) Log.d(this.getClass().getCanonicalName(), "base64 to decode: " + base64);

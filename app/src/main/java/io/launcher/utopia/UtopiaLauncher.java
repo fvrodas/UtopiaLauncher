@@ -18,9 +18,9 @@ public class UtopiaLauncher extends Application {
     public static final String DOCK = "dock";
     private static final int cacheSize = 16 * 1024 * 1024;
     public SharedPreferences launcherSettings;
-    public IntentObservable observable = new IntentObservable();
+    public final IntentObservable observable = new IntentObservable();
 
-    public static LruCache<String, Bitmap> iconsCache = new LruCache<String, Bitmap>(cacheSize) {
+    public static final LruCache<String, Bitmap> iconsCache = new LruCache<String, Bitmap>(cacheSize) {
         @Override
         protected int sizeOf(@NonNull String key, Bitmap value) {
             return value.getByteCount();

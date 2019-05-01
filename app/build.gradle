@@ -4,13 +4,13 @@ android {
     compileSdkVersion 28
     buildToolsVersion '28.0.3'
 
-    def version = "0.0.1"
+    def version = ProjectVersionName
     flavorDimensions "dev"
     defaultConfig {
         applicationId "io.launcher.utopia"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 1
+        versionCode ProjectVersionCode
         versionName version
         resConfigs "en"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -20,29 +20,19 @@ android {
     productFlavors {
         alpha {
             applicationId "io.launcher.utopia"
-            minSdkVersion 21
-            targetSdkVersion 28
-            versionCode 1
             versionName version + "-alpha"
 
         }
 
         beta {
             applicationId "io.launcher.utopia"
-            minSdkVersion 21
-            targetSdkVersion 28
-            versionCode 1
             versionName version + "-beta"
 
         }
 
         playstore {
             applicationId "io.launcher.utopia"
-            minSdkVersion 21
-            targetSdkVersion 28
-            versionCode 1
             versionName version
-
         }
     }
 
@@ -58,10 +48,10 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'androidx.appcompat:appcompat:1.0.0-beta01'
-    implementation 'androidx.recyclerview:recyclerview:1.0.0-beta01'
-    implementation 'androidx.palette:palette:1.0.0-beta01'
-    implementation 'com.google.android.material:material:1.0.0-beta01'
+    implementation "androidx.appcompat:appcompat:$AndroidXVersion"
+    implementation "androidx.recyclerview:recyclerview:$AndroidXVersion"
+    implementation "androidx.palette:palette:$AndroidXVersion"
+    implementation "com.google.android.material:material:$AndroidXVersion"
     androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0-alpha4', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })

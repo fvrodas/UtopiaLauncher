@@ -7,8 +7,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.IBinder;
 
-import java.util.Objects;
-
 import io.launcher.utopia.UtopiaLauncher;
 
 import static android.content.Intent.ACTION_PACKAGE_ADDED;
@@ -18,16 +16,14 @@ import static android.content.Intent.ACTION_PACKAGE_REPLACED;
 public class UtopiaService extends Service {
     public static boolean isRunning = false;
 
-    private BroadcastReceiver packageReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver packageReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             UtopiaLauncher app = (UtopiaLauncher) getApplication();
             app.observable.setI(intent);
         }
     };
-    private IntentFilter intentFilter = new IntentFilter();
-
-    public UtopiaService() {}
+    private final IntentFilter intentFilter = new IntentFilter();
 
     @Override
     public void onCreate() {

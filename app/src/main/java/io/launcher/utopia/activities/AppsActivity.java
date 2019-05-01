@@ -6,7 +6,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -58,7 +57,7 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
     private RecyclerView rvAppList;
     private DrawerLayout mDrawerLayout;
     private ProgressBar progressBar;
-    private SerializeHelper<ArrayList<ActivityInfo>> helper = new SerializeHelper<>();
+    private final SerializeHelper<ArrayList<ActivityInfo>> helper = new SerializeHelper<>();
 
 
     @Override

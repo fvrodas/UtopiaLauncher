@@ -17,7 +17,7 @@ import java.util.Objects;
 import io.launcher.utopia.R;
 
 public abstract class NumberPickerDialog extends AlertDialog {
-    private int defaultValue;
+    private final int defaultValue;
 
     protected NumberPickerDialog(@NonNull Context context, int defaultValue) {
         super(context);

@@ -15,9 +15,9 @@ import io.launcher.utopia.R;
  */
 
 class AppItemViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener {
-    ImageView icon;
-    TextView appName;
-    private MenuInflater menuInflater;
+    final ImageView icon;
+    final TextView appName;
+    private final MenuInflater menuInflater;
 
     AppItemViewHolder(View itemView) {
         super(itemView);

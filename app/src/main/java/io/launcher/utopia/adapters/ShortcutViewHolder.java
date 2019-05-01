@@ -12,7 +12,7 @@ import io.launcher.utopia.R;
  */
 
 public class ShortcutViewHolder extends RecyclerView.ViewHolder {
-    public ImageView ivicon;
+    public final ImageView ivicon;
 
     public ShortcutViewHolder(View itemView) {
         super(itemView);
