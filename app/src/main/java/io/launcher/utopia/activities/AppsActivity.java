@@ -187,17 +187,20 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
                 final ArrayList<ActivityInfo> apps = new ArrayList<>();
 
                 for (ResolveInfo item : mPkgManager.queryIntentActivities(intent, 0)) {
-                    apps.add(new ActivityInfo(item.activityInfo.packageName, item.loadLabel(getPackageManager()).toString()));
-                    if (UtopiaLauncher.iconsCache.get(item.activityInfo.packageName) == null) {
-                        UtopiaLauncher.iconsCache.put(
-                                item.activityInfo.packageName,
-                                Tools.createIcon(AppsActivity.this,
-                                        Tools.getBitmapFromDrawable(
-                                                item.loadIcon(mPkgManager),
-                                                Bitmap.Config.ARGB_8888
-                                        )
-                                )
-                        );
+                    if (!BuildConfig.APPLICATION_ID.contains(item.activityInfo.packageName)) {
+                        apps.add(new ActivityInfo(item.activityInfo.packageName,
+                                item.loadLabel(getPackageManager()).toString()));
+                        if (UtopiaLauncher.iconsCache.get(item.activityInfo.packageName) == null) {
+                            UtopiaLauncher.iconsCache.put(
+                                    item.activityInfo.packageName,
+                                    Tools.createIcon(AppsActivity.this,
+                                            Tools.getBitmapFromDrawable(
+                                                    item.loadIcon(mPkgManager),
+                                                    Bitmap.Config.ARGB_8888
+                                            )
+                                    )
+                            );
+                        }
                     }
                 }
 
