@@ -12,4 +12,5 @@
     <string name="about_negative">Close</string>
     <string name="about_neutral">View on Github</string>
     <string name="about_github_url" translatable="false">https://github.com/fvrodas/UtopiaLauncher</string>
+    <string name="apps_sv_hint">Search an app</string>
 </resources>

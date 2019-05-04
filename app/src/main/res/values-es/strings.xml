@@ -11,4 +11,5 @@
     <string name="about_text">Versión %s\n\n Autor: fvrodas\n\n E-mail: fernandorodas@protonmail.com</string>
     <string name="about_negative">Cerrar</string>
     <string name="about_neutral">Ver en Github</string>
+    <string name="apps_sv_hint">Busca una aplicación</string>
 </resources>

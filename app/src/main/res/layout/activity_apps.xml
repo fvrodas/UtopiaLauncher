@@ -33,16 +33,17 @@
                     android:layout_margin="16dp"
                     android:background="@drawable/et_search_bg"
                     app:iconifiedByDefault="false"
-                    app:queryHint="Search an app" />
+                    app:queryHint="@string/apps_sv_hint" />
             </com.google.android.material.appbar.CollapsingToolbarLayout>
-            <ProgressBar
-                android:id="@+id/pbLoading"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:indeterminateOnly="true"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:visibility="gone"/>
+
         </com.google.android.material.appbar.AppBarLayout>
+        <ProgressBar
+            android:id="@+id/pbLoading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminateOnly="true"
+            android:layout_gravity="center"
+            android:visibility="gone"/>
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvAppList"
             app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
