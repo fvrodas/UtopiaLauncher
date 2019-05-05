@@ -37,20 +37,19 @@
             </com.google.android.material.appbar.CollapsingToolbarLayout>
 
         </com.google.android.material.appbar.AppBarLayout>
-        <ProgressBar
-            android:id="@+id/pbLoading"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:indeterminateOnly="true"
-            android:layout_gravity="center"
-            android:visibility="gone"/>
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvAppList"
-            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/srlShortcut"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_alignBottom="@+id/lnOptions"
-            android:layout_below="@+id/svSearch" />
+            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvAppList"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_alignBottom="@+id/lnOptions"
+                android:layout_below="@+id/svSearch" />
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
     <include layout="@layout/include_dock"/>
 </androidx.drawerlayout.widget.DrawerLayout>

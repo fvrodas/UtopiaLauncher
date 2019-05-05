@@ -7,22 +7,23 @@ import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ProgressBar;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.SearchView;
+import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.StaggeredGridLayoutManager;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -56,8 +57,8 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
     private ResolveInfoDockAdapter dockAdapter = null;
     private RecyclerView rvAppList;
     private DrawerLayout mDrawerLayout;
-    private ProgressBar progressBar;
     private final SerializeHelper<ArrayList<ActivityInfo>> helper = new SerializeHelper<>();
+    private SwipeRefreshLayout mSwipeLayout;
 
 
     @Override
@@ -66,17 +67,18 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
         setContentView(R.layout.activity_apps);
         app = (UtopiaLauncher) getApplication();
         mPkgManager = getPackageManager();
-        progressBar = findViewById(R.id.pbLoading);
         rvAppList = findViewById(R.id.rvAppList);
         mDrawerLayout = findViewById(R.id.drawer_layout);
+        mSwipeLayout = findViewById(R.id.srlShortcut);
+        mSwipeLayout.setEnabled(false);
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
         app.observable.addObserver(this);
 
         int columns = app.launcherSettings.getInt(COLUMNS_SETTINGS, 4);
 
-        StaggeredGridLayoutManager layoutManager =
-                new StaggeredGridLayoutManager(columns, StaggeredGridLayoutManager.VERTICAL);
+        GridLayoutManager layoutManager =
+                new GridLayoutManager(this, columns);
         rvAppList.setLayoutManager(layoutManager);
 
         SearchView svSearch = findViewById(R.id.svSearch);
@@ -133,8 +135,8 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
 
         //region Dock Initialisation
         RecyclerView navigationView = findViewById(R.id.dock);
-        LinearLayoutManager llm = new LinearLayoutManager(this, RecyclerView.VERTICAL, false);
-        llm.setStackFromEnd(true);
+        LinearLayoutManager llm = new LinearLayoutManager(this, RecyclerView.VERTICAL, true);
+        llm.setStackFromEnd(false);
         navigationView.setLayoutManager(llm);
 
         dockAdapter = new ResolveInfoDockAdapter(new ArrayList<ActivityInfo>()) {
@@ -155,6 +157,7 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
                 SharedPreferences.Editor editor = app.launcherSettings.edit();
                 editor.putString(UtopiaLauncher.DOCK, helper.serialize(items));
                 editor.apply();
+                Tools.showSnackbar(AppsActivity.this, getString(R.string.apps_msg_removed));
             }
 
             @Override
@@ -178,6 +181,7 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
 
 
     private void refreshApplicationsList() {
+        mSwipeLayout.setRefreshing(true);
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -216,8 +220,8 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
                     @Override
                     public void run() {
                         adapter.updateDataSet(apps);
-                        progressBar.setVisibility(View.GONE);
                         dockAdapter.updateFromPreferences(app.launcherSettings);
+                        mSwipeLayout.setRefreshing(false);
                     }
                 });
             }
@@ -249,8 +253,8 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
         if (resultCode == AppCompatActivity.RESULT_OK) {
             if (requestCode == REQUEST_SETTINGS) {
                 int columns = app.launcherSettings.getInt(COLUMNS_SETTINGS, 4);
-                StaggeredGridLayoutManager layoutManager =
-                        new StaggeredGridLayoutManager(columns, StaggeredGridLayoutManager.VERTICAL);
+                GridLayoutManager layoutManager =
+                        new GridLayoutManager(this, columns);
                 rvAppList.setLayoutManager(layoutManager);
             }
             if (requestCode == REQUEST_UNINSTALL) {
@@ -279,8 +283,19 @@ public class AppsActivity extends AppCompatActivity implements SearchView.OnQuer
         if (adapter != null && adapter.getAppSelected() != null) {
             switch (item.getItemId()) {
                 case R.id.action_pin_to_dock: {
-                    dockAdapter.addItem(adapter.getAppSelected(), app.launcherSettings);
-                    adapter.setAppSelected(null);
+                    if (dockAdapter.exists(adapter.getAppSelected())) {
+                        Tools.showSnackbar(this, getString(R.string.apps_app_exists));
+                    } else {
+                        dockAdapter.addItem(adapter.getAppSelected(), app.launcherSettings);
+                        adapter.setAppSelected(null);
+                        mDrawerLayout.openDrawer(GravityCompat.END);
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                mDrawerLayout.closeDrawers();
+                            }
+                        }, 500);
+                    }
                     break;
                 }
                 case R.id.action_uninstall: {

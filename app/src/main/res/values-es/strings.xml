@@ -12,4 +12,6 @@
     <string name="about_negative">Cerrar</string>
     <string name="about_neutral">Ver en Github</string>
     <string name="apps_sv_hint">Busca una aplicación</string>
+    <string name="apps_app_exists">Ya fue agregado como Favorito</string>
+    <string name="apps_msg_removed">Eliminado de Favoritos</string>
 </resources>

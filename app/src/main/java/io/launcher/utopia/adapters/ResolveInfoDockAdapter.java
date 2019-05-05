@@ -47,6 +47,15 @@ public abstract class ResolveInfoDockAdapter extends RecyclerView.Adapter<Shortc
         notifyDataSetChanged();
     }
 
+    public boolean exists(ActivityInfo app) {
+        for (ActivityInfo i : mItems) {
+            if (app.getPackageName().equals(i.getPackageName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public void updateFromPreferences(SharedPreferences prefs) {
         String json = prefs.getString(UtopiaLauncher.DOCK, null);

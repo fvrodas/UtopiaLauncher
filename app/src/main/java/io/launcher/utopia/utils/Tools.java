@@ -14,8 +14,11 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.ColorUtils;
 import androidx.palette.graphics.Palette;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import java.io.ByteArrayOutputStream;
 
@@ -119,4 +122,11 @@ public class Tools {
         return bitmap;
     }
 
+    public static float clamp(float val, float min, float max) {
+        return Math.max(min, Math.min(max, val));
+    }
+
+    public static void showSnackbar(AppCompatActivity ctx, String text) {
+        Snackbar.make(ctx.getWindow().getDecorView().findViewById(android.R.id.content), text, 2000).show();
+    }
 }

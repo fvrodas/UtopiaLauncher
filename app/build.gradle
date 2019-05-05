@@ -1,5 +1,14 @@
 apply plugin: 'com.android.application'
 
+def getCommit = { ->
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'rev-parse', '--short', 'HEAD'
+        standardOutput = stdout
+    }
+    return stdout.toString().trim()
+}
+
 android {
     compileSdkVersion 28
     buildToolsVersion '28.0.3'
@@ -20,19 +29,18 @@ android {
     productFlavors {
         alpha {
             applicationId "io.launcher.utopia"
-            versionName version + "-alpha"
+            versionName version + "-alpha (${getCommit()})"
 
         }
 
         beta {
             applicationId "io.launcher.utopia"
-            versionName version + "-beta"
-
+            versionName version + "-beta (${getCommit()})"
         }
 
         playstore {
             applicationId "io.launcher.utopia"
-            versionName version
+            versionName version + " (${getCommit()})"
         }
     }
 
