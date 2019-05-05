@@ -60,16 +60,6 @@ public abstract class ResolveInfoAdapter extends RecyclerView.Adapter<AppItemVie
         notifyDataSetChanged();
     }
 
-// --Commented out by Inspection START (5/1/19 3:15 PM):
-//    public void removeShortcut(ActivityInfo app) {
-//        int index = mItems.indexOf(app);
-//        if (index >= 0) {
-//            mItems.remove(index);
-//            notifyItemRemoved(index);
-//        }
-//    }
-// --Commented out by Inspection STOP (5/1/19 3:15 PM)
-
     public void filterDataSet(String searchText) {
         mFiltered.clear();
         for(int i =0; i < mItems.size(); i ++) {
@@ -108,7 +98,7 @@ public abstract class ResolveInfoAdapter extends RecyclerView.Adapter<AppItemVie
             new ImageLoaderTask(holder.icon).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
 
-        holder.appName.setText(label.toUpperCase());
+        holder.appName.setText(label);
         holder.appName.setShadowLayer(5, 1, 1, Color.BLACK);
 
 

@@ -1,12 +1,15 @@
 package io.launcher.utopia.utils;
 
 import androidx.annotation.NonNull;
+import androidx.core.view.GravityCompat;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
 
     private final ItemTouchHelperAdapter mAdapter;
+
+    private final int gravity = GravityCompat.END;
 
     public SimpleItemTouchHelperCallback(ItemTouchHelperAdapter adapter) {
         mAdapter = adapter;
@@ -25,7 +28,7 @@ public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
     @Override
     public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
         int dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
-        int swipeFlags =  ItemTouchHelper.START | ItemTouchHelper.END;
+        int swipeFlags =  gravity == GravityCompat.END? ItemTouchHelper.START : ItemTouchHelper.END;
 
         return makeMovementFlags(dragFlags, swipeFlags);
     }

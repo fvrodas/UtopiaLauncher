@@ -33,23 +33,23 @@
                     android:layout_margin="16dp"
                     android:background="@drawable/et_search_bg"
                     app:iconifiedByDefault="false"
-                    app:queryHint="Search an app" />
+                    app:queryHint="@string/apps_sv_hint" />
             </com.google.android.material.appbar.CollapsingToolbarLayout>
-            <ProgressBar
-                android:id="@+id/pbLoading"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:indeterminateOnly="true"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:visibility="gone"/>
+
         </com.google.android.material.appbar.AppBarLayout>
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvAppList"
-            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/srlShortcut"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_alignBottom="@+id/lnOptions"
-            android:layout_below="@+id/svSearch" />
+            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvAppList"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_alignBottom="@+id/lnOptions"
+                android:layout_below="@+id/svSearch" />
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
     <include layout="@layout/include_dock"/>
 </androidx.drawerlayout.widget.DrawerLayout>

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Utopia Launcher</string>
+    <string name="app_name" translatable="false">Utopia Launcher</string>
     <string name="settings_activity">Launcher Settings</string>
     <string name="btOK">OK</string>
     <string name="NumberPickerDialogTitle">Columns</string>
@@ -11,5 +11,8 @@
     <string name="about_text">Version %s\n\n Author: fvrodas\n\n E-mail: fernandorodas@protonmail.com</string>
     <string name="about_negative">Close</string>
     <string name="about_neutral">View on Github</string>
-    <string name="about_github_url">https://github.com/fvrodas/UtopiaLauncher</string>
+    <string name="about_github_url" translatable="false">https://github.com/fvrodas/UtopiaLauncher</string>
+    <string name="apps_sv_hint">Search an app</string>
+    <string name="apps_app_exists">Already added into the Dock</string>
+    <string name="apps_msg_removed">Removed from Dock</string>
 </resources>

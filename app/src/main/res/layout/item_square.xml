@@ -3,25 +3,25 @@
     android:padding="4dp"
     android:orientation="vertical"
     android:gravity="center"
-    android:foreground="?selectableItemBackground"
+    android:background="?selectableItemBackground"
     android:layout_width="match_parent" android:layout_height="wrap_content">
-    <ImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/ivIcon"
         android:layout_width="match_parent"
         android:layout_height="72dp"
         android:alpha="1"
         android:scaleType="fitCenter"/>
-    <TextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:paddingLeft="2dp"
         android:paddingRight="2dp"
         android:layout_marginTop="4dp"
         android:id="@+id/tvAppName"
         android:layout_width="match_parent"
         android:textColor="@android:color/white"
-        android:gravity="center"
+        android:gravity="top|center_horizontal"
         android:lines="2"
         android:ellipsize="end"
-        android:textSize="12sp"
+        android:textSize="14sp"
         android:fontFamily="sans-serif-condensed"
         android:layout_height="wrap_content"/>
 </LinearLayout>
