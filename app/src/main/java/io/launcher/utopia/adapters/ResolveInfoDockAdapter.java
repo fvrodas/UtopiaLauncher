@@ -14,6 +14,7 @@ import io.launcher.utopia.BuildConfig;
 import io.launcher.utopia.R;
 import io.launcher.utopia.UtopiaLauncher;
 import io.launcher.utopia.threading.ImageLoaderTask;
+import io.launcher.utopia.ui.DockItemBehavior;
 import io.launcher.utopia.utils.ActivityInfo;
 import io.launcher.utopia.utils.ItemTouchHelperAdapter;
 import io.launcher.utopia.utils.SerializeHelper;
@@ -22,10 +23,12 @@ import io.launcher.utopia.utils.SerializeHelper;
  * Created by fernando on 10/15/17.
  */
 
-public abstract class ResolveInfoDockAdapter extends RecyclerView.Adapter<ShortcutViewHolder>
+public class ResolveInfoDockAdapter extends RecyclerView.Adapter<ShortcutViewHolder>
         implements ItemTouchHelperAdapter, AdapterPersistence {
     private final ArrayList<ActivityInfo> mItems;
     private final SerializeHelper<ArrayList<ActivityInfo>> helper = new SerializeHelper<>();
+    private DockItemBehavior mListener = null;
+
     @Override
     public void onItemMove(int fromPosition, int toPosition) {
         if (fromPosition < toPosition) {
@@ -37,7 +40,8 @@ public abstract class ResolveInfoDockAdapter extends RecyclerView.Adapter<Shortc
                 Collections.swap(mItems, i, i - 1);
             }
         }
-        onItemSwapped(mItems);
+        if (mListener != null) mListener.onItemSwapped(mItems);
+
         notifyItemMoved(fromPosition, toPosition);
     }
 
@@ -85,7 +89,7 @@ public abstract class ResolveInfoDockAdapter extends RecyclerView.Adapter<Shortc
     @Override
     public void onItemDismiss(int position) {
         mItems.remove(position);
-        onItemRemoved(mItems);
+        if (mListener != null) mListener.onItemRemoved(mItems);
         notifyItemRemoved(position);
     }
 
@@ -100,8 +104,9 @@ public abstract class ResolveInfoDockAdapter extends RecyclerView.Adapter<Shortc
         }
     }
 
-    protected ResolveInfoDockAdapter(ArrayList<ActivityInfo> appsInfo) {
+    public ResolveInfoDockAdapter(ArrayList<ActivityInfo> appsInfo, DockItemBehavior behavior) {
         mItems = appsInfo;
+        mListener = behavior;
     }
 
     @NonNull
@@ -116,7 +121,7 @@ public abstract class ResolveInfoDockAdapter extends RecyclerView.Adapter<Shortc
         final ActivityInfo current = mItems.get(holder.getAdapterPosition());
         final String packageName = current.getPackageName();
 
-        if (UtopiaLauncher.iconsCache.get(packageName) != null) {
+        if (UtopiaLauncher.getInstance().iconsCache.get(packageName) != null) {
             holder.ivicon.setTag(packageName);
             new ImageLoaderTask(holder.ivicon).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
@@ -124,14 +129,14 @@ public abstract class ResolveInfoDockAdapter extends RecyclerView.Adapter<Shortc
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onAppPressed(current);
+                if (mListener != null) mListener.onAppPressed(current);
             }
         });
 
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(final View view) {
-                onAppLongPressed(mItems.get(holder.getAdapterPosition()));
+                if (mListener != null) mListener.onAppLongPressed(mItems.get(holder.getAdapterPosition()));
                 return true;
             }
         });
@@ -145,12 +150,6 @@ public abstract class ResolveInfoDockAdapter extends RecyclerView.Adapter<Shortc
         holder.itemView.setOnLongClickListener(null);
         super.onViewRecycled(holder);
     }
-
-    protected abstract void onAppPressed(ActivityInfo app);
-    @SuppressWarnings("EmptyMethod")
-    protected abstract void onAppLongPressed(ActivityInfo app);
-    protected abstract void onItemRemoved(ArrayList<ActivityInfo> items);
-    protected abstract void onItemSwapped(ArrayList<ActivityInfo> items);
 
     @Override
     public int getItemCount() {

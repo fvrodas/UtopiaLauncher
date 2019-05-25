@@ -16,6 +16,7 @@ import java.util.List;
 import io.launcher.utopia.R;
 import io.launcher.utopia.UtopiaLauncher;
 import io.launcher.utopia.threading.ImageLoaderTask;
+import io.launcher.utopia.ui.ApplicationItemBehavior;
 import io.launcher.utopia.utils.ActivityInfo;
 import io.launcher.utopia.utils.ItemTouchHelperAdapter;
 
@@ -23,12 +24,13 @@ import io.launcher.utopia.utils.ItemTouchHelperAdapter;
  * Created by fernando on 10/15/17.
  */
 
-public abstract class ResolveInfoAdapter extends RecyclerView.Adapter<AppItemViewHolder>
+public class ResolveInfoAdapter extends RecyclerView.Adapter<AppItemViewHolder>
         implements ItemTouchHelperAdapter {
     private final ArrayList<ActivityInfo> mItems;
     private final ArrayList<ActivityInfo> mFiltered = new ArrayList<>();
 
     private ActivityInfo appSelected = null;
+    private ApplicationItemBehavior mListener = null;
 
     public ActivityInfo getAppSelected() {
         return appSelected;
@@ -76,8 +78,9 @@ public abstract class ResolveInfoAdapter extends RecyclerView.Adapter<AppItemVie
 
     }
 
-    protected ResolveInfoAdapter(ArrayList<ActivityInfo> appsInfo) {
+    public ResolveInfoAdapter(ArrayList<ActivityInfo> appsInfo, ApplicationItemBehavior behavior) {
         mItems = appsInfo;
+        mListener = behavior;
     }
 
     @NonNull
@@ -93,7 +96,7 @@ public abstract class ResolveInfoAdapter extends RecyclerView.Adapter<AppItemVie
         final String packageName = current.getPackageName();
         final String label = current.getLabel();
 
-        if (UtopiaLauncher.iconsCache.get(packageName) != null) {
+        if (UtopiaLauncher.getInstance().iconsCache.get(packageName) != null) {
             holder.icon.setTag(packageName);
             new ImageLoaderTask(holder.icon).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
@@ -105,7 +108,7 @@ public abstract class ResolveInfoAdapter extends RecyclerView.Adapter<AppItemVie
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onAppPressed(current);
+                if(mListener != null) mListener.onAppPressed(current);
             }
         });
 
@@ -127,8 +130,6 @@ public abstract class ResolveInfoAdapter extends RecyclerView.Adapter<AppItemVie
         holder.itemView.setOnLongClickListener(null);
         super.onViewRecycled(holder);
     }
-
-    protected abstract void onAppPressed(ActivityInfo app);
 
     @Override
     public int getItemCount() {

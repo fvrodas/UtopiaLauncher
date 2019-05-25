@@ -14,7 +14,7 @@
         android:layout_height="match_parent"
         android:paddingTop="@dimen/topPadding"
         android:focusableInTouchMode="true"
-        tools:context="io.launcher.utopia.activities.AppsActivity">
+        tools:context=".ui.activities.AppsActivity">
         <com.google.android.material.appbar.AppBarLayout
             android:background="@android:color/transparent"
             android:layout_width="match_parent"

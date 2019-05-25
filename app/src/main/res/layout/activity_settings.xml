@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    tools:context="io.launcher.utopia.activities.SettingsActivity">
+    tools:context=".ui.activities.SettingsActivity">
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/tbSettings"
         android:layout_width="match_parent"

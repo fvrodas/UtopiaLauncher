@@ -1,4 +1,4 @@
-package io.launcher.utopia.activities;
+package io.launcher.utopia.ui.activities;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -19,7 +19,7 @@ import java.util.Objects;
 import io.launcher.utopia.BuildConfig;
 import io.launcher.utopia.R;
 import io.launcher.utopia.UtopiaLauncher;
-import io.launcher.utopia.dialogs.NumberPickerDialog;
+import io.launcher.utopia.ui.dialogs.NumberPickerDialog;
 
 import static io.launcher.utopia.UtopiaLauncher.COLUMNS_SETTINGS;
 

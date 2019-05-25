@@ -17,7 +17,7 @@ public class ImageLoaderTask extends AsyncTask<Object, Void, Bitmap> {
 
     @Override
     protected Bitmap doInBackground(Object... objects) {
-        return UtopiaLauncher.iconsCache.get((String) mImageView.get().getTag());
+        return UtopiaLauncher.getInstance().iconsCache.get((String) mImageView.get().getTag());
     }
 
     @Override
