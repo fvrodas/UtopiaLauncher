@@ -2,7 +2,6 @@ package io.launcher.utopia.ui.activities;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -132,7 +131,7 @@ public class AppsActivity extends AppCompatActivity implements AppsView, DockIte
         llm.setStackFromEnd(false);
         navigationView.setLayoutManager(llm);
 
-        dockAdapter = new ResolveInfoDockAdapter(new ArrayList<ActivityInfo>(), this);
+        dockAdapter = new ResolveInfoDockAdapter(new ArrayList<ActivityInfo>(), this, app.launcherSettings);
         navigationView.setAdapter(dockAdapter);
         navigationView.addItemDecoration(new SpaceItemDecoration(8));
 
@@ -201,9 +200,9 @@ public class AppsActivity extends AppCompatActivity implements AppsView, DockIte
             switch (item.getItemId()) {
                 case R.id.action_pin_to_dock: {
                     if (dockAdapter.exists(adapter.getAppSelected())) {
-                        Tools.showSnackbar(this, getString(R.string.apps_app_exists));
+                        showMessage(getString(R.string.apps_app_exists));
                     } else {
-                        dockAdapter.addItem(adapter.getAppSelected(), app.launcherSettings);
+                        dockAdapter.addItem(adapter.getAppSelected());
                         adapter.setAppSelected(null);
                         mDrawerLayout.openDrawer(GravityCompat.END);
                         new Handler().postDelayed(new Runnable() {
@@ -233,7 +232,7 @@ public class AppsActivity extends AppCompatActivity implements AppsView, DockIte
         IntentObservable obs =(IntentObservable) o;
         Intent intent = obs.getI();
         String pkg = Objects.requireNonNull(intent.getData()).toString().replace("package:", "");
-//        if (app.iconsCache.get(pkg) != null) UtopiaLauncher.iconsCache.remove(pkg);
+        mPresenter.removeFromIconCache(pkg);
         if (Objects.equals(obs.getI().getAction(), Intent.ACTION_PACKAGE_REMOVED)) {
             dockAdapter.removeShortcut(pkg);
         }
@@ -245,9 +244,7 @@ public class AppsActivity extends AppCompatActivity implements AppsView, DockIte
             Intent toStart = getPackageManager().getLaunchIntentForPackage(activityInfo.getPackageName());
             AppsActivity.this.startActivity(toStart);
         } catch (Exception e) {
-//            if (UtopiaLauncher.iconsCache.get(activityInfo.getPackageName()) != null) {
-//                UtopiaLauncher.iconsCache.remove(activityInfo.getPackageName());
-//            }
+            mPresenter.removeFromIconCache(activityInfo);
             dockAdapter.removeShortcut(activityInfo.getPackageName());
             mPresenter.retrieveApplicationsList(getPackageManager());
         }
@@ -259,10 +256,15 @@ public class AppsActivity extends AppCompatActivity implements AppsView, DockIte
             @Override
             public void run() {
                 adapter.updateDataSet(apps);
-                dockAdapter.updateFromPreferences(app.launcherSettings);
+                mPresenter.readPersistentDockList();
                 showProgress(false);
             }
         });
+    }
+
+    @Override
+    public void onDockItemsRetrieved(ArrayList<ActivityInfo> dock) {
+        dockAdapter.updateDataSet(dock);
     }
 
     @Override
@@ -293,13 +295,7 @@ public class AppsActivity extends AppCompatActivity implements AppsView, DockIte
 
     @Override
     public void onItemRemoved(ArrayList<ActivityInfo> items) {
-        mPresenter.updatePersistentDockList(items);
         showMessage(getString(R.string.apps_msg_removed));
-    }
-
-    @Override
-    public void onItemSwapped(ArrayList<ActivityInfo> items) {
-       mPresenter.updatePersistentDockList(items);
     }
 
     @Override

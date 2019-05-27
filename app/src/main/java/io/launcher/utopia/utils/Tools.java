@@ -101,7 +101,7 @@ public class Tools {
 
         ViewGroup view = (ViewGroup) mInflater.inflate(R.layout.item_shortcut_renderer, null, false);
         ShortcutViewHolder shortcutViewHolder = new ShortcutViewHolder(view);
-        shortcutViewHolder.ivicon.setImageBitmap(item);
+        shortcutViewHolder.getImageView().setImageBitmap(item);
         shortcutViewHolder.itemView.setBackground(createBackground(getColorsFromBitmap(item)));
 
         view.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,

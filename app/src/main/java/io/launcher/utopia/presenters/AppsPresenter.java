@@ -19,21 +19,42 @@ import io.launcher.utopia.views.AppsView;
 
 public class AppsPresenter extends BasePresenter<AppsView> {
     private UtopiaLauncher mApp;
-    private SerializeHelper<ActivityInfo> mHelper;
+    private SerializeHelper<ArrayList<ActivityInfo>> mHelper;
 
-    public AppsPresenter(UtopiaLauncher app) {
-        mApp = app;
-    }
-
-    public AppsPresenter(UtopiaLauncher app, SerializeHelper helper) {
+    public AppsPresenter(UtopiaLauncher app, SerializeHelper<ArrayList<ActivityInfo>> helper) {
         mApp = app;
         mHelper = helper;
     }
 
+    @Deprecated
     public void updatePersistentDockList(ArrayList<ActivityInfo> apps) {
         SharedPreferences.Editor editor = mApp.launcherSettings.edit();
         editor.putString(UtopiaLauncher.DOCK, mHelper.serialize(apps));
         editor.apply();
+    }
+
+    public void readPersistentDockList() {
+        String json = mApp.launcherSettings.getString(UtopiaLauncher.DOCK, null);
+        if (json != null) {
+            try {
+                ArrayList<ActivityInfo> data = mHelper.deserialize(json);
+                mView.get().onDockItemsRetrieved(data);
+            } catch (Exception e) {
+                if (BuildConfig.DEBUG) e.printStackTrace();
+            }
+        }
+    }
+
+    public void removeFromIconCache(ActivityInfo activityInfo) {
+        if (mApp.iconsCache.get(activityInfo.getPackageName()) != null) {
+            mApp.iconsCache.remove(activityInfo.getPackageName());
+        }
+    }
+
+    public void removeFromIconCache(String app) {
+        if (mApp.iconsCache.get(app) != null) {
+            mApp.iconsCache.remove(app);
+        }
     }
 
     public void retrieveApplicationsList(final PackageManager pm) {
@@ -45,6 +66,7 @@ public class AppsPresenter extends BasePresenter<AppsView> {
                 intent.addCategory(Intent.CATEGORY_LAUNCHER);
 
                 final ArrayList<ActivityInfo> apps = new ArrayList<>();
+
 
                 for (ResolveInfo item : pm.queryIntentActivities(intent, 0)) {
                     if (!BuildConfig.APPLICATION_ID.contains(item.activityInfo.packageName)) {

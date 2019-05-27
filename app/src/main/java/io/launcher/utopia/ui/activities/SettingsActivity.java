@@ -1,11 +1,12 @@
 package io.launcher.utopia.ui.activities;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -19,14 +20,19 @@ import java.util.Objects;
 import io.launcher.utopia.BuildConfig;
 import io.launcher.utopia.R;
 import io.launcher.utopia.UtopiaLauncher;
+import io.launcher.utopia.presenters.SettingsPresenter;
 import io.launcher.utopia.ui.dialogs.NumberPickerDialog;
+import io.launcher.utopia.utils.Tools;
+import io.launcher.utopia.views.SettingsView;
 
 import static io.launcher.utopia.UtopiaLauncher.COLUMNS_SETTINGS;
 
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends AppCompatActivity implements SettingsView {
     public static final int REQUEST_SETTINGS = 111;
     private UtopiaLauncher app;
     private Intent intent = null;
+    private SettingsPresenter mPresenter;
+    private NavigationView nvSettingsContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,13 +40,40 @@ public class SettingsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_settings);
         app = (UtopiaLauncher) getApplication();
 
+        mPresenter = new SettingsPresenter(app.launcherSettings);
+        mPresenter.attachView(this);
+
         Toolbar tbSettings = findViewById(R.id.tbSettings);
         setSupportActionBar(tbSettings);
 
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
-        NavigationView nvSettingsContainer = findViewById(R.id.nvSettingsContainer);
+        nvSettingsContainer = findViewById(R.id.nvSettingsContainer);
 
+        mPresenter.getColumnsSetting();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (intent != null) {
+            setResult(RESULT_OK, intent);
+        } else {
+            setResult(RESULT_CANCELED);
+        }
+        finish();
+    }
+
+    @Override
+    public void onColumnSettingRetrieved(final int columns) {
         nvSettingsContainer.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -52,16 +85,12 @@ public class SettingsActivity extends AppCompatActivity {
                     }
 
                     case R.id.action_columns : {
-                        int columns = app.launcherSettings.getInt(COLUMNS_SETTINGS, 4);
                         NumberPickerDialog dlg = new NumberPickerDialog(
                                 SettingsActivity.this, columns) {
                             @Override
                             public void onOKPressed(int i) {
-                                SharedPreferences.Editor editor = app.launcherSettings.edit();
-                                editor.putInt(COLUMNS_SETTINGS, i);
-                                editor.apply();
                                 intent = new Intent();
-                                intent.putExtra(COLUMNS_SETTINGS, i);
+                                intent.putExtra(COLUMNS_SETTINGS, mPresenter.saveColumnSetting(i));
                             }
                         };
                         dlg.show();
@@ -94,25 +123,31 @@ public class SettingsActivity extends AppCompatActivity {
                 return false;
             }
         });
+    }
+
+    @Override
+    public void onSettingsUpdated() {
 
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            onBackPressed();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+    public void showMessage(String text) {
+        Tools.showSnackbar(this, text);
     }
 
     @Override
-    public void onBackPressed() {
-        if (intent != null) {
-            setResult(RESULT_OK, intent);
-        } else {
-            setResult(RESULT_CANCELED);
-        }
-        finish();
+    public Context provideContext() {
+        return app.getApplicationContext();
+    }
+
+    @Override
+    public void showProgress(Boolean show) {
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mPresenter.onDestroy();
     }
 }

@@ -1,112 +1,60 @@
 package io.launcher.utopia.adapters;
 
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import io.launcher.utopia.BuildConfig;
 import io.launcher.utopia.R;
-import io.launcher.utopia.UtopiaLauncher;
-import io.launcher.utopia.threading.ImageLoaderTask;
+import io.launcher.utopia.presenters.ShortcutPresenter;
 import io.launcher.utopia.ui.DockItemBehavior;
 import io.launcher.utopia.utils.ActivityInfo;
 import io.launcher.utopia.utils.ItemTouchHelperAdapter;
-import io.launcher.utopia.utils.SerializeHelper;
-
 /**
  * Created by fernando on 10/15/17.
  */
 
 public class ResolveInfoDockAdapter extends RecyclerView.Adapter<ShortcutViewHolder>
-        implements ItemTouchHelperAdapter, AdapterPersistence {
-    private final ArrayList<ActivityInfo> mItems;
-    private final SerializeHelper<ArrayList<ActivityInfo>> helper = new SerializeHelper<>();
-    private DockItemBehavior mListener = null;
+        implements ItemTouchHelperAdapter {
+
+    private final ShortcutPresenter mPresenter;
 
     @Override
     public void onItemMove(int fromPosition, int toPosition) {
-        if (fromPosition < toPosition) {
-            for (int i = fromPosition; i < toPosition; i++) {
-                Collections.swap(mItems, i, i + 1);
-            }
-        } else {
-            for (int i = fromPosition; i > toPosition; i--) {
-                Collections.swap(mItems, i, i - 1);
-            }
-        }
-        if (mListener != null) mListener.onItemSwapped(mItems);
-
+        mPresenter.swapItems(fromPosition, toPosition);
         notifyItemMoved(fromPosition, toPosition);
     }
 
-    private void updateDataSet(List<ActivityInfo> apps) {
-        mItems.clear();
-        mItems.addAll(apps);
+    public void updateDataSet(List<ActivityInfo> apps) {
+        mPresenter.update(apps);
         notifyDataSetChanged();
     }
 
     public boolean exists(ActivityInfo app) {
-        for (ActivityInfo i : mItems) {
-            if (app.getPackageName().equals(i.getPackageName())) {
-                return true;
-            }
-        }
-        return false;
+        return mPresenter.contains(app);
     }
 
-    @Override
-    public void updateFromPreferences(SharedPreferences prefs) {
-        String json = prefs.getString(UtopiaLauncher.DOCK, null);
-        if (json != null) {
-            try {
-                ArrayList<ActivityInfo> data = helper.deserialize(json);
-                updateDataSet(data);
-            } catch (Exception e) {
-                if (BuildConfig.DEBUG) e.printStackTrace();
-            }
-        }
-    }
-
-    @Override
-    public void applyToPreferences(SharedPreferences prefs) {
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putString(UtopiaLauncher.DOCK, helper.serialize(mItems));
-        editor.apply();
-    }
-
-    public void addItem(ActivityInfo app, SharedPreferences prefs) {
-        mItems.add(app);
-        notifyItemInserted(mItems.size() - 1);
-        applyToPreferences(prefs);
+    public void addItem(ActivityInfo app) {
+        int added = mPresenter.append(app);
+        notifyItemInserted(added);
     }
 
     @Override
     public void onItemDismiss(int position) {
-        mItems.remove(position);
-        if (mListener != null) mListener.onItemRemoved(mItems);
+        mPresenter.remove(position);
         notifyItemRemoved(position);
     }
 
     public void removeShortcut(String app) {
-        for (ActivityInfo item: mItems
-             ) {
-            if (item.getPackageName().equals(app)) {
-                int index = mItems.indexOf(item);
-                mItems.remove(item);
-                notifyItemRemoved(index);
-            }
-        }
+        int i = mPresenter.remove(app);
+        if (i >= 0)notifyItemRemoved(i);
     }
 
-    public ResolveInfoDockAdapter(ArrayList<ActivityInfo> appsInfo, DockItemBehavior behavior) {
-        mItems = appsInfo;
-        mListener = behavior;
+    public ResolveInfoDockAdapter(ArrayList<ActivityInfo> appsInfo, DockItemBehavior behavior, SharedPreferences prefs) {
+        mPresenter = new ShortcutPresenter(appsInfo, behavior, prefs);
     }
 
     @NonNull
@@ -118,42 +66,18 @@ public class ResolveInfoDockAdapter extends RecyclerView.Adapter<ShortcutViewHol
 
     @Override
     public void onBindViewHolder(@NonNull final ShortcutViewHolder holder, int position) {
-        final ActivityInfo current = mItems.get(holder.getAdapterPosition());
-        final String packageName = current.getPackageName();
-
-        if (UtopiaLauncher.getInstance().iconsCache.get(packageName) != null) {
-            holder.ivicon.setTag(packageName);
-            new ImageLoaderTask(holder.ivicon).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        }
-
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (mListener != null) mListener.onAppPressed(current);
-            }
-        });
-
-        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(final View view) {
-                if (mListener != null) mListener.onAppLongPressed(mItems.get(holder.getAdapterPosition()));
-                return true;
-            }
-        });
-
+        mPresenter.attachView(holder);
     }
 
     @Override
     public void onViewRecycled(@NonNull ShortcutViewHolder holder) {
-        holder.ivicon.setImageDrawable(null);
-        holder.itemView.setOnClickListener(null);
-        holder.itemView.setOnLongClickListener(null);
+        mPresenter.detach(holder);
         super.onViewRecycled(holder);
     }
 
     @Override
     public int getItemCount() {
-        return mItems.size();
+        return mPresenter.count();
     }
 
 }
