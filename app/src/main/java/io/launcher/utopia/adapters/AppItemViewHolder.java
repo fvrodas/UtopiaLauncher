@@ -1,9 +1,11 @@
 package io.launcher.utopia.adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
 import android.view.ContextMenu;
 import android.view.MenuInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -29,6 +31,30 @@ class AppItemViewHolder extends RecyclerView.ViewHolder implements AppItemView, 
         appName = itemView.findViewById(R.id.tvAppName);
         itemView.setOnCreateContextMenuListener(this);
         menuInflater = new MenuInflater(itemView.getContext());
+
+        itemView.setOnTouchListener(new View.OnTouchListener() {
+            @SuppressLint("ClickableViewAccessibility")
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN: {
+                        v.animate().alpha(0.8f).scaleX(1.25f).scaleY(1.25f).setDuration(125);
+                        return false;
+                    }
+                    case MotionEvent.ACTION_UP: {
+                        v.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(125);
+                        return false;
+                    }
+                    case MotionEvent.ACTION_CANCEL: {
+                        v.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(125);
+                        return false;
+                    }
+                    default: {
+                        return false;
+                    }
+                }
+            }
+        });
     }
 
     @Override

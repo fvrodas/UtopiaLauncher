@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 
 import io.launcher.utopia.BuildConfig;
 import io.launcher.utopia.UtopiaLauncher;
@@ -31,6 +32,11 @@ public class AppsPresenter extends BasePresenter<AppsView> {
         SharedPreferences.Editor editor = mApp.launcherSettings.edit();
         editor.putString(UtopiaLauncher.DOCK, mHelper.serialize(apps));
         editor.apply();
+    }
+
+    public void readIntFromSettings(String key, int defaultValue) {
+        int value = mApp.launcherSettings.getInt(key, defaultValue);
+        mView.get().onIntReadFromSettings(key, value);
     }
 
     public void readPersistentDockList() {
@@ -67,30 +73,33 @@ public class AppsPresenter extends BasePresenter<AppsView> {
 
                 final ArrayList<ActivityInfo> apps = new ArrayList<>();
 
-
-                for (ResolveInfo item : pm.queryIntentActivities(intent, 0)) {
-                    if (!BuildConfig.APPLICATION_ID.contains(item.activityInfo.packageName)) {
-                        apps.add(new ActivityInfo(item.activityInfo.packageName,
-                                item.loadLabel(pm).toString()));
-                        if (mApp.iconsCache.get(item.activityInfo.packageName) == null) {
-                            mApp.iconsCache.put(
-                                    item.activityInfo.packageName,
-                                    Tools.createIcon(mApp.getApplicationContext(),
-                                            Tools.getBitmapFromDrawable(
-                                                    item.loadIcon(pm),
-                                                    Bitmap.Config.ARGB_8888
-                                            )
-                                    )
-                            );
+                Iterator<ResolveInfo> it = pm.queryIntentActivities(intent, 0).iterator();
+                if (it.hasNext()) {
+                    do {
+                        ResolveInfo item = it.next();
+                        if (!BuildConfig.APPLICATION_ID.contains(item.activityInfo.packageName)) {
+                            apps.add(new ActivityInfo(item.activityInfo.packageName,
+                                    item.loadLabel(pm).toString()));
+                            if (mApp.iconsCache.get(item.activityInfo.packageName) == null) {
+                                mApp.iconsCache.put(
+                                        item.activityInfo.packageName,
+                                        Tools.createIcon(mApp.getApplicationContext(),
+                                                Tools.getBitmapFromDrawable(
+                                                        item.loadIcon(pm),
+                                                        Bitmap.Config.ARGB_8888
+                                                )
+                                        )
+                                );
+                            }
                         }
-                    }
+                    } while (it.hasNext());
                 }
 
                 Collections.sort(apps, new Comparator<ActivityInfo>() {
                     @Override
                     public int compare(ActivityInfo appInfo, ActivityInfo t1) {
-                        return appInfo.getLabel()
-                                .compareTo(t1.getLabel());
+                        return appInfo.getLabel().toLowerCase()
+                                .compareTo(t1.getLabel().toLowerCase());
                     }
                 });
 

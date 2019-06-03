@@ -1,6 +1,8 @@
 package io.launcher.utopia.adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -19,6 +21,30 @@ public class ShortcutViewHolder extends RecyclerView.ViewHolder implements Short
     public ShortcutViewHolder(View itemView) {
         super(itemView);
         ivicon = itemView.findViewById(R.id.ivIcon);
+
+        itemView.setOnTouchListener(new View.OnTouchListener() {
+            @SuppressLint("ClickableViewAccessibility")
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN: {
+                        v.animate().alpha(0.7f).setDuration(125);
+                        return false;
+                    }
+                    case MotionEvent.ACTION_UP: {
+                        v.animate().alpha(1f).setDuration(125);
+                        return false;
+                    }
+                    case MotionEvent.ACTION_CANCEL: {
+                        v.animate().alpha(1f).setDuration(125);
+                        return false;
+                    }
+                    default: {
+                        return false;
+                    }
+                }
+            }
+        });
     }
 
     @Override

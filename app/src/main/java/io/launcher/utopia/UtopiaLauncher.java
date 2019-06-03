@@ -15,6 +15,7 @@ import io.launcher.utopia.utils.IntentObservable;
 
 public class UtopiaLauncher extends Application {
     public static final String COLUMNS_SETTINGS = "columns";
+    public static final String GRAVITY_SETTINGS = "graviy";
     public static final String DOCK = "dock";
     private static final int cacheSize = 16 * 1024 * 1024;
     public SharedPreferences launcherSettings;

@@ -7,7 +7,7 @@
     android:animateLayoutChanges="true"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
+    <RelativeLayout
         android:id="@+id/rootView"
         android:background="@color/app_list_black"
         android:layout_width="match_parent"
@@ -16,8 +16,10 @@
         android:focusableInTouchMode="true"
         tools:context=".ui.activities.AppsActivity">
         <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appBar"
             android:background="@android:color/transparent"
             android:layout_width="match_parent"
+            android:layout_alignParentTop="true"
             android:layout_height="wrap_content">
             <com.google.android.material.appbar.CollapsingToolbarLayout
                 android:layout_width="match_parent"
@@ -41,16 +43,18 @@
             android:id="@+id/srlShortcut"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_below="@id/appBar"
             app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvAppList"
                 android:layout_width="match_parent"
+                android:requiresFadingEdge="vertical"
                 android:layout_height="match_parent"
                 android:layout_alignBottom="@+id/lnOptions"
                 android:layout_below="@+id/svSearch" />
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+    </RelativeLayout>
     <include layout="@layout/include_dock"/>
 </androidx.drawerlayout.widget.DrawerLayout>
 

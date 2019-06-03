@@ -44,6 +44,7 @@ import io.launcher.utopia.utils.Tools;
 import io.launcher.utopia.views.AppsView;
 
 import static io.launcher.utopia.UtopiaLauncher.COLUMNS_SETTINGS;
+import static io.launcher.utopia.UtopiaLauncher.GRAVITY_SETTINGS;
 import static io.launcher.utopia.ui.activities.SettingsActivity.REQUEST_SETTINGS;
 
 public class AppsActivity extends AppCompatActivity implements AppsView, DockItemBehavior, SearchView.OnQueryTextListener, Observer {
@@ -56,6 +57,8 @@ public class AppsActivity extends AppCompatActivity implements AppsView, DockIte
     private final SerializeHelper<ArrayList<ActivityInfo>> helper = new SerializeHelper<>();
     private SwipeRefreshLayout mSwipeLayout;
     private AppsPresenter mPresenter;
+    private Integer gravity = null;
+    private Integer columns = null;
 
 
     @Override
@@ -73,22 +76,12 @@ public class AppsActivity extends AppCompatActivity implements AppsView, DockIte
 
         app.observable.addObserver(this);
 
-        final int columns = app.launcherSettings.getInt(COLUMNS_SETTINGS, 4);
-
-        GridLayoutManager layoutManager =
-                new GridLayoutManager(this, columns);
-        rvAppList.setLayoutManager(layoutManager);
+        mPresenter.readIntFromSettings(COLUMNS_SETTINGS, 4);
+        mPresenter.readIntFromSettings(GRAVITY_SETTINGS, GravityCompat.END);
 
         SearchView svSearch = findViewById(R.id.svSearch);
 
         svSearch.setOnQueryTextListener(this);
-
-        adapter = new ResolveInfoAdapter(new ArrayList<ActivityInfo>(), this);
-        SpaceItemDecoration decoration = new SpaceItemDecoration(16);
-        rvAppList.addItemDecoration(decoration);
-        rvAppList.setHasFixedSize(true);
-        rvAppList.setAdapter(adapter);
-        rvAppList.setItemViewCacheSize(100);
 
         AppCompatImageView imgButtonSettings = findViewById(R.id.ivSettings);
         imgButtonSettings.setOnClickListener(new View.OnClickListener() {
@@ -105,7 +98,11 @@ public class AppsActivity extends AppCompatActivity implements AppsView, DockIte
             public void onDrawerSlide(@NonNull View drawerView, float slideOffset) {
                 float dp = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 80, getResources().getDisplayMetrics());
                 float moveFactor = (dp * slideOffset);
-                (findViewById(R.id.rootView)).setTranslationX(-moveFactor);
+                if (gravity == GravityCompat.END) {
+                    (findViewById(R.id.rootView)).setTranslationX(-moveFactor);
+                } else {
+                    (findViewById(R.id.rootView)).setTranslationX(moveFactor);
+                }
             }
 
             @Override
@@ -193,6 +190,7 @@ public class AppsActivity extends AppCompatActivity implements AppsView, DockIte
                 if (BuildConfig.DEBUG) ex.printStackTrace();
             }
         }
+        rvAppList.scrollToPosition(0);
     }
 
     @Override
@@ -205,7 +203,7 @@ public class AppsActivity extends AppCompatActivity implements AppsView, DockIte
                     } else {
                         dockAdapter.addItem(adapter.getAppSelected());
                         adapter.setAppSelected(null);
-                        mDrawerLayout.openDrawer(GravityCompat.END);
+                        mDrawerLayout.openDrawer(gravity);
                         new Handler().postDelayed(new Runnable() {
                             @Override
                             public void run() {
@@ -269,6 +267,39 @@ public class AppsActivity extends AppCompatActivity implements AppsView, DockIte
     }
 
     @Override
+    public void onIntReadFromSettings(String key, int value) {
+        switch (key) {
+            case COLUMNS_SETTINGS: {
+                columns = value;
+                break;
+            }
+            case GRAVITY_SETTINGS: {
+                gravity = value;
+                break;
+            }
+        }
+        if (columns != null && gravity != null) {
+            changeDockGravity(gravity);
+            GridLayoutManager layoutManager =
+                    new GridLayoutManager(this, columns);
+            rvAppList.setLayoutManager(layoutManager);
+            adapter = new ResolveInfoAdapter(new ArrayList<ActivityInfo>(), this);
+            SpaceItemDecoration decoration = new SpaceItemDecoration(16);
+            rvAppList.addItemDecoration(decoration);
+            rvAppList.setHasFixedSize(true);
+            rvAppList.setAdapter(adapter);
+            rvAppList.setItemViewCacheSize(100);
+        }
+    }
+
+    public void changeDockGravity(int gravity) {
+        View drawer = findViewById(R.id.clDrawer);
+        DrawerLayout.LayoutParams params = (DrawerLayout.LayoutParams) drawer.getLayoutParams();
+        params.gravity = gravity;
+        drawer.setLayoutParams(params);
+        drawer.invalidate();
+    }
+    @Override
     public void showMessage(String text) {
         Tools.showSnackbar(this, text);
     }
@@ -285,7 +316,7 @@ public class AppsActivity extends AppCompatActivity implements AppsView, DockIte
 
     @Override
     public void onAppPressed(ActivityInfo app) {
-        if (mDrawerLayout.isDrawerOpen(GravityCompat.END)) mDrawerLayout.closeDrawers();
+        if (mDrawerLayout.isDrawerOpen(gravity)) mDrawerLayout.closeDrawers();
         openActivity(app);
     }
 

@@ -15,4 +15,5 @@
     <string name="apps_sv_hint">Search an app</string>
     <string name="apps_app_exists">Already added into the Dock</string>
     <string name="apps_msg_removed">Removed from Dock</string>
+    <string name="menu_dock_gravity">Dock gravity</string>
 </resources>
