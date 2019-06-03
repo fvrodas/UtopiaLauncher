@@ -73,7 +73,7 @@ public class AppsActivity extends AppCompatActivity implements AppsView, DockIte
 
         app.observable.addObserver(this);
 
-        int columns = app.launcherSettings.getInt(COLUMNS_SETTINGS, 4);
+        final int columns = app.launcherSettings.getInt(COLUMNS_SETTINGS, 4);
 
         GridLayoutManager layoutManager =
                 new GridLayoutManager(this, columns);
@@ -86,6 +86,7 @@ public class AppsActivity extends AppCompatActivity implements AppsView, DockIte
         adapter = new ResolveInfoAdapter(new ArrayList<ActivityInfo>(), this);
         SpaceItemDecoration decoration = new SpaceItemDecoration(16);
         rvAppList.addItemDecoration(decoration);
+        rvAppList.setHasFixedSize(true);
         rvAppList.setAdapter(adapter);
         rvAppList.setItemViewCacheSize(100);
 

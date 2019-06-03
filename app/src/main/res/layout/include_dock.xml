@@ -27,7 +27,6 @@
         android:layout_below="@+id/ivSettings"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:background="@drawable/dock_bg"
         android:clickable="true"
         android:focusable="true"
         android:visibility="visible" />
