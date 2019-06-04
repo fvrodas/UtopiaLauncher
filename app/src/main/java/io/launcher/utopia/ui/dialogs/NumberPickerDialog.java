@@ -1,4 +1,4 @@
-package io.launcher.utopia.dialogs;
+package io.launcher.utopia.ui.dialogs;
 
 import android.content.Context;
 import android.os.Bundle;

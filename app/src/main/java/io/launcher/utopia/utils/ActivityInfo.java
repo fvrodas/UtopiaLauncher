@@ -32,7 +32,7 @@ public class ActivityInfo implements Serializable {
     }
 
     public Bitmap getIcon() {
-        return UtopiaLauncher.iconsCache.get(packageName);
+        return UtopiaLauncher.getInstance().iconsCache.get(packageName);
     }
 }
 

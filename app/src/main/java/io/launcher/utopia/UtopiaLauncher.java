@@ -15,12 +15,18 @@ import io.launcher.utopia.utils.IntentObservable;
 
 public class UtopiaLauncher extends Application {
     public static final String COLUMNS_SETTINGS = "columns";
+    public static final String GRAVITY_SETTINGS = "graviy";
     public static final String DOCK = "dock";
     private static final int cacheSize = 16 * 1024 * 1024;
     public SharedPreferences launcherSettings;
     public final IntentObservable observable = new IntentObservable();
+    private static UtopiaLauncher sInstance = null;
 
-    public static final LruCache<String, Bitmap> iconsCache = new LruCache<String, Bitmap>(cacheSize) {
+    public static UtopiaLauncher getInstance() {
+         return sInstance;
+    }
+
+    public LruCache<String, Bitmap> iconsCache = new LruCache<String, Bitmap>(cacheSize) {
         @Override
         protected int sizeOf(@NonNull String key, Bitmap value) {
             return value.getByteCount();
@@ -31,5 +37,6 @@ public class UtopiaLauncher extends Application {
     public void onCreate() {
         super.onCreate();
         launcherSettings = getSharedPreferences("UtopiaSettings", MODE_PRIVATE);
+        sInstance = this;
     }
 }

@@ -1,23 +1,31 @@
 package io.launcher.utopia.threading;
 
 import android.graphics.Bitmap;
+import android.graphics.drawable.GradientDrawable;
 import android.os.AsyncTask;
 import android.widget.ImageView;
 
 import java.lang.ref.WeakReference;
 
 import io.launcher.utopia.UtopiaLauncher;
+import io.launcher.utopia.utils.Tools;
 
 public class ImageLoaderTask extends AsyncTask<Object, Void, Bitmap> {
     private final WeakReference<ImageView> mImageView;
+    private final WeakReference<Integer> mShape;
 
     public ImageLoaderTask(ImageView imageView) {
         mImageView = new WeakReference<>(imageView);
+        mShape = new WeakReference<>(GradientDrawable.OVAL);
+    }
+    public ImageLoaderTask(ImageView imageView, int shape) {
+        mImageView = new WeakReference<>(imageView);
+        mShape = new WeakReference<>(shape);
     }
 
     @Override
     protected Bitmap doInBackground(Object... objects) {
-        return UtopiaLauncher.iconsCache.get((String) mImageView.get().getTag());
+        return UtopiaLauncher.getInstance().iconsCache.get((String) mImageView.get().getTag());
     }
 
     @Override

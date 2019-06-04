@@ -54,45 +54,49 @@ public class Tools {
         return Tools.compress(bmp);
     }
 
-    private static int[] getColorsFromBitmap(Bitmap icon) {
-        int[] colors = new int[3];
+    public static int[] getColorsFromBitmap(Bitmap icon) {
         Palette p = Palette.from(icon).generate();
         int color;
-        if (p.getVibrantSwatch() != null) {
+        if (p.getDominantSwatch() != null) {
+            color = p.getDominantSwatch().getRgb();
+        } else if (p.getVibrantSwatch() != null) {
             color = p.getVibrantSwatch().getRgb();
-        } else if (p.getLightVibrantSwatch() != null) {
-            color = p.getLightVibrantSwatch().getRgb();
         } else {
-            color = Color.LTGRAY;
+            color = Color.DKGRAY;
         }
 
+        return generateColors(color, 2);
+    }
+
+    private static int[] generateColors(int color, int iteration) {
+        int[] colors = new int[iteration];
         float[] hsl = new float[3];
         ColorUtils.colorToHSL(color, hsl);
-        hsl[0] = hsl[0] * 0.85f;
-        hsl[1] = hsl[1] * 0.6f;
-        hsl[2] = .8f;
-        colors[0] = ColorUtils.HSLToColor(hsl);
-
-        ColorUtils.colorToHSL(color, hsl);
-        hsl[1] = hsl[1] * 0.7f;
-        hsl[2] = .5f;
-        colors[1] = ColorUtils.HSLToColor(hsl);
-
-        ColorUtils.colorToHSL(color, hsl);
-        hsl[0] = hsl[0] * 1.1f;
-        hsl[1] = hsl[1] * 0.8f;
-        hsl[2] = .3f;
-        colors[2] = ColorUtils.HSLToColor(hsl);
-
+        for (int i = 0; i < iteration; i ++) {
+            if (hsl[1] > .25f) {
+                float hue = hsl[0] - 25 * i;
+                if (hue > 360) {
+                    hue -= 360;
+                } else if (hue < 0) {
+                    hue = 360 + hue;
+                }
+                hsl[0] = hue;
+                hsl[1] = .65f + (i / iteration);
+            }
+            hsl[2] = .65f - (i/iteration);
+            colors[i] = ColorUtils.HSLToColor(hsl);
+        }
         return colors;
     }
 
-    private static Drawable createBackground(int[] colors) {
+    public static Drawable createBackgroundShape(int[] colors, int shape) {
         GradientDrawable d = new GradientDrawable(GradientDrawable.Orientation.TL_BR, colors);
         d.setGradientType(GradientDrawable.LINEAR_GRADIENT);
-        d.setSize(4, 4);
-        d.setShape(GradientDrawable.RECTANGLE);
-        d.setCornerRadius(12);
+        d.setSize(8, 8);
+        d.setShape(shape);
+        if (shape == GradientDrawable.RECTANGLE) {
+            d.setCornerRadius(16f);
+        }
         return d;
     }
 
@@ -101,8 +105,8 @@ public class Tools {
 
         ViewGroup view = (ViewGroup) mInflater.inflate(R.layout.item_shortcut_renderer, null, false);
         ShortcutViewHolder shortcutViewHolder = new ShortcutViewHolder(view);
-        shortcutViewHolder.ivicon.setImageBitmap(item);
-        shortcutViewHolder.itemView.setBackground(createBackground(getColorsFromBitmap(item)));
+        shortcutViewHolder.getImageView().setImageBitmap(item);
+        shortcutViewHolder.itemView.setBackground(createBackgroundShape(getColorsFromBitmap(item), GradientDrawable.OVAL));
 
         view.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT));
