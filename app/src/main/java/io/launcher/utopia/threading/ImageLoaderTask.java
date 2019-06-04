@@ -32,7 +32,6 @@ public class ImageLoaderTask extends AsyncTask<Object, Void, Bitmap> {
     protected void onPostExecute(Bitmap bitmap) {
         super.onPostExecute(bitmap);
         mImageView.get().setImageBitmap(bitmap);
-        mImageView.get().setBackground(Tools.createBackgroundShape(Tools.getColorsFromBitmap(bitmap), mShape.get()));
         mImageView.clear();
     }
 }

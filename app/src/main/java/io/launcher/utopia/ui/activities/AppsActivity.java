@@ -277,7 +277,6 @@ public class AppsActivity extends AppCompatActivity implements AppsView, DockIte
             }
         }
         if (columns != null && gravity != null) {
-            changeDockGravity(gravity);
             GridLayoutManager layoutManager =
                     new GridLayoutManager(this, columns);
             rvAppList.setLayoutManager(layoutManager);
@@ -289,6 +288,7 @@ public class AppsActivity extends AppCompatActivity implements AppsView, DockIte
                 rvAppList.setAdapter(adapter);
                 rvAppList.setItemViewCacheSize(100);
             }
+            changeDockGravity(gravity);
         }
     }
 
@@ -297,7 +297,6 @@ public class AppsActivity extends AppCompatActivity implements AppsView, DockIte
         DrawerLayout.LayoutParams params = (DrawerLayout.LayoutParams) drawer.getLayoutParams();
         params.gravity = gravity;
         drawer.setLayoutParams(params);
-        drawer.invalidate();
     }
     @Override
     public void showMessage(String text) {

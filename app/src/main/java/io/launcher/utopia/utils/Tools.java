@@ -106,7 +106,7 @@ public class Tools {
         ViewGroup view = (ViewGroup) mInflater.inflate(R.layout.item_shortcut_renderer, null, false);
         ShortcutViewHolder shortcutViewHolder = new ShortcutViewHolder(view);
         shortcutViewHolder.getImageView().setImageBitmap(item);
-//        shortcutViewHolder.itemView.setBackground(createBackground(getColorsFromBitmap(item)));
+        shortcutViewHolder.itemView.setBackground(createBackgroundShape(getColorsFromBitmap(item), GradientDrawable.OVAL));
 
         view.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT));
