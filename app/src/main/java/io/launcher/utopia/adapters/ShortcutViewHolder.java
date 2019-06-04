@@ -2,6 +2,9 @@ package io.launcher.utopia.adapters;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.os.Build;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
@@ -17,11 +20,13 @@ import io.launcher.utopia.views.ShortcutView;
 
 public class ShortcutViewHolder extends RecyclerView.ViewHolder implements ShortcutView {
     private final ImageView ivicon;
+    private Vibrator mVibrator;
+    private final int VIBRATION_DURATION = 80;
 
     public ShortcutViewHolder(View itemView) {
         super(itemView);
         ivicon = itemView.findViewById(R.id.ivIcon);
-
+        mVibrator = (Vibrator) itemView.getContext().getSystemService(Context.VIBRATOR_SERVICE);
         itemView.setOnTouchListener(new View.OnTouchListener() {
             @SuppressLint("ClickableViewAccessibility")
             @Override
@@ -45,6 +50,15 @@ public class ShortcutViewHolder extends RecyclerView.ViewHolder implements Short
                 }
             }
         });
+    }
+
+    @Override
+    public void vibrate() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            mVibrator.vibrate(VibrationEffect.createOneShot(VIBRATION_DURATION, VibrationEffect.DEFAULT_AMPLITUDE));
+        } else {
+            mVibrator.vibrate(VIBRATION_DURATION);
+        }
     }
 
     @Override

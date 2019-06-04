@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
 
 import com.google.android.material.navigation.NavigationView;
 
@@ -26,6 +27,7 @@ import io.launcher.utopia.utils.Tools;
 import io.launcher.utopia.views.SettingsView;
 
 import static io.launcher.utopia.UtopiaLauncher.COLUMNS_SETTINGS;
+import static io.launcher.utopia.UtopiaLauncher.GRAVITY_SETTINGS;
 
 public class SettingsActivity extends AppCompatActivity implements SettingsView {
     public static final int REQUEST_SETTINGS = 111;
@@ -33,6 +35,8 @@ public class SettingsActivity extends AppCompatActivity implements SettingsView 
     private Intent intent = null;
     private SettingsPresenter mPresenter;
     private NavigationView nvSettingsContainer;
+    private Integer columns = null;
+    private Integer gravity = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +54,8 @@ public class SettingsActivity extends AppCompatActivity implements SettingsView 
 
         nvSettingsContainer = findViewById(R.id.nvSettingsContainer);
 
-        mPresenter.getColumnsSetting();
+        mPresenter.readIntFromSettings(COLUMNS_SETTINGS, 4);
+        mPresenter.readIntFromSettings(GRAVITY_SETTINGS, GravityCompat.END);
     }
 
     @Override
@@ -73,61 +78,94 @@ public class SettingsActivity extends AppCompatActivity implements SettingsView 
     }
 
     @Override
-    public void onColumnSettingRetrieved(final int columns) {
-        nvSettingsContainer.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.action_wallpaper : {
-                        Intent intent = new Intent(Intent.ACTION_SET_WALLPAPER);
-                        startActivity(intent);
-                        return true;
-                    }
-
-                    case R.id.action_columns : {
-                        NumberPickerDialog dlg = new NumberPickerDialog(
-                                SettingsActivity.this, columns) {
-                            @Override
-                            public void onOKPressed(int i) {
-                                intent = new Intent();
-                                intent.putExtra(COLUMNS_SETTINGS, mPresenter.saveColumnSetting(i));
-                            }
-                        };
-                        dlg.show();
-                        return true;
-                    }
-
-                    case R.id.action_about: {
-                        new AlertDialog.Builder(SettingsActivity.this)
-                                .setTitle(R.string.app_name)
-                                .setMessage(String.format(getString(R.string.about_text), BuildConfig.VERSION_NAME))
-                                .setNegativeButton(R.string.about_negative, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        dialog.dismiss();
-                                    }
-                                })
-                                .setNeutralButton(R.string.about_neutral, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        dialog.dismiss();
-                                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.about_github_url)));
-                                        startActivity(browserIntent);
-                                    }
-                                })
-                                .show();
-                        return true;
-                    }
-
-                }
-                return false;
+    public void onIntReadFromSettings(String key, int value) {
+        switch (key) {
+            case COLUMNS_SETTINGS: {
+                columns = value;
+                break;
             }
-        });
-    }
+            case GRAVITY_SETTINGS: {
+                gravity = value;
+                break;
+            }
+        }
+        if (columns != null && gravity != null) {
+            intent = new Intent();
+            nvSettingsContainer.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+                @Override
+                public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                    switch (item.getItemId()) {
+                        case R.id.action_wallpaper: {
+                            Intent intent = new Intent(Intent.ACTION_SET_WALLPAPER);
+                            startActivity(intent);
+                            return true;
+                        }
 
-    @Override
-    public void onSettingsUpdated() {
+                        case R.id.action_columns: {
+                            NumberPickerDialog dlg = new NumberPickerDialog(
+                                    SettingsActivity.this, columns) {
+                                @Override
+                                public void onOKPressed(int i) {
+                                    intent.putExtra(COLUMNS_SETTINGS, mPresenter.writeIntIntoSettings(COLUMNS_SETTINGS, i));
+                                }
+                            };
+                            dlg.show();
+                            return true;
+                        }
 
+                        case R.id.action_about: {
+                            new AlertDialog.Builder(SettingsActivity.this)
+                                    .setTitle(R.string.app_name)
+                                    .setMessage(String.format(getString(R.string.about_text), BuildConfig.VERSION_NAME))
+                                    .setNegativeButton(R.string.about_negative, new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            dialog.dismiss();
+                                        }
+                                    })
+                                    .setNeutralButton(R.string.about_neutral, new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            dialog.dismiss();
+                                            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.about_github_url)));
+                                            startActivity(browserIntent);
+                                        }
+                                    })
+                                    .show();
+                            return true;
+                        }
+                        case R.id.action_dock_gravity: {
+                            String[] items = getResources().getStringArray(R.array.dock_gravity);
+
+                            new AlertDialog.Builder(SettingsActivity.this)
+                                    .setTitle(R.string.menu_dock_gravity)
+                                    .setSingleChoiceItems(items, gravity == GravityCompat.START? 0: 1, new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            if (which == 0) {
+                                                intent.putExtra(GRAVITY_SETTINGS,
+                                                        mPresenter.writeIntIntoSettings(GRAVITY_SETTINGS, GravityCompat.START));
+                                            } else {
+                                                intent.putExtra(GRAVITY_SETTINGS,
+                                                        mPresenter.writeIntIntoSettings(GRAVITY_SETTINGS, GravityCompat.END));
+                                            }
+                                        }
+                                    })
+                                    .setPositiveButton(R.string.btOK, new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            dialog.dismiss();
+                                        }
+                                    })
+                                    .show();
+                            return true;
+                        }
+
+                    }
+                    return false;
+                }
+            });
+        }
     }
 
     @Override

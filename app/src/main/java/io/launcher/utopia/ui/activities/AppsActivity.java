@@ -166,10 +166,8 @@ public class AppsActivity extends AppCompatActivity implements AppsView, DockIte
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == AppCompatActivity.RESULT_OK) {
             if (requestCode == REQUEST_SETTINGS) {
-                int columns = app.launcherSettings.getInt(COLUMNS_SETTINGS, 4);
-                GridLayoutManager layoutManager =
-                        new GridLayoutManager(this, columns);
-                rvAppList.setLayoutManager(layoutManager);
+                mPresenter.readIntFromSettings(COLUMNS_SETTINGS, 4);
+                mPresenter.readIntFromSettings(GRAVITY_SETTINGS, GravityCompat.END);
             }
             if (requestCode == REQUEST_UNINSTALL) {
                 mPresenter.retrieveApplicationsList(getPackageManager());
@@ -283,12 +281,14 @@ public class AppsActivity extends AppCompatActivity implements AppsView, DockIte
             GridLayoutManager layoutManager =
                     new GridLayoutManager(this, columns);
             rvAppList.setLayoutManager(layoutManager);
-            adapter = new ResolveInfoAdapter(new ArrayList<ActivityInfo>(), this);
-            SpaceItemDecoration decoration = new SpaceItemDecoration(16);
-            rvAppList.addItemDecoration(decoration);
-            rvAppList.setHasFixedSize(true);
-            rvAppList.setAdapter(adapter);
-            rvAppList.setItemViewCacheSize(100);
+            if (adapter == null) {
+                adapter = new ResolveInfoAdapter(new ArrayList<ActivityInfo>(), this);
+                SpaceItemDecoration decoration = new SpaceItemDecoration(16);
+                rvAppList.addItemDecoration(decoration);
+                rvAppList.setHasFixedSize(true);
+                rvAppList.setAdapter(adapter);
+                rvAppList.setItemViewCacheSize(100);
+            }
         }
     }
 

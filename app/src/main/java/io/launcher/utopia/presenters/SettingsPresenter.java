@@ -15,15 +15,16 @@ public class SettingsPresenter extends BasePresenter<SettingsView> {
         this.mPrefs = new WeakReference<>(prefs);
     }
 
-    public int saveColumnSetting(int i) {
-        SharedPreferences.Editor editor = mPrefs.get().edit();
-        editor.putInt(COLUMNS_SETTINGS, i);
-        editor.apply();
-        return i;
+    public void readIntFromSettings(String key, int defaultValue) {
+        int value = mPrefs.get().getInt(key, defaultValue);
+        mView.get().onIntReadFromSettings(key, value);
     }
 
-    public void getColumnsSetting() {
-        mView.get().onColumnSettingRetrieved(mPrefs.get().getInt(COLUMNS_SETTINGS, 4));
+    public int writeIntIntoSettings(String key, int value) {
+        SharedPreferences.Editor editor = mPrefs.get().edit();
+        editor.putInt(key, value);
+        editor.apply();
+        return value;
     }
 
     @Override

@@ -48,6 +48,7 @@ public class ShortcutPresenter extends BasePresenter<ShortcutView> {
         view.onLongPressed(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(final View v) {
+                mView.get().vibrate();
                 if (mListener != null) mListener.onAppLongPressed(mItems.get(view.getAdapterPosition()));
                 return true;
             }

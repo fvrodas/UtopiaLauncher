@@ -54,7 +54,7 @@ public class Tools {
         return Tools.compress(bmp);
     }
 
-    private static int[] getColorsFromBitmap(Bitmap icon) {
+    public static int[] getColorsFromBitmap(Bitmap icon) {
         Palette p = Palette.from(icon).generate();
         int color;
         if (p.getDominantSwatch() != null) {
@@ -89,11 +89,14 @@ public class Tools {
         return colors;
     }
 
-    private static Drawable createBackground(int[] colors) {
+    public static Drawable createBackgroundShape(int[] colors, int shape) {
         GradientDrawable d = new GradientDrawable(GradientDrawable.Orientation.TL_BR, colors);
         d.setGradientType(GradientDrawable.LINEAR_GRADIENT);
         d.setSize(8, 8);
-        d.setShape(GradientDrawable.OVAL);
+        d.setShape(shape);
+        if (shape == GradientDrawable.RECTANGLE) {
+            d.setCornerRadius(16f);
+        }
         return d;
     }
 
@@ -103,7 +106,7 @@ public class Tools {
         ViewGroup view = (ViewGroup) mInflater.inflate(R.layout.item_shortcut_renderer, null, false);
         ShortcutViewHolder shortcutViewHolder = new ShortcutViewHolder(view);
         shortcutViewHolder.getImageView().setImageBitmap(item);
-        shortcutViewHolder.itemView.setBackground(createBackground(getColorsFromBitmap(item)));
+//        shortcutViewHolder.itemView.setBackground(createBackground(getColorsFromBitmap(item)));
 
         view.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT));

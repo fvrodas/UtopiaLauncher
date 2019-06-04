@@ -1,6 +1,5 @@
 package io.launcher.utopia.views;
 
 public interface SettingsView extends BaseView {
-    void onColumnSettingRetrieved(int i);
-    void onSettingsUpdated();
+    void onIntReadFromSettings(String key, int value);
 }
