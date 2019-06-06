@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".activities.AppsActivity"
+    tools:context=".ui.activities.AppsActivity"
     android:id="@+id/clDrawer"
     android:paddingTop="@dimen/topPadding"
     android:layout_width="80dp"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    android:clickable="true"
     android:layout_gravity="end"
+    android:clickable="true"
     android:focusable="true">
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/ivSettings"
@@ -27,7 +27,6 @@
         android:layout_below="@+id/ivSettings"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:background="@drawable/dock_bg"
         android:clickable="true"
         android:focusable="true"
         android:visibility="visible" />

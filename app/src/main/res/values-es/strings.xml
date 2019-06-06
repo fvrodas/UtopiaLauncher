@@ -14,4 +14,9 @@
     <string name="apps_sv_hint">Busca una aplicación</string>
     <string name="apps_app_exists">Ya fue agregado como Favorito</string>
     <string name="apps_msg_removed">Eliminado de Favoritos</string>
+    <string name="menu_dock_gravity">Alineación del Dock</string>
+    <string-array name="dock_gravity">
+        <item>Izquierda</item>
+        <item>Derecha</item>
+    </string-array>
 </resources>
