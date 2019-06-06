@@ -7,6 +7,7 @@
     android:layout_width="80dp"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
+    android:layout_gravity="end"
     android:clickable="true"
     android:focusable="true">
     <androidx.appcompat.widget.AppCompatImageView

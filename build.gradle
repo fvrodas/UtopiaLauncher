@@ -19,8 +19,8 @@ allprojects {
 
 ext {
     AndroidXVersion = "1.0.0-beta01"
-    ProjectVersionCode = 2
-    ProjectVersionName = "0.9.1"
+    ProjectVersionCode = 3
+    ProjectVersionName = "0.9.2"
 }
 
 task clean(type: Delete) {
