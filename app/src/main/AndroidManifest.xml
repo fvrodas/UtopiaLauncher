@@ -47,6 +47,10 @@
             android:theme="@style/AppTheme.Settings">
         </activity>
         <service android:name=".services.UtopiaService" android:enabled="true" />
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="17390bdd23df7709881536f5b6acb73a31b30c85" />
     </application>
 
+    <uses-permission android:name="android.permission.INTERNET" />
 </manifest>

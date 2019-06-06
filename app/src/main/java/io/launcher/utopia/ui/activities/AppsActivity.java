@@ -293,7 +293,16 @@ public class AppsActivity extends AppCompatActivity implements AppsView, DockIte
     }
 
     public void changeDockGravity(int gravity) {
-        mDrawerLayout.closeDrawer(gravity);
+        try {
+            View drawer = findViewById(R.id.clDrawer);
+            DrawerLayout.LayoutParams params = (DrawerLayout.LayoutParams) drawer.getLayoutParams();
+            params.gravity = gravity;
+            drawer.setLayoutParams(params);
+            drawer.requestLayout();
+            mDrawerLayout.closeDrawer(gravity);
+        } catch (RuntimeException ex) {
+            if (BuildConfig.DEBUG) ex.printStackTrace();
+        }
     }
     @Override
     public void showMessage(String text) {

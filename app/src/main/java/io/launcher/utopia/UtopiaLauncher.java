@@ -7,6 +7,8 @@ import android.graphics.Bitmap;
 import androidx.annotation.NonNull;
 import androidx.collection.LruCache;
 
+import com.crashlytics.android.Crashlytics;
+import io.fabric.sdk.android.Fabric;
 import io.launcher.utopia.utils.IntentObservable;
 
 /**
@@ -36,6 +38,7 @@ public class UtopiaLauncher extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        Fabric.with(this, new Crashlytics());
         launcherSettings = getSharedPreferences("UtopiaSettings", MODE_PRIVATE);
         sInstance = this;
     }

@@ -21,7 +21,7 @@ import io.launcher.utopia.views.ShortcutView;
 public class ShortcutViewHolder extends RecyclerView.ViewHolder implements ShortcutView {
     private final ImageView ivicon;
     private Vibrator mVibrator;
-    private final int VIBRATION_DURATION = 80;
+    private final int VIBRATION_DURATION = 50;
 
     public ShortcutViewHolder(View itemView) {
         super(itemView);
