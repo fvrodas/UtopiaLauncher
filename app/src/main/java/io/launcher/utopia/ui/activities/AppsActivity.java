@@ -338,6 +338,7 @@ public class AppsActivity extends AppCompatActivity implements AppsView, DockIte
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mPresenter.onDestroy();
+        // Commented to avoid Force Close
+//        mPresenter.onDestroy();
     }
 }
