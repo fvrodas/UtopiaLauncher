@@ -121,7 +121,7 @@ public class AppsActivity extends AppCompatActivity implements AppsView, DockIte
             }
         });
 
-        mPresenter.retrieveApplicationsList(getPackageManager());
+        mPresenter.retrieveApplicationsList(savedInstanceState, getPackageManager());
 
         //region Dock Initialisation
         RecyclerView navigationView = findViewById(R.id.dock);
@@ -141,6 +141,12 @@ public class AppsActivity extends AppCompatActivity implements AppsView, DockIte
 
         registerForContextMenu(rvAppList);
 
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        adapter.saveInstanceState(outState);
     }
 
     @Override
@@ -239,6 +245,8 @@ public class AppsActivity extends AppCompatActivity implements AppsView, DockIte
     private void openActivity(ActivityInfo activityInfo) {
         try {
             Intent toStart = getPackageManager().getLaunchIntentForPackage(activityInfo.getPackageName());
+            Objects.requireNonNull(toStart).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            Objects.requireNonNull(toStart).addFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
             AppsActivity.this.startActivity(toStart);
         } catch (Exception e) {
             mPresenter.removeFromIconCache(activityInfo);

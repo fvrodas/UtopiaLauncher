@@ -1,6 +1,7 @@
 package io.launcher.utopia.presenters;
 
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ public class AppItemPresenter extends BasePresenter<AppItemView> {
     private final ArrayList<ActivityInfo> mFiltered = new ArrayList<>();
     private ActivityInfo appSelected = null;
     private ApplicationItemBehavior mListener;
+    public static final String STATE_APPS = "state_key_apps";
 
     public ActivityInfo getAppSelected() {
         return appSelected;
@@ -72,6 +74,10 @@ public class AppItemPresenter extends BasePresenter<AppItemView> {
                 mFiltered.add(mItems.get(i));
             }
         }
+    }
+
+    public void saveInstanceState(Bundle state) {
+        state.putSerializable(STATE_APPS, mItems);
     }
 
     public void update(List<ActivityInfo> apps) {

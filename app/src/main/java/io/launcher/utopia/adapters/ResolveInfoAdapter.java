@@ -1,5 +1,6 @@
 package io.launcher.utopia.adapters;
 
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +27,10 @@ public class ResolveInfoAdapter extends RecyclerView.Adapter<AppItemViewHolder> 
     public void updateDataSet(List<ActivityInfo> apps) {
         mPresenter.update(apps);
         notifyDataSetChanged();
+    }
+
+    public void saveInstanceState(Bundle state) {
+        mPresenter.saveInstanceState(state);
     }
 
     public void filterDataSet(String searchText) {
