@@ -34,20 +34,20 @@ import io.launcher.utopia.adapters.ResolveInfoAdapter;
 import io.launcher.utopia.adapters.ResolveInfoDockAdapter;
 import io.launcher.utopia.presenters.AppsPresenter;
 import io.launcher.utopia.services.UtopiaService;
-import io.launcher.utopia.ui.DockItemBehavior;
+import io.launcher.utopia.ui.IDockItem;
 import io.launcher.utopia.utils.ActivityInfo;
 import io.launcher.utopia.utils.IntentObservable;
 import io.launcher.utopia.utils.SerializeHelper;
 import io.launcher.utopia.utils.SimpleItemTouchHelperCallback;
 import io.launcher.utopia.utils.SpaceItemDecoration;
 import io.launcher.utopia.utils.Tools;
-import io.launcher.utopia.views.AppsView;
+import io.launcher.utopia.views.IAppsView;
 
 import static io.launcher.utopia.UtopiaLauncher.COLUMNS_SETTINGS;
 import static io.launcher.utopia.UtopiaLauncher.GRAVITY_SETTINGS;
 import static io.launcher.utopia.ui.activities.SettingsActivity.REQUEST_SETTINGS;
 
-public class AppsActivity extends AppCompatActivity implements AppsView, DockItemBehavior, SearchView.OnQueryTextListener, Observer {
+public class AppsActivity extends AppCompatActivity implements IAppsView, IDockItem, SearchView.OnQueryTextListener, Observer {
     private static final int REQUEST_UNINSTALL = 7686;
     private UtopiaLauncher app = null;
     private ResolveInfoAdapter adapter = null;

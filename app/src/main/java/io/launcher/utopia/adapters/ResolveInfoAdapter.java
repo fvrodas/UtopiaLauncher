@@ -13,7 +13,7 @@ import java.util.List;
 
 import io.launcher.utopia.R;
 import io.launcher.utopia.presenters.AppItemPresenter;
-import io.launcher.utopia.ui.ApplicationItemBehavior;
+import io.launcher.utopia.ui.IApplicationItem;
 import io.launcher.utopia.utils.ActivityInfo;
 
 /**
@@ -46,7 +46,7 @@ public class ResolveInfoAdapter extends RecyclerView.Adapter<AppItemViewHolder> 
         mPresenter.setAppSelected(app);
     }
 
-    public ResolveInfoAdapter(ArrayList<ActivityInfo> appsInfo, ApplicationItemBehavior behavior) {
+    public ResolveInfoAdapter(ArrayList<ActivityInfo> appsInfo, IApplicationItem behavior) {
         mPresenter = new AppItemPresenter(appsInfo, behavior);
     }
 

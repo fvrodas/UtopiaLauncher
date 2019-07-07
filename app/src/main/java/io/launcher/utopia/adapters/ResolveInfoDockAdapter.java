@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import io.launcher.utopia.R;
 import io.launcher.utopia.presenters.ShortcutPresenter;
-import io.launcher.utopia.ui.DockItemBehavior;
+import io.launcher.utopia.ui.IDockItem;
 import io.launcher.utopia.utils.ActivityInfo;
 import io.launcher.utopia.utils.ItemTouchHelperAdapter;
 /**
@@ -53,7 +53,7 @@ public class ResolveInfoDockAdapter extends RecyclerView.Adapter<ShortcutViewHol
         if (i >= 0)notifyItemRemoved(i);
     }
 
-    public ResolveInfoDockAdapter(ArrayList<ActivityInfo> appsInfo, DockItemBehavior behavior, SharedPreferences prefs) {
+    public ResolveInfoDockAdapter(ArrayList<ActivityInfo> appsInfo, IDockItem behavior, SharedPreferences prefs) {
         mPresenter = new ShortcutPresenter(appsInfo, behavior, prefs);
     }
 

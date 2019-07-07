@@ -9,15 +9,15 @@ import java.util.List;
 
 import io.launcher.utopia.UtopiaLauncher;
 import io.launcher.utopia.threading.ImageLoaderTask;
-import io.launcher.utopia.ui.ApplicationItemBehavior;
+import io.launcher.utopia.ui.IApplicationItem;
 import io.launcher.utopia.utils.ActivityInfo;
-import io.launcher.utopia.views.AppItemView;
+import io.launcher.utopia.views.IAppItemView;
 
-public class AppItemPresenter extends BasePresenter<AppItemView> {
+public class AppItemPresenter extends BasePresenter<IAppItemView> {
     private final ArrayList<ActivityInfo> mItems;
     private final ArrayList<ActivityInfo> mFiltered = new ArrayList<>();
     private ActivityInfo appSelected = null;
-    private ApplicationItemBehavior mListener;
+    private IApplicationItem mListener;
     public static final String STATE_APPS = "state_key_apps";
 
     public ActivityInfo getAppSelected() {
@@ -28,12 +28,12 @@ public class AppItemPresenter extends BasePresenter<AppItemView> {
         this.appSelected = appSelected;
     }
 
-    public AppItemPresenter(ArrayList<ActivityInfo> mItems, ApplicationItemBehavior behavior) {
+    public AppItemPresenter(ArrayList<ActivityInfo> mItems, IApplicationItem behavior) {
         this.mItems = mItems;
         this.mListener = behavior;
     }
 
-    public void bindView(AppItemView view) {
+    public void bindView(IAppItemView view) {
         attachView(view);
         final ActivityInfo current = mFiltered.get(view.getAdapterPosition());
         final String packageName = current.getPackageName();
@@ -62,7 +62,7 @@ public class AppItemPresenter extends BasePresenter<AppItemView> {
         });
     }
 
-    public void unbindView(AppItemView view) {
+    public void unbindView(IAppItemView view) {
         view.clear();
         mView = null;
     }

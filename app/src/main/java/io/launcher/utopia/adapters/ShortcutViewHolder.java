@@ -12,13 +12,13 @@ import android.widget.ImageView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import io.launcher.utopia.R;
-import io.launcher.utopia.views.ShortcutView;
+import io.launcher.utopia.views.IShortcutView;
 
 /**
  * Created by fernando on 10/15/17.
  */
 
-public class ShortcutViewHolder extends RecyclerView.ViewHolder implements ShortcutView {
+public class ShortcutViewHolder extends RecyclerView.ViewHolder implements IShortcutView {
     private final ImageView ivicon;
     private Vibrator mVibrator;
     private final int VIBRATION_DURATION = 50;

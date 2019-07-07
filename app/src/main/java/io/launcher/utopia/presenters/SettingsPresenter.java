@@ -4,11 +4,9 @@ import android.content.SharedPreferences;
 
 import java.lang.ref.WeakReference;
 
-import io.launcher.utopia.views.SettingsView;
+import io.launcher.utopia.views.ISettingsView;
 
-import static io.launcher.utopia.UtopiaLauncher.COLUMNS_SETTINGS;
-
-public class SettingsPresenter extends BasePresenter<SettingsView> {
+public class SettingsPresenter extends BasePresenter<ISettingsView> {
     WeakReference<SharedPreferences> mPrefs;
 
     public SettingsPresenter(SharedPreferences prefs) {

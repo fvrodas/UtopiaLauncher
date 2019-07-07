@@ -17,9 +17,9 @@ import io.launcher.utopia.UtopiaLauncher;
 import io.launcher.utopia.utils.ActivityInfo;
 import io.launcher.utopia.utils.SerializeHelper;
 import io.launcher.utopia.utils.Tools;
-import io.launcher.utopia.views.AppsView;
+import io.launcher.utopia.views.IAppsView;
 
-public class AppsPresenter extends BasePresenter<AppsView> {
+public class AppsPresenter extends BasePresenter<IAppsView> {
     private UtopiaLauncher mApp;
     private SerializeHelper<ArrayList<ActivityInfo>> mHelper;
 

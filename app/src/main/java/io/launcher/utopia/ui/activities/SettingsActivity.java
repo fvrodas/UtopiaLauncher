@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -24,12 +23,12 @@ import io.launcher.utopia.UtopiaLauncher;
 import io.launcher.utopia.presenters.SettingsPresenter;
 import io.launcher.utopia.ui.dialogs.NumberPickerDialog;
 import io.launcher.utopia.utils.Tools;
-import io.launcher.utopia.views.SettingsView;
+import io.launcher.utopia.views.ISettingsView;
 
 import static io.launcher.utopia.UtopiaLauncher.COLUMNS_SETTINGS;
 import static io.launcher.utopia.UtopiaLauncher.GRAVITY_SETTINGS;
 
-public class SettingsActivity extends AppCompatActivity implements SettingsView {
+public class SettingsActivity extends AppCompatActivity implements ISettingsView {
     public static final int REQUEST_SETTINGS = 111;
     private UtopiaLauncher app;
     private Intent intent = null;
