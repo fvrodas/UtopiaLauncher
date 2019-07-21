@@ -4,7 +4,9 @@
     <string name="btOK">OK</string>
     <string name="NumberPickerDialogTitle">Columns</string>
     <string name="menu_wallpaper">Wallpaper</string>
+    <string name="summary_wallpaper">Change your wallpaper</string>
     <string name="menu_columns">Columns</string>
+    <string name="summary_columns">Number of columns</string>
     <string name="menu_about">About</string>
     <string name="menu_uninstall">Uninstall</string>
     <string name="menu_pin_to_dock">Pin to Dock</string>
@@ -19,5 +21,10 @@
     <string-array name="dock_gravity">
         <item>Left</item>
         <item>Right</item>
+    </string-array>
+    <string-array name="number_columns">
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
     </string-array>
 </resources>

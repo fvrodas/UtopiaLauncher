@@ -40,6 +40,11 @@ public class AppsPresenter extends BasePresenter<IAppsView> {
         mView.get().onIntReadFromSettings(key, value);
     }
 
+    public void readIntStrFromSettings(String key, String defaultValue) {
+        String value = mApp.launcherSettings.getString(key, defaultValue);
+        mView.get().onIntReadFromSettings(key, Integer.valueOf(value));
+    }
+
     public void readPersistentDockList() {
         String json = mApp.launcherSettings.getString(UtopiaLauncher.DOCK, null);
         if (json != null) {

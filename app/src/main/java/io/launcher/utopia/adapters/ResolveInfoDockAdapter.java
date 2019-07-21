@@ -4,10 +4,13 @@ import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import io.launcher.utopia.R;
 import io.launcher.utopia.presenters.ShortcutPresenter;
 import io.launcher.utopia.ui.IDockItem;

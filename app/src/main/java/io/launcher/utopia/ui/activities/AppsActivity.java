@@ -76,7 +76,7 @@ public class AppsActivity extends AppCompatActivity implements IAppsView, IDockI
 
         app.observable.addObserver(this);
 
-        mPresenter.readIntFromSettings(COLUMNS_SETTINGS, 4);
+        mPresenter.readIntStrFromSettings(COLUMNS_SETTINGS, "4");
         mPresenter.readIntFromSettings(GRAVITY_SETTINGS, GravityCompat.END);
 
         SearchView svSearch = findViewById(R.id.svSearch);
@@ -172,7 +172,7 @@ public class AppsActivity extends AppCompatActivity implements IAppsView, IDockI
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == AppCompatActivity.RESULT_OK) {
             if (requestCode == REQUEST_SETTINGS) {
-                mPresenter.readIntFromSettings(COLUMNS_SETTINGS, 4);
+                mPresenter.readIntStrFromSettings(COLUMNS_SETTINGS, "4");
                 mPresenter.readIntFromSettings(GRAVITY_SETTINGS, GravityCompat.END);
             }
             if (requestCode == REQUEST_UNINSTALL) {

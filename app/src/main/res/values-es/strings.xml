@@ -3,8 +3,10 @@
     <string name="settings_activity">Ajustes del Launcher</string>
     <string name="btOK">Aceptar</string>
     <string name="NumberPickerDialogTitle">Columnas</string>
-    <string name="menu_wallpaper">Fondo de Pantalla</string>
+    <string name="menu_wallpaper">Fondo de pantalla</string>
+    <string name="summary_wallpaper">Cambia tu fondo de pantalla</string>
     <string name="menu_columns">Columnas</string>
+    <string name="summary_columns">Numero de columnas</string>
     <string name="menu_about">Acerca de</string>
     <string name="menu_uninstall">Desinstalar</string>
     <string name="menu_pin_to_dock">Agregar como Favorito</string>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceScreen
+        android:summary="@string/summary_wallpaper"
+        android:title="@string/menu_wallpaper">
+
+        <intent android:action="android.intent.action.SET_WALLPAPER" />
+
+    </PreferenceScreen>
+
+    <ListPreference
+        android:entries="@array/number_columns"
+        android:entryValues="@array/number_columns"
+        android:key="columns"
+        android:title="@string/menu_columns"
+        android:summary="@string/summary_columns"
+        android:defaultValue="1"/>
+
+    <PreferenceScreen
+        android:title="@string/menu_about">
+    </PreferenceScreen>
+
+</PreferenceScreen>
