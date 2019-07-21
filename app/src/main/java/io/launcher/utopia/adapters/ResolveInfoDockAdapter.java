@@ -41,8 +41,10 @@ public class ResolveInfoDockAdapter extends RecyclerView.Adapter<ShortcutViewHol
     }
 
     public void addItem(ActivityInfo app) {
-        int added = mPresenter.append(app);
-        notifyItemInserted(added);
+        if (getItemCount() < 5) {
+            int added = mPresenter.append(app);
+            notifyItemInserted(added);
+        }
     }
 
     @Override

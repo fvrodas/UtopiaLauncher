@@ -1,65 +1,90 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.drawerlayout.widget.DrawerLayout
-    android:id="@+id/drawer_layout"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:animateLayoutChanges="true"
+    android:id="@+id/rootView"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <RelativeLayout
-        android:id="@+id/rootView"
-        android:background="@color/app_list_black"
+    android:layout_height="match_parent"
+    android:paddingTop="@dimen/topPadding"
+    android:animateLayoutChanges="true"
+    tools:context=".ui.activities.AppsActivity">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:background="@android:color/transparent">
+
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed">
+
+           <androidx.appcompat.widget.LinearLayoutCompat
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:gravity="center"
+               android:orientation="horizontal"
+               android:background="@drawable/et_search_bg"
+               android:layout_margin="16dp"
+               android:weightSum="1">
+               <androidx.appcompat.widget.SearchView
+                   android:id="@+id/svSearch"
+                   android:layout_width="0dp"
+                   android:layout_weight="0.9"
+                   android:layout_height="?attr/actionBarSize"
+                   android:layout_gravity="center_horizontal|bottom"
+                   android:theme="@style/Base.ThemeOverlay.AppCompat.Light"
+                   app:iconifiedByDefault="false"
+                   app:layout_collapseMode="parallax"
+                   app:queryHint="@string/apps_sv_hint" />
+               <androidx.appcompat.widget.AppCompatImageView
+                   android:id="@+id/ivSettings"
+                   android:layout_width="0dp"
+                   android:layout_weight="0.1"
+                   android:layout_marginEnd="@dimen/activity_vertical_margin"
+                   android:layout_height="match_parent"
+                   app:tint="@color/cardview_dark_background"
+                   app:srcCompat="@drawable/ic_settings"/>
+           </androidx.appcompat.widget.LinearLayoutCompat>
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/srlShortcut"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingTop="@dimen/topPadding"
-        android:focusableInTouchMode="true"
-        tools:context=".ui.activities.AppsActivity">
-        <com.google.android.material.appbar.AppBarLayout
-            android:id="@+id/appBar"
-            android:background="@android:color/transparent"
-            android:layout_width="match_parent"
-            android:layout_alignParentTop="true"
-            android:layout_height="wrap_content">
-            <com.google.android.material.appbar.CollapsingToolbarLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_scrollFlags="scroll|exitUntilCollapsed">
-                <androidx.appcompat.widget.SearchView
-                    android:id="@+id/svSearch"
-                    android:layout_width="match_parent"
-                    app:layout_collapseMode="parallax"
-                    android:layout_height="?attr/actionBarSize"
-                    android:layout_gravity="center_horizontal|bottom"
-                    android:theme="@style/Base.ThemeOverlay.AppCompat.Light"
-                    android:layout_margin="16dp"
-                    android:background="@drawable/et_search_bg"
-                    app:iconifiedByDefault="false"
-                    app:queryHint="@string/apps_sv_hint" />
-            </com.google.android.material.appbar.CollapsingToolbarLayout>
+        android:layout_above="@id/dockContainer"
+        android:layout_below="@id/appBar"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 
-        </com.google.android.material.appbar.AppBarLayout>
-        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-            android:id="@+id/srlShortcut"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvAppList"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/appBar"
-            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvAppList"
-                android:layout_width="match_parent"
-                android:requiresFadingEdge="vertical"
-                android:layout_height="match_parent"
-                android:layout_alignBottom="@+id/lnOptions"
-                android:layout_below="@+id/svSearch"
-                app:fastScrollEnabled="true"
-                app:fastScrollHorizontalThumbDrawable="@drawable/thumb_selector"
-                app:fastScrollVerticalThumbDrawable="@drawable/thumb_selector"
-                app:fastScrollHorizontalTrackDrawable="@drawable/line_selector"
-                app:fastScrollVerticalTrackDrawable="@drawable/line_selector"/>
-        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+            android:layout_below="@+id/svSearch"
+            android:layout_alignBottom="@+id/lnOptions"
+            android:requiresFadingEdge="vertical"
+            app:fastScrollEnabled="true"
+            app:fastScrollHorizontalThumbDrawable="@drawable/thumb_selector"
+            app:fastScrollHorizontalTrackDrawable="@drawable/line_selector"
+            app:fastScrollVerticalThumbDrawable="@drawable/thumb_selector"
+            app:fastScrollVerticalTrackDrawable="@drawable/line_selector" />
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+    <LinearLayout
+        android:id="@+id/dockContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/includeDock"
+            android:layout_width="wrap_content"
+            android:layout_height="96dp" />
+    </LinearLayout>
 
-    </RelativeLayout>
-    <include layout="@layout/include_dock"/>
-</androidx.drawerlayout.widget.DrawerLayout>
+</RelativeLayout>
 

@@ -14,7 +14,7 @@
         android:key="columns"
         android:title="@string/menu_columns"
         android:summary="@string/summary_columns"
-        android:defaultValue="1"/>
+        android:defaultValue="4"/>
 
     <PreferenceScreen
         android:title="@string/menu_about">
