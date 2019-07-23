@@ -2,9 +2,9 @@ package io.launcher.utopia.presenters;
 
 import java.lang.ref.WeakReference;
 
-import io.launcher.utopia.views.BaseView;
+import io.launcher.utopia.views.IView;
 
-public class BasePresenter<T extends BaseView> {
+public class BasePresenter<T extends IView> {
     protected WeakReference<T> mView = null;
 
 

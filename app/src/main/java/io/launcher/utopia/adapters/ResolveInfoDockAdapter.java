@@ -4,13 +4,16 @@ import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import io.launcher.utopia.R;
 import io.launcher.utopia.presenters.ShortcutPresenter;
-import io.launcher.utopia.ui.DockItemBehavior;
+import io.launcher.utopia.ui.IDockItem;
 import io.launcher.utopia.utils.ActivityInfo;
 import io.launcher.utopia.utils.ItemTouchHelperAdapter;
 /**
@@ -38,8 +41,10 @@ public class ResolveInfoDockAdapter extends RecyclerView.Adapter<ShortcutViewHol
     }
 
     public void addItem(ActivityInfo app) {
-        int added = mPresenter.append(app);
-        notifyItemInserted(added);
+        if (getItemCount() < 5) {
+            int added = mPresenter.append(app);
+            notifyItemInserted(added);
+        }
     }
 
     @Override
@@ -53,7 +58,7 @@ public class ResolveInfoDockAdapter extends RecyclerView.Adapter<ShortcutViewHol
         if (i >= 0)notifyItemRemoved(i);
     }
 
-    public ResolveInfoDockAdapter(ArrayList<ActivityInfo> appsInfo, DockItemBehavior behavior, SharedPreferences prefs) {
+    public ResolveInfoDockAdapter(ArrayList<ActivityInfo> appsInfo, IDockItem behavior, SharedPreferences prefs) {
         mPresenter = new ShortcutPresenter(appsInfo, behavior, prefs);
     }
 
