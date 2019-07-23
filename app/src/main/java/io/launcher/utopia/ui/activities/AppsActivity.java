@@ -4,13 +4,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.MenuItem;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.SearchView;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -39,6 +44,7 @@ import io.launcher.utopia.utils.Tools;
 import io.launcher.utopia.views.IAppsView;
 
 import static io.launcher.utopia.UtopiaLauncher.COLUMNS_SETTINGS;
+import static io.launcher.utopia.UtopiaLauncher.GRAVITY_SETTINGS;
 import static io.launcher.utopia.ui.activities.SettingsActivity.REQUEST_SETTINGS;
 
 public class AppsActivity extends AppCompatActivity implements IAppsView, IDockItem, SearchView.OnQueryTextListener, Observer {
@@ -51,6 +57,8 @@ public class AppsActivity extends AppCompatActivity implements IAppsView, IDockI
     private SwipeRefreshLayout mSwipeLayout;
     private AppsPresenter mPresenter;
     private Integer columns = null;
+    private Integer gravity = null;
+    private DrawerLayout mDrawerLayout;
 
 
     @Override
@@ -61,6 +69,7 @@ public class AppsActivity extends AppCompatActivity implements IAppsView, IDockI
         rvAppList = findViewById(R.id.rvAppList);
         mSwipeLayout = findViewById(R.id.srlShortcut);
         mSwipeLayout.setEnabled(false);
+        mDrawerLayout = findViewById(R.id.drawer_layout);
 
         mPresenter = new AppsPresenter(app, helper);
         mPresenter.attachView(this);
@@ -68,6 +77,36 @@ public class AppsActivity extends AppCompatActivity implements IAppsView, IDockI
         app.observable.addObserver(this);
 
         mPresenter.readIntStrFromSettings(COLUMNS_SETTINGS, "4");
+        mPresenter.readIntFromSettings(GRAVITY_SETTINGS, GravityCompat.END);
+
+        mDrawerLayout.addDrawerListener(new DrawerLayout.DrawerListener() {
+            @Override
+            public void onDrawerSlide(@NonNull View drawerView, float slideOffset) {
+                float dp = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 80, getResources().getDisplayMetrics());
+                float moveFactor = (dp * slideOffset);
+                if (gravity == GravityCompat.END) {
+                    (findViewById(R.id.rootView)).setTranslationX(-moveFactor);
+                } else {
+                    (findViewById(R.id.rootView)).setTranslationX(moveFactor);
+                }
+            }
+
+            @Override
+            public void onDrawerOpened(@NonNull View drawerView) {
+
+            }
+
+            @Override
+            public void onDrawerClosed(@NonNull View drawerView) {
+
+            }
+
+            @Override
+            public void onDrawerStateChanged(int newState) {
+
+            }
+        });
+
 
         SearchView svSearch = findViewById(R.id.svSearch);
 
@@ -85,12 +124,13 @@ public class AppsActivity extends AppCompatActivity implements IAppsView, IDockI
 
         //region Dock Initialisation
         RecyclerView navigationView = findViewById(R.id.includeDock);
-        LinearLayoutManager llm = new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false);
+        LinearLayoutManager llm = new LinearLayoutManager(this, RecyclerView.VERTICAL, true);
+        llm.setStackFromEnd(false);
         navigationView.setLayoutManager(llm);
 
         dockAdapter = new ResolveInfoDockAdapter(new ArrayList<ActivityInfo>(), this, app.launcherSettings);
         navigationView.setAdapter(dockAdapter);
-        navigationView.addItemDecoration(new SpaceItemDecoration(16));
+        navigationView.addItemDecoration(new SpaceItemDecoration(8));
 
         ItemTouchHelper.Callback callback =
                 new SimpleItemTouchHelperCallback(dockAdapter);
@@ -121,7 +161,9 @@ public class AppsActivity extends AppCompatActivity implements IAppsView, IDockI
 
     @Override
     public void onBackPressed() {
-
+        if (mDrawerLayout.isDrawerOpen(findViewById(R.id.drawer_layout))) {
+            mDrawerLayout.closeDrawers();
+        }
     }
 
     @Override
@@ -130,6 +172,7 @@ public class AppsActivity extends AppCompatActivity implements IAppsView, IDockI
         if (resultCode == AppCompatActivity.RESULT_OK) {
             if (requestCode == REQUEST_SETTINGS) {
                 mPresenter.readIntStrFromSettings(COLUMNS_SETTINGS, "4");
+                mPresenter.readIntFromSettings(GRAVITY_SETTINGS, GravityCompat.END);
             }
             if (requestCode == REQUEST_UNINSTALL) {
                 mPresenter.retrieveApplicationsList(getPackageManager());
@@ -163,6 +206,13 @@ public class AppsActivity extends AppCompatActivity implements IAppsView, IDockI
                     } else {
                         dockAdapter.addItem(adapter.getAppSelected());
                         adapter.setAppSelected(null);
+                        mDrawerLayout.openDrawer(gravity);
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                mDrawerLayout.closeDrawers();
+                            }
+                        }, 500);
                     }
                     break;
                 }
@@ -181,7 +231,7 @@ public class AppsActivity extends AppCompatActivity implements IAppsView, IDockI
     @Override
     public void update(Observable o, Object arg) {
         if (BuildConfig.DEBUG) Log.d(getClass().getCanonicalName(), "Received");
-        IntentObservable obs =(IntentObservable) o;
+        IntentObservable obs = (IntentObservable) o;
         Intent intent = obs.getI();
         String pkg = Objects.requireNonNull(intent.getData()).toString().replace("package:", "");
         mPresenter.removeFromIconCache(pkg);
@@ -205,7 +255,7 @@ public class AppsActivity extends AppCompatActivity implements IAppsView, IDockI
     }
 
     @Override
-    public void populateApplicationsList(final ArrayList<ActivityInfo> apps){
+    public void populateApplicationsList(final ArrayList<ActivityInfo> apps) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -228,8 +278,12 @@ public class AppsActivity extends AppCompatActivity implements IAppsView, IDockI
                 columns = value;
                 break;
             }
+            case GRAVITY_SETTINGS: {
+                gravity = value;
+                break;
+            }
         }
-        if (columns != null) {
+        if (columns != null && gravity != null) {
             GridLayoutManager layoutManager =
                     new GridLayoutManager(this, columns);
             rvAppList.setLayoutManager(layoutManager);
@@ -241,6 +295,20 @@ public class AppsActivity extends AppCompatActivity implements IAppsView, IDockI
                 rvAppList.setAdapter(adapter);
                 rvAppList.setItemViewCacheSize(100);
             }
+            changeDockGravity(gravity);
+        }
+    }
+
+    public void changeDockGravity(int gravity) {
+        try {
+            View drawer = findViewById(R.id.drawer_layout);
+            DrawerLayout.LayoutParams params = (DrawerLayout.LayoutParams) drawer.getLayoutParams();
+            params.gravity = gravity;
+            drawer.setLayoutParams(params);
+            drawer.requestLayout();
+            mDrawerLayout.closeDrawer(gravity);
+        } catch (RuntimeException ex) {
+            if (BuildConfig.DEBUG) ex.printStackTrace();
         }
     }
 
@@ -261,6 +329,7 @@ public class AppsActivity extends AppCompatActivity implements IAppsView, IDockI
 
     @Override
     public void onAppPressed(ActivityInfo app) {
+        if (mDrawerLayout.isDrawerOpen(gravity)) mDrawerLayout.closeDrawers();
         openActivity(app);
     }
 
