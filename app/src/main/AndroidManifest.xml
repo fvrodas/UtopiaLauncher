@@ -46,6 +46,7 @@
             android:autoRemoveFromRecents="true"
             android:theme="@style/AppTheme.Settings">
         </activity>
+
         <service android:name=".services.UtopiaService" android:enabled="true" />
         <meta-data
             android:name="io.fabric.ApiKey"

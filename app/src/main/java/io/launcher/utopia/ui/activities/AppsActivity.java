@@ -77,7 +77,7 @@ public class AppsActivity extends AppCompatActivity implements IAppsView, IDockI
         app.observable.addObserver(this);
 
         mPresenter.readIntStrFromSettings(COLUMNS_SETTINGS, "4");
-        mPresenter.readIntFromSettings(GRAVITY_SETTINGS, GravityCompat.END);
+        mPresenter.readIntStrFromSettings(GRAVITY_SETTINGS, Integer.toString(GravityCompat.END));
 
         mDrawerLayout.addDrawerListener(new DrawerLayout.DrawerListener() {
             @Override
@@ -161,7 +161,7 @@ public class AppsActivity extends AppCompatActivity implements IAppsView, IDockI
 
     @Override
     public void onBackPressed() {
-        if (mDrawerLayout.isDrawerOpen(findViewById(R.id.drawer_layout))) {
+        if (mDrawerLayout.isDrawerOpen(findViewById(R.id.includeDock))) {
             mDrawerLayout.closeDrawers();
         }
     }
@@ -172,7 +172,7 @@ public class AppsActivity extends AppCompatActivity implements IAppsView, IDockI
         if (resultCode == AppCompatActivity.RESULT_OK) {
             if (requestCode == REQUEST_SETTINGS) {
                 mPresenter.readIntStrFromSettings(COLUMNS_SETTINGS, "4");
-                mPresenter.readIntFromSettings(GRAVITY_SETTINGS, GravityCompat.END);
+                mPresenter.readIntStrFromSettings(GRAVITY_SETTINGS, Integer.toString(GravityCompat.END));
             }
             if (requestCode == REQUEST_UNINSTALL) {
                 mPresenter.retrieveApplicationsList(getPackageManager());
@@ -301,12 +301,13 @@ public class AppsActivity extends AppCompatActivity implements IAppsView, IDockI
 
     public void changeDockGravity(int gravity) {
         try {
-            View drawer = findViewById(R.id.drawer_layout);
+            View drawer = findViewById(R.id.includeDock);
             DrawerLayout.LayoutParams params = (DrawerLayout.LayoutParams) drawer.getLayoutParams();
             params.gravity = gravity;
             drawer.setLayoutParams(params);
             drawer.requestLayout();
             mDrawerLayout.closeDrawer(gravity);
+            this.gravity = gravity;
         } catch (RuntimeException ex) {
             if (BuildConfig.DEBUG) ex.printStackTrace();
         }

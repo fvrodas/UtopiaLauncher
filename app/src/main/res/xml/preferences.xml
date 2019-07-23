@@ -1,23 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <PreferenceScreen
-        android:summary="@string/summary_wallpaper"
-        android:title="@string/menu_wallpaper">
+    <PreferenceCategory>
+        <PreferenceScreen
+            android:summary="@string/summary_wallpaper"
+            android:title="@string/menu_wallpaper">
+            <intent android:action="android.intent.action.SET_WALLPAPER" />
+        </PreferenceScreen>
 
-        <intent android:action="android.intent.action.SET_WALLPAPER" />
+        <ListPreference
+            android:defaultValue="4"
+            android:entries="@array/number_columns"
+            android:entryValues="@array/number_columns"
+            android:key="columns"
+            android:summary="@string/summary_columns"
+            android:title="@string/menu_columns" />
 
-    </PreferenceScreen>
+        <ListPreference
+            android:defaultValue="8388613"
+            android:entries="@array/dock_gravity"
+            android:entryValues="@array/gravity_values"
+            android:key="gravity"
+            android:summary="@string/summary_dock_gravity"
+            android:title="@string/menu_dock_gravity" />
+    </PreferenceCategory>
 
-    <ListPreference
-        android:entries="@array/number_columns"
-        android:entryValues="@array/number_columns"
-        android:key="columns"
-        android:title="@string/menu_columns"
-        android:summary="@string/summary_columns"
-        android:defaultValue="4"/>
+    <PreferenceCategory android:title="@string/menu_about">
+        <PreferenceScreen
+            android:divider="@android:drawable/divider_horizontal_dark"
+            android:summary="@string/about_github_url"
+            android:title="@string/about_neutral">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="@string/about_github_url" />
+        </PreferenceScreen>
 
-    <PreferenceScreen
-        android:title="@string/menu_about">
-    </PreferenceScreen>
+        <PreferenceScreen
+            android:selectable="false"
+            android:summary="@string/versionName"
+            android:title="@string/app_name" />
+    </PreferenceCategory>
+
 
 </PreferenceScreen>
