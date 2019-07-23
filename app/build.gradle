@@ -45,17 +45,19 @@ android {
         alpha {
             applicationId "io.launcher.utopia"
             versionName version + "-alpha (${getCommit()})"
-
+            resValue "string", "versionName", versionName
         }
 
         beta {
             applicationId "io.launcher.utopia"
             versionName version + "-beta (${getCommit()})"
+            resValue "string", "versionName", versionName
         }
 
         playstore {
             applicationId "io.launcher.utopia"
             versionName version + " (${getCommit()})"
+            resValue "string", "versionName", versionName
         }
     }
 
@@ -74,7 +76,9 @@ dependencies {
     implementation "androidx.appcompat:appcompat:$AndroidXVersion"
     implementation "androidx.recyclerview:recyclerview:$AndroidXVersion"
     implementation "androidx.palette:palette:$AndroidXVersion"
+    implementation "androidx.preference:preference:$AndroidXVersion"
     implementation "com.google.android.material:material:$AndroidXVersion"
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0-alpha4', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })

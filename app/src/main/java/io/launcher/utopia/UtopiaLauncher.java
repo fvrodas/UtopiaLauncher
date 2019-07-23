@@ -6,8 +6,10 @@ import android.graphics.Bitmap;
 
 import androidx.annotation.NonNull;
 import androidx.collection.LruCache;
+import androidx.preference.PreferenceManager;
 
 import com.crashlytics.android.Crashlytics;
+
 import io.fabric.sdk.android.Fabric;
 import io.launcher.utopia.utils.IntentObservable;
 
@@ -17,7 +19,7 @@ import io.launcher.utopia.utils.IntentObservable;
 
 public class UtopiaLauncher extends Application {
     public static final String COLUMNS_SETTINGS = "columns";
-    public static final String GRAVITY_SETTINGS = "graviy";
+    public static final String GRAVITY_SETTINGS = "gravity";
     public static final String DOCK = "dock";
     private static final int cacheSize = 16 * 1024 * 1024;
     public SharedPreferences launcherSettings;
@@ -39,7 +41,7 @@ public class UtopiaLauncher extends Application {
     public void onCreate() {
         super.onCreate();
         Fabric.with(this, new Crashlytics());
-        launcherSettings = getSharedPreferences("UtopiaSettings", MODE_PRIVATE);
+        launcherSettings = PreferenceManager.getDefaultSharedPreferences(this);
         sInstance = this;
     }
 }

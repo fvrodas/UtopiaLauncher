@@ -13,14 +13,13 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import io.launcher.utopia.R;
-import io.launcher.utopia.ui.ApplicationItemBehavior;
-import io.launcher.utopia.views.AppItemView;
+import io.launcher.utopia.views.IAppItemView;
 
 /**
  * Created by fernando on 10/15/17.
  */
 
-class AppItemViewHolder extends RecyclerView.ViewHolder implements AppItemView, View.OnCreateContextMenuListener {
+class AppItemViewHolder extends RecyclerView.ViewHolder implements IAppItemView, View.OnCreateContextMenuListener {
     private final ImageView icon;
     private final TextView appName;
     private final MenuInflater menuInflater;

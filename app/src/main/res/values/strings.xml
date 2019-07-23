@@ -4,8 +4,11 @@
     <string name="btOK">OK</string>
     <string name="NumberPickerDialogTitle">Columns</string>
     <string name="menu_wallpaper">Wallpaper</string>
+    <string name="summary_wallpaper">Set wallpaper</string>
     <string name="menu_columns">Columns</string>
+    <string name="summary_columns">Set columns number</string>
     <string name="menu_about">About</string>
+    <string name="summary_about">About Utopia Launcher</string>
     <string name="menu_uninstall">Uninstall</string>
     <string name="menu_pin_to_dock">Pin to Dock</string>
     <string name="about_text">Version %s\n\n Author: fvrodas\n\n E-mail: fernandorodas@protonmail.com</string>
@@ -16,8 +19,18 @@
     <string name="apps_app_exists">Already added into the Dock</string>
     <string name="apps_msg_removed">Removed from Dock</string>
     <string name="menu_dock_gravity">Dock gravity</string>
+    <string name="summary_dock_gravity">Set dock gravity</string>
     <string-array name="dock_gravity">
         <item>Left</item>
         <item>Right</item>
+    </string-array>
+    <string-array name="number_columns">
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+    </string-array>
+    <string-array name="gravity_values">
+        <item>8388611</item>
+        <item>8388613</item>
     </string-array>
 </resources>

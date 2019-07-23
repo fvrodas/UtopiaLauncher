@@ -3,23 +3,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     tools:context=".ui.activities.SettingsActivity">
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/tbSettings"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        app:title="@string/settings_activity">
-    </androidx.appcompat.widget.Toolbar>
 
-    <com.google.android.material.navigation.NavigationView
-        android:layout_below="@+id/tbSettings"
-        android:orientation="vertical"
-        app:menu="@menu/menu_settings"
-        android:id="@+id/nvSettingsContainer"
-        android:scrollbars="vertical"
-        app:itemTextAppearance="@style/UtopiaTheme.SettingItem"
+    <!--<com.google.android.material.navigation.NavigationView-->
+        <!--android:layout_below="@+id/tbSettings"-->
+        <!--android:orientation="vertical"-->
+        <!--app:menu="@menu/menu_settings"-->
+        <!--android:id="@+id/nvSettingsContainer"-->
+        <!--android:scrollbars="vertical"-->
+        <!--app:itemTextAppearance="@style/UtopiaTheme.SettingItem"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent" />-->
+
+    <FrameLayout
+        android:id="@+id/fragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 </RelativeLayout>

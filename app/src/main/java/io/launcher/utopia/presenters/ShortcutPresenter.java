@@ -10,25 +10,25 @@ import java.util.List;
 
 import io.launcher.utopia.UtopiaLauncher;
 import io.launcher.utopia.threading.ImageLoaderTask;
-import io.launcher.utopia.ui.DockItemBehavior;
+import io.launcher.utopia.ui.IDockItem;
 import io.launcher.utopia.utils.ActivityInfo;
 import io.launcher.utopia.utils.SerializeHelper;
-import io.launcher.utopia.views.ShortcutView;
+import io.launcher.utopia.views.IShortcutView;
 
-public class ShortcutPresenter extends BasePresenter<ShortcutView> {
+public class ShortcutPresenter extends BasePresenter<IShortcutView> {
     private final ArrayList<ActivityInfo> mItems;
     private final SerializeHelper<ArrayList<ActivityInfo>> mHelper = new SerializeHelper<>();
-    private DockItemBehavior mListener;
+    private IDockItem mListener;
     private SharedPreferences mPrefs;
 
-    public ShortcutPresenter(ArrayList<ActivityInfo> mItems, DockItemBehavior mListener, SharedPreferences prefs) {
+    public ShortcutPresenter(ArrayList<ActivityInfo> mItems, IDockItem mListener, SharedPreferences prefs) {
         this.mItems = mItems;
         this.mListener = mListener;
         this.mPrefs = prefs;
     }
 
     @Override
-    public void attachView(final ShortcutView view) {
+    public void attachView(final IShortcutView view) {
         super.attachView(view);
         final ActivityInfo current = mItems.get(view.getAdapterPosition());
         final String packageName = current.getPackageName();
@@ -106,7 +106,7 @@ public class ShortcutPresenter extends BasePresenter<ShortcutView> {
         }
     }
 
-    public void detach(ShortcutView view) {
+    public void detach(IShortcutView view) {
         view.clear();
         mView = null;
     }

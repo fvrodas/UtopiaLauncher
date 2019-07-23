@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
+import android.os.Bundle;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,9 +17,9 @@ import io.launcher.utopia.UtopiaLauncher;
 import io.launcher.utopia.utils.ActivityInfo;
 import io.launcher.utopia.utils.SerializeHelper;
 import io.launcher.utopia.utils.Tools;
-import io.launcher.utopia.views.AppsView;
+import io.launcher.utopia.views.IAppsView;
 
-public class AppsPresenter extends BasePresenter<AppsView> {
+public class AppsPresenter extends BasePresenter<IAppsView> {
     private UtopiaLauncher mApp;
     private SerializeHelper<ArrayList<ActivityInfo>> mHelper;
 
@@ -37,6 +38,11 @@ public class AppsPresenter extends BasePresenter<AppsView> {
     public void readIntFromSettings(String key, int defaultValue) {
         int value = mApp.launcherSettings.getInt(key, defaultValue);
         mView.get().onIntReadFromSettings(key, value);
+    }
+
+    public void readIntStrFromSettings(String key, String defaultValue) {
+        String value = mApp.launcherSettings.getString(key, defaultValue);
+        mView.get().onIntReadFromSettings(key, Integer.valueOf(value));
     }
 
     public void readPersistentDockList() {
@@ -63,6 +69,25 @@ public class AppsPresenter extends BasePresenter<AppsView> {
         }
     }
 
+    public void retrieveApplicationsList(Bundle savedState, PackageManager pm) {
+        if (savedState != null && savedState.getSerializable(AppItemPresenter.STATE_APPS) != null) {
+            final ArrayList<ActivityInfo> apps =
+                    (ArrayList<ActivityInfo>) savedState.getSerializable(AppItemPresenter.STATE_APPS);
+
+            Collections.sort(apps, new Comparator<ActivityInfo>() {
+                @Override
+                public int compare(ActivityInfo appInfo, ActivityInfo t1) {
+                    return appInfo.getLabel().toLowerCase()
+                            .compareTo(t1.getLabel().toLowerCase());
+                }
+            });
+
+            mView.get().populateApplicationsList(apps);
+        } else {
+            retrieveApplicationsList(pm);
+        }
+    }
+
     public void retrieveApplicationsList(final PackageManager pm) {
         mView.get().showProgress(true);
         new Thread(new Runnable() {
@@ -85,7 +110,7 @@ public class AppsPresenter extends BasePresenter<AppsView> {
                                         item.activityInfo.packageName,
                                         Tools.createIcon(mApp.getApplicationContext(),
                                                 Tools.getBitmapFromDrawable(
-                                                        item.loadIcon(pm),
+                                                        item.activityInfo.loadIcon(pm),
                                                         Bitmap.Config.ARGB_8888
                                                 )
                                         )

@@ -8,7 +8,6 @@ import android.widget.ImageView;
 import java.lang.ref.WeakReference;
 
 import io.launcher.utopia.UtopiaLauncher;
-import io.launcher.utopia.utils.Tools;
 
 public class ImageLoaderTask extends AsyncTask<Object, Void, Bitmap> {
     private final WeakReference<ImageView> mImageView;

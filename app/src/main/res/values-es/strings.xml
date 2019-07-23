@@ -3,8 +3,10 @@
     <string name="settings_activity">Ajustes del Launcher</string>
     <string name="btOK">Aceptar</string>
     <string name="NumberPickerDialogTitle">Columnas</string>
-    <string name="menu_wallpaper">Fondo de Pantalla</string>
+    <string name="menu_wallpaper">Fondo de pantalla</string>
+    <string name="summary_wallpaper">Cambiar fondo de pantalla</string>
     <string name="menu_columns">Columnas</string>
+    <string name="summary_columns">Cambiar número de columnas</string>
     <string name="menu_about">Acerca de</string>
     <string name="menu_uninstall">Desinstalar</string>
     <string name="menu_pin_to_dock">Agregar como Favorito</string>
@@ -14,9 +16,11 @@
     <string name="apps_sv_hint">Busca una aplicación</string>
     <string name="apps_app_exists">Ya fue agregado como Favorito</string>
     <string name="apps_msg_removed">Eliminado de Favoritos</string>
-    <string name="menu_dock_gravity">Alineación del Dock</string>
+    <string name="menu_dock_gravity">Alineación</string>
     <string-array name="dock_gravity">
         <item>Izquierda</item>
         <item>Derecha</item>
     </string-array>
+    <string name="summary_dock_gravity">Alineación de la barra de Favoritos</string>
+    <string name="summary_about">Acerca de Utopia Launcher</string>
 </resources>

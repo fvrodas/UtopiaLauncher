@@ -34,31 +34,31 @@ import io.launcher.utopia.adapters.ResolveInfoAdapter;
 import io.launcher.utopia.adapters.ResolveInfoDockAdapter;
 import io.launcher.utopia.presenters.AppsPresenter;
 import io.launcher.utopia.services.UtopiaService;
-import io.launcher.utopia.ui.DockItemBehavior;
+import io.launcher.utopia.ui.IDockItem;
 import io.launcher.utopia.utils.ActivityInfo;
 import io.launcher.utopia.utils.IntentObservable;
 import io.launcher.utopia.utils.SerializeHelper;
 import io.launcher.utopia.utils.SimpleItemTouchHelperCallback;
 import io.launcher.utopia.utils.SpaceItemDecoration;
 import io.launcher.utopia.utils.Tools;
-import io.launcher.utopia.views.AppsView;
+import io.launcher.utopia.views.IAppsView;
 
 import static io.launcher.utopia.UtopiaLauncher.COLUMNS_SETTINGS;
 import static io.launcher.utopia.UtopiaLauncher.GRAVITY_SETTINGS;
 import static io.launcher.utopia.ui.activities.SettingsActivity.REQUEST_SETTINGS;
 
-public class AppsActivity extends AppCompatActivity implements AppsView, DockItemBehavior, SearchView.OnQueryTextListener, Observer {
+public class AppsActivity extends AppCompatActivity implements IAppsView, IDockItem, SearchView.OnQueryTextListener, Observer {
     private static final int REQUEST_UNINSTALL = 7686;
     private UtopiaLauncher app = null;
     private ResolveInfoAdapter adapter = null;
     private ResolveInfoDockAdapter dockAdapter = null;
     private RecyclerView rvAppList;
-    private DrawerLayout mDrawerLayout;
     private final SerializeHelper<ArrayList<ActivityInfo>> helper = new SerializeHelper<>();
     private SwipeRefreshLayout mSwipeLayout;
     private AppsPresenter mPresenter;
-    private Integer gravity = null;
     private Integer columns = null;
+    private Integer gravity = null;
+    private DrawerLayout mDrawerLayout;
 
 
     @Override
@@ -67,31 +67,17 @@ public class AppsActivity extends AppCompatActivity implements AppsView, DockIte
         setContentView(R.layout.activity_apps);
         app = (UtopiaLauncher) getApplication();
         rvAppList = findViewById(R.id.rvAppList);
-        mDrawerLayout = findViewById(R.id.drawer_layout);
         mSwipeLayout = findViewById(R.id.srlShortcut);
         mSwipeLayout.setEnabled(false);
+        mDrawerLayout = findViewById(R.id.drawer_layout);
 
         mPresenter = new AppsPresenter(app, helper);
         mPresenter.attachView(this);
 
         app.observable.addObserver(this);
 
-        mPresenter.readIntFromSettings(COLUMNS_SETTINGS, 4);
-        mPresenter.readIntFromSettings(GRAVITY_SETTINGS, GravityCompat.END);
-
-        SearchView svSearch = findViewById(R.id.svSearch);
-
-        svSearch.setOnQueryTextListener(this);
-
-        AppCompatImageView imgButtonSettings = findViewById(R.id.ivSettings);
-        imgButtonSettings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mDrawerLayout.closeDrawers();
-                Intent intent = new Intent(AppsActivity.this, SettingsActivity.class);
-                startActivityForResult(intent, REQUEST_SETTINGS);
-            }
-        });
+        mPresenter.readIntStrFromSettings(COLUMNS_SETTINGS, "4");
+        mPresenter.readIntStrFromSettings(GRAVITY_SETTINGS, Integer.toString(GravityCompat.END));
 
         mDrawerLayout.addDrawerListener(new DrawerLayout.DrawerListener() {
             @Override
@@ -121,10 +107,23 @@ public class AppsActivity extends AppCompatActivity implements AppsView, DockIte
             }
         });
 
-        mPresenter.retrieveApplicationsList(getPackageManager());
+
+        SearchView svSearch = findViewById(R.id.svSearch);
+
+        svSearch.setOnQueryTextListener(this);
+
+        AppCompatImageView imgButtonSettings = findViewById(R.id.ivSettings);
+        imgButtonSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(AppsActivity.this, SettingsActivity.class);
+                startActivityForResult(intent, REQUEST_SETTINGS);
+            }
+        });
+        mPresenter.retrieveApplicationsList(savedInstanceState, getPackageManager());
 
         //region Dock Initialisation
-        RecyclerView navigationView = findViewById(R.id.dock);
+        RecyclerView navigationView = findViewById(R.id.includeDock);
         LinearLayoutManager llm = new LinearLayoutManager(this, RecyclerView.VERTICAL, true);
         llm.setStackFromEnd(false);
         navigationView.setLayoutManager(llm);
@@ -144,6 +143,12 @@ public class AppsActivity extends AppCompatActivity implements AppsView, DockIte
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        adapter.saveInstanceState(outState);
+    }
+
+    @Override
     public boolean onQueryTextSubmit(String query) {
         return false;
     }
@@ -156,7 +161,7 @@ public class AppsActivity extends AppCompatActivity implements AppsView, DockIte
 
     @Override
     public void onBackPressed() {
-        if (mDrawerLayout.isDrawerOpen(findViewById(R.id.clDrawer))) {
+        if (mDrawerLayout.isDrawerOpen(findViewById(R.id.includeDock))) {
             mDrawerLayout.closeDrawers();
         }
     }
@@ -166,8 +171,8 @@ public class AppsActivity extends AppCompatActivity implements AppsView, DockIte
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == AppCompatActivity.RESULT_OK) {
             if (requestCode == REQUEST_SETTINGS) {
-                mPresenter.readIntFromSettings(COLUMNS_SETTINGS, 4);
-                mPresenter.readIntFromSettings(GRAVITY_SETTINGS, GravityCompat.END);
+                mPresenter.readIntStrFromSettings(COLUMNS_SETTINGS, "4");
+                mPresenter.readIntStrFromSettings(GRAVITY_SETTINGS, Integer.toString(GravityCompat.END));
             }
             if (requestCode == REQUEST_UNINSTALL) {
                 mPresenter.retrieveApplicationsList(getPackageManager());
@@ -226,7 +231,7 @@ public class AppsActivity extends AppCompatActivity implements AppsView, DockIte
     @Override
     public void update(Observable o, Object arg) {
         if (BuildConfig.DEBUG) Log.d(getClass().getCanonicalName(), "Received");
-        IntentObservable obs =(IntentObservable) o;
+        IntentObservable obs = (IntentObservable) o;
         Intent intent = obs.getI();
         String pkg = Objects.requireNonNull(intent.getData()).toString().replace("package:", "");
         mPresenter.removeFromIconCache(pkg);
@@ -239,6 +244,8 @@ public class AppsActivity extends AppCompatActivity implements AppsView, DockIte
     private void openActivity(ActivityInfo activityInfo) {
         try {
             Intent toStart = getPackageManager().getLaunchIntentForPackage(activityInfo.getPackageName());
+            Objects.requireNonNull(toStart).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            Objects.requireNonNull(toStart).addFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
             AppsActivity.this.startActivity(toStart);
         } catch (Exception e) {
             mPresenter.removeFromIconCache(activityInfo);
@@ -248,7 +255,7 @@ public class AppsActivity extends AppCompatActivity implements AppsView, DockIte
     }
 
     @Override
-    public void populateApplicationsList(final ArrayList<ActivityInfo> apps){
+    public void populateApplicationsList(final ArrayList<ActivityInfo> apps) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -294,16 +301,18 @@ public class AppsActivity extends AppCompatActivity implements AppsView, DockIte
 
     public void changeDockGravity(int gravity) {
         try {
-            View drawer = findViewById(R.id.clDrawer);
+            View drawer = findViewById(R.id.includeDock);
             DrawerLayout.LayoutParams params = (DrawerLayout.LayoutParams) drawer.getLayoutParams();
             params.gravity = gravity;
             drawer.setLayoutParams(params);
             drawer.requestLayout();
             mDrawerLayout.closeDrawer(gravity);
+            this.gravity = gravity;
         } catch (RuntimeException ex) {
             if (BuildConfig.DEBUG) ex.printStackTrace();
         }
     }
+
     @Override
     public void showMessage(String text) {
         Tools.showSnackbar(this, text);
@@ -338,6 +347,7 @@ public class AppsActivity extends AppCompatActivity implements AppsView, DockIte
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mPresenter.onDestroy();
+        // Commented to avoid Force Close
+//        mPresenter.onDestroy();
     }
 }

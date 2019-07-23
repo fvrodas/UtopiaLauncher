@@ -1,5 +1,6 @@
 package io.launcher.utopia.adapters;
 
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +13,7 @@ import java.util.List;
 
 import io.launcher.utopia.R;
 import io.launcher.utopia.presenters.AppItemPresenter;
-import io.launcher.utopia.ui.ApplicationItemBehavior;
+import io.launcher.utopia.ui.IApplicationItem;
 import io.launcher.utopia.utils.ActivityInfo;
 
 /**
@@ -28,6 +29,10 @@ public class ResolveInfoAdapter extends RecyclerView.Adapter<AppItemViewHolder> 
         notifyDataSetChanged();
     }
 
+    public void saveInstanceState(Bundle state) {
+        mPresenter.saveInstanceState(state);
+    }
+
     public void filterDataSet(String searchText) {
         mPresenter.filter(searchText);
         notifyDataSetChanged();
@@ -41,7 +46,7 @@ public class ResolveInfoAdapter extends RecyclerView.Adapter<AppItemViewHolder> 
         mPresenter.setAppSelected(app);
     }
 
-    public ResolveInfoAdapter(ArrayList<ActivityInfo> appsInfo, ApplicationItemBehavior behavior) {
+    public ResolveInfoAdapter(ArrayList<ActivityInfo> appsInfo, IApplicationItem behavior) {
         mPresenter = new AppItemPresenter(appsInfo, behavior);
     }
 

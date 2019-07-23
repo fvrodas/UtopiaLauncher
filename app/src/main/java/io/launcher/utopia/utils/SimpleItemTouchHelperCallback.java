@@ -8,12 +8,12 @@ import androidx.recyclerview.widget.RecyclerView;
 public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
 
     private final ItemTouchHelperAdapter mAdapter;
-
     private final int gravity = GravityCompat.END;
 
     public SimpleItemTouchHelperCallback(ItemTouchHelperAdapter adapter) {
         mAdapter = adapter;
     }
+
 
     @Override
     public boolean isLongPressDragEnabled() {
